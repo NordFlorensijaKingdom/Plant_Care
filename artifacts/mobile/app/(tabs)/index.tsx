@@ -17,55 +17,56 @@ import { usePlants } from "@/context/PlantContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
 
-export default function HomeScreen() {
+export default function GardenScreen() {
   const colors = useColors();
   const theme = useTheme();
   const { plants, loading } = usePlants();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const topPad = Platform.OS === "web" ? 67 : insets.top;
+  const hasWallpaper = !!theme.backgroundImage;
 
-  const topPad =
-    Platform.OS === "web" ? 67 : insets.top;
+  const headerBg = hasWallpaper
+    ? "transparent"
+    : colors.background;
 
   const content = (
-    <View style={[styles.container, { backgroundColor: theme.backgroundImage ? "transparent" : colors.background }]}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: hasWallpaper ? "transparent" : colors.background },
+      ]}
+    >
       {/* Header */}
       <View
         style={[
           styles.header,
           {
             paddingTop: topPad + 12,
-            borderBottomColor: colors.border,
-            backgroundColor: theme.backgroundImage
-              ? "transparent"
-              : colors.background,
+            borderBottomColor: hasWallpaper ? "transparent" : colors.border,
+            backgroundColor: headerBg,
           },
         ]}
       >
         <View>
           <Text style={[styles.title, { color: theme.textColor }]}>
-            My Plants
+            My Garden
           </Text>
           {plants.length > 0 && (
-            <Text
-              style={[styles.subtitle, { color: colors.mutedForeground }]}
-            >
+            <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
               {plants.length} {plants.length === 1 ? "plant" : "plants"}
             </Text>
           )}
         </View>
         <TouchableOpacity
           onPress={() => router.push("/(tabs)/add")}
-          style={[
-            styles.addButton,
-            { backgroundColor: theme.uiColor },
-          ]}
+          style={[styles.addButton, { backgroundColor: theme.uiColor }]}
         >
           <Ionicons name="add" size={22} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
 
-      {/* List */}
+      {/* Content */}
       {loading ? (
         <View style={styles.center}>
           <Ionicons name="leaf" size={40} color={colors.mutedForeground} />
@@ -76,27 +77,19 @@ export default function HomeScreen() {
       ) : plants.length === 0 ? (
         <View style={styles.center}>
           <View
-            style={[
-              styles.emptyIconWrapper,
-              { backgroundColor: colors.muted },
-            ]}
+            style={[styles.emptyIconWrapper, { backgroundColor: colors.muted }]}
           >
             <Ionicons name="leaf-outline" size={48} color={colors.mutedForeground} />
           </View>
           <Text style={[styles.emptyTitle, { color: theme.textColor }]}>
             No plants yet
           </Text>
-          <Text
-            style={[styles.emptyText, { color: colors.mutedForeground }]}
-          >
+          <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
             Add your first plant to start tracking
           </Text>
           <TouchableOpacity
             onPress={() => router.push("/(tabs)/add")}
-            style={[
-              styles.emptyButton,
-              { backgroundColor: theme.uiColor },
-            ]}
+            style={[styles.emptyButton, { backgroundColor: theme.uiColor }]}
           >
             <Ionicons name="add" size={18} color="#FFFFFF" />
             <Text style={styles.emptyButtonText}>Add Plant</Text>
@@ -115,16 +108,16 @@ export default function HomeScreen() {
             },
           ]}
           showsVerticalScrollIndicator={false}
-          scrollEnabled={plants.length > 0}
+          scrollEnabled={!!plants.length}
         />
       )}
     </View>
   );
 
-  if (theme.backgroundImage) {
+  if (hasWallpaper) {
     return (
       <ImageBackground
-        source={{ uri: theme.backgroundImage }}
+        source={{ uri: theme.backgroundImage! }}
         style={styles.bg}
         resizeMode="cover"
       >
@@ -147,10 +140,7 @@ const styles = StyleSheet.create({
     paddingBottom: 14,
     borderBottomWidth: 1,
   },
-  title: {
-    fontSize: 26,
-    fontFamily: "Inter_700Bold",
-  },
+  title: { fontSize: 26, fontFamily: "Inter_700Bold" },
   subtitle: {
     fontSize: 13,
     fontFamily: "Inter_400Regular",
@@ -163,9 +153,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  list: {
-    paddingTop: 8,
-  },
+  list: { paddingTop: 8 },
   center: {
     flex: 1,
     alignItems: "center",
@@ -181,10 +169,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 8,
   },
-  emptyTitle: {
-    fontSize: 20,
-    fontFamily: "Inter_600SemiBold",
-  },
+  emptyTitle: { fontSize: 20, fontFamily: "Inter_600SemiBold" },
   emptyText: {
     fontSize: 14,
     fontFamily: "Inter_400Regular",

@@ -21,6 +21,16 @@ export interface TimeInterval {
   unit: TimeUnit;
 }
 
+export type Recurrence = "once" | "yearly";
+
+export interface Reminder {
+  id: string;
+  title: string;
+  date: number; // ms timestamp
+  recurrence: Recurrence;
+  notificationId: string | null;
+}
+
 export interface Plant {
   id: string;
   name: string;
@@ -30,6 +40,7 @@ export interface Plant {
   mistingInterval: TimeInterval;
   notes: Note[];
   photoAlbum: string[];
+  reminders: Reminder[];
   lastWatered: number | null;
   lastMisted: number | null;
   createdAt: number;
@@ -60,29 +71,103 @@ export function getTimeRemaining(
   const nextAction = lastAction + intervalMs;
   const remaining = nextAction - Date.now();
   if (remaining <= 0) return "Overdue";
-  const totalHours = Math.floor(remaining / (3600 * 1000));
+  const totalMins = Math.floor(remaining / 60000);
+  const totalHours = Math.floor(totalMins / 60);
   const days = Math.floor(totalHours / 24);
   const hours = totalHours % 24;
   if (days > 0) return `${days}d ${hours}h`;
-  const mins = Math.floor((remaining % (3600 * 1000)) / 60000);
   if (totalHours > 0) return `${totalHours}h`;
-  return `${mins}m`;
+  return `${totalMins}m`;
 }
 
 function generateId(): string {
   return Date.now().toString() + Math.random().toString(36).substr(2, 9);
 }
 
+// ---- Notification helpers ----
+
+async function cancelNotification(id: string | null): Promise<void> {
+  if (!id || Platform.OS === "web") return;
+  try {
+    const N = await import("expo-notifications");
+    await N.cancelScheduledNotificationAsync(id);
+  } catch {
+    // ignore
+  }
+}
+
+async function scheduleCarNotification(
+  identifier: string,
+  title: string,
+  body: string,
+  triggerMs: number
+): Promise<string | null> {
+  if (Platform.OS === "web") return null;
+  if (triggerMs <= Date.now()) return null;
+  try {
+    const N = await import("expo-notifications");
+    const { status } = await N.getPermissionsAsync();
+    if (status !== "granted") return null;
+    const id = await N.scheduleNotificationAsync({
+      identifier,
+      content: { title, body },
+      trigger: { type: "date", date: new Date(triggerMs) } as any,
+    });
+    return id;
+  } catch {
+    return null;
+  }
+}
+
+async function scheduleReminderNotification(
+  plantName: string,
+  reminder: Reminder
+): Promise<string | null> {
+  if (Platform.OS === "web") return null;
+  const now = Date.now();
+  if (reminder.date <= now) return null;
+  try {
+    const N = await import("expo-notifications");
+    const { status } = await N.getPermissionsAsync();
+    if (status !== "granted") return null;
+    const id = await N.scheduleNotificationAsync({
+      identifier: `reminder-${reminder.id}`,
+      content: {
+        title: reminder.title,
+        body: `Reminder for ${plantName}`,
+      },
+      trigger: { type: "date", date: new Date(reminder.date) } as any,
+    });
+    return id;
+  } catch {
+    return null;
+  }
+}
+
+// ---- Context types ----
+
 interface PlantContextType {
   plants: Plant[];
   loading: boolean;
   addPlant: (
-    plant: Omit<
+    data: Omit<
       Plant,
-      "id" | "createdAt" | "notes" | "photoAlbum" | "lastWatered" | "lastMisted"
+      | "id"
+      | "createdAt"
+      | "notes"
+      | "photoAlbum"
+      | "reminders"
+      | "lastWatered"
+      | "lastMisted"
     >
   ) => void;
-  updatePlant: (id: string, updates: Partial<Plant>) => void;
+  editPlant: (
+    id: string,
+    data: Pick<
+      Plant,
+      "name" | "species" | "mainPhoto" | "wateringInterval" | "mistingInterval"
+    >
+  ) => void;
   deletePlant: (id: string) => void;
   waterPlant: (id: string) => void;
   mistPlant: (id: string) => void;
@@ -91,55 +176,12 @@ interface PlantContextType {
   deleteNote: (plantId: string, noteId: string) => void;
   addPhoto: (plantId: string, uri: string) => void;
   deletePhoto: (plantId: string, photoIndex: number) => void;
+  addReminder: (plantId: string, reminder: Omit<Reminder, "id" | "notificationId">) => Promise<void>;
+  deleteReminder: (plantId: string, reminderId: string) => void;
 }
 
 const PlantContext = createContext<PlantContextType | null>(null);
-
-const STORAGE_KEY = "plant_care_plants_v1";
-
-async function scheduleWateringNotification(plant: Plant): Promise<void> {
-  if (Platform.OS === "web") return;
-  try {
-    const Notifications = await import("expo-notifications");
-    const { status } = await Notifications.getPermissionsAsync();
-    if (status !== "granted") return;
-    const intervalMs = getIntervalMs(plant.wateringInterval);
-    const trigger = new Date(Date.now() + intervalMs);
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "Time to water!",
-        body: `${plant.name} needs watering`,
-        data: { plantId: plant.id, type: "watering" },
-      },
-      trigger: { type: "date", date: trigger } as any,
-      identifier: `watering-${plant.id}`,
-    });
-  } catch {
-    // Silently fail
-  }
-}
-
-async function scheduleMistingNotification(plant: Plant): Promise<void> {
-  if (Platform.OS === "web") return;
-  try {
-    const Notifications = await import("expo-notifications");
-    const { status } = await Notifications.getPermissionsAsync();
-    if (status !== "granted") return;
-    const intervalMs = getIntervalMs(plant.mistingInterval);
-    const trigger = new Date(Date.now() + intervalMs);
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "Time to mist!",
-        body: `${plant.name} needs misting`,
-        data: { plantId: plant.id, type: "misting" },
-      },
-      trigger: { type: "date", date: trigger } as any,
-      identifier: `misting-${plant.id}`,
-    });
-  } catch {
-    // Silently fail
-  }
-}
+const STORAGE_KEY = "plant_care_plants_v2";
 
 export function PlantProvider({ children }: { children: React.ReactNode }) {
   const [plants, setPlants] = useState<Plant[]>([]);
@@ -150,7 +192,8 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
       .then((raw) => {
         if (raw) {
           const parsed = JSON.parse(raw) as Plant[];
-          setPlants(parsed);
+          // Migrate: ensure reminders field exists
+          setPlants(parsed.map((p) => ({ reminders: [], ...p })));
         }
       })
       .finally(() => setLoading(false));
@@ -163,21 +206,23 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
 
   const addPlant = useCallback(
     (
-      plantData: Omit<
+      data: Omit<
         Plant,
         | "id"
         | "createdAt"
         | "notes"
         | "photoAlbum"
+        | "reminders"
         | "lastWatered"
         | "lastMisted"
       >
     ) => {
       const newPlant: Plant = {
-        ...plantData,
+        ...data,
         id: generateId(),
         notes: [],
         photoAlbum: [],
+        reminders: [],
         lastWatered: null,
         lastMisted: null,
         createdAt: Date.now(),
@@ -187,18 +232,55 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
     [plants, persist]
   );
 
-  const updatePlant = useCallback(
-    (id: string, updates: Partial<Plant>) => {
+  const editPlant = useCallback(
+    (
+      id: string,
+      data: Pick<
+        Plant,
+        "name" | "species" | "mainPhoto" | "wateringInterval" | "mistingInterval"
+      >
+    ) => {
       const updated = plants.map((p) =>
-        p.id === id ? { ...p, ...updates } : p
+        p.id === id ? { ...p, ...data } : p
       );
       persist(updated);
+      // Reschedule watering/misting notifications with new intervals
+      const plant = updated.find((p) => p.id === id);
+      if (plant) {
+        if (plant.lastWatered) {
+          const triggerMs =
+            plant.lastWatered + getIntervalMs(plant.wateringInterval);
+          scheduleCarNotification(
+            `watering-${id}`,
+            "Time to water!",
+            `${plant.name} needs watering`,
+            triggerMs
+          );
+        }
+        if (plant.lastMisted) {
+          const triggerMs =
+            plant.lastMisted + getIntervalMs(plant.mistingInterval);
+          scheduleCarNotification(
+            `misting-${id}`,
+            "Time to mist!",
+            `${plant.name} needs misting`,
+            triggerMs
+          );
+        }
+      }
     },
     [plants, persist]
   );
 
   const deletePlant = useCallback(
     (id: string) => {
+      const plant = plants.find((p) => p.id === id);
+      if (plant) {
+        // Cancel all notifications for this plant
+        cancelNotification(`watering-${id}`);
+        cancelNotification(`misting-${id}`);
+        plant.reminders.forEach((r) => cancelNotification(r.notificationId));
+      }
       persist(plants.filter((p) => p.id !== id));
     },
     [plants, persist]
@@ -209,7 +291,13 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
       const updated = plants.map((p) => {
         if (p.id !== id) return p;
         const watered = { ...p, lastWatered: Date.now() };
-        scheduleWateringNotification(watered);
+        const triggerMs = watered.lastWatered + getIntervalMs(watered.wateringInterval);
+        scheduleCarNotification(
+          `watering-${id}`,
+          "Time to water!",
+          `${watered.name} needs watering`,
+          triggerMs
+        );
         return watered;
       });
       persist(updated);
@@ -222,7 +310,13 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
       const updated = plants.map((p) => {
         if (p.id !== id) return p;
         const misted = { ...p, lastMisted: Date.now() };
-        scheduleMistingNotification(misted);
+        const triggerMs = misted.lastMisted + getIntervalMs(misted.mistingInterval);
+        scheduleCarNotification(
+          `misting-${id}`,
+          "Time to mist!",
+          `${misted.name} needs misting`,
+          triggerMs
+        );
         return misted;
       });
       persist(updated);
@@ -232,11 +326,7 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
 
   const addNote = useCallback(
     (plantId: string, text: string) => {
-      const note: Note = {
-        id: generateId(),
-        text,
-        timestamp: Date.now(),
-      };
+      const note: Note = { id: generateId(), text, timestamp: Date.now() };
       const updated = plants.map((p) =>
         p.id === plantId ? { ...p, notes: [...p.notes, note] } : p
       );
@@ -251,9 +341,7 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
         if (p.id !== plantId) return p;
         return {
           ...p,
-          notes: p.notes.map((n) =>
-            n.id === noteId ? { ...n, text } : n
-          ),
+          notes: p.notes.map((n) => (n.id === noteId ? { ...n, text } : n)),
         };
       });
       persist(updated);
@@ -297,13 +385,57 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
     [plants, persist]
   );
 
+  const addReminder = useCallback(
+    async (
+      plantId: string,
+      reminderData: Omit<Reminder, "id" | "notificationId">
+    ) => {
+      const plant = plants.find((p) => p.id === plantId);
+      if (!plant) return;
+      const newReminder: Reminder = {
+        ...reminderData,
+        id: generateId(),
+        notificationId: null,
+      };
+      // Schedule notification
+      const notifId = await scheduleReminderNotification(plant.name, newReminder);
+      newReminder.notificationId = notifId;
+
+      const updated = plants.map((p) =>
+        p.id === plantId
+          ? { ...p, reminders: [...p.reminders, newReminder] }
+          : p
+      );
+      persist(updated);
+    },
+    [plants, persist]
+  );
+
+  const deleteReminder = useCallback(
+    (plantId: string, reminderId: string) => {
+      const plant = plants.find((p) => p.id === plantId);
+      if (plant) {
+        const reminder = plant.reminders.find((r) => r.id === reminderId);
+        if (reminder?.notificationId) {
+          cancelNotification(reminder.notificationId);
+        }
+      }
+      const updated = plants.map((p) => {
+        if (p.id !== plantId) return p;
+        return { ...p, reminders: p.reminders.filter((r) => r.id !== reminderId) };
+      });
+      persist(updated);
+    },
+    [plants, persist]
+  );
+
   return (
     <PlantContext.Provider
       value={{
         plants,
         loading,
         addPlant,
-        updatePlant,
+        editPlant,
         deletePlant,
         waterPlant,
         mistPlant,
@@ -312,6 +444,8 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
         deleteNote,
         addPhoto,
         deletePhoto,
+        addReminder,
+        deleteReminder,
       }}
     >
       {children}

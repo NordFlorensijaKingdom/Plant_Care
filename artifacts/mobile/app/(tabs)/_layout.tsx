@@ -16,11 +16,11 @@ function NativeTabLayout() {
     <NativeTabs>
       <NativeTabs.Trigger name="index">
         <Icon sf={{ default: "leaf", selected: "leaf.fill" }} />
-        <Label>Plants</Label>
+        <Label>My Garden</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="add">
         <Icon sf={{ default: "plus.circle", selected: "plus.circle.fill" }} />
-        <Label>Add</Label>
+        <Label>Add Plant</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="settings">
         <Icon sf={{ default: "gearshape", selected: "gearshape.fill" }} />
@@ -39,13 +39,11 @@ function ClassicTabLayout() {
   const isWeb = Platform.OS === "web";
   const safeAreaInsets = useSafeAreaInsets();
 
-  const activeTint = theme.uiColor;
-
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: activeTint,
+        tabBarActiveTintColor: theme.uiColor,
         tabBarInactiveTintColor: colors.mutedForeground,
         tabBarStyle: {
           position: "absolute",
@@ -76,7 +74,7 @@ function ClassicTabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Plants",
+          title: "My Garden",
           tabBarIcon: ({ color }) =>
             isIOS ? (
               <SymbolView name="leaf.fill" tintColor={color} size={22} />
@@ -88,7 +86,7 @@ function ClassicTabLayout() {
       <Tabs.Screen
         name="add"
         options={{
-          title: "Add",
+          title: "Add Plant",
           tabBarIcon: ({ color }) =>
             isIOS ? (
               <SymbolView name="plus.circle.fill" tintColor={color} size={22} />

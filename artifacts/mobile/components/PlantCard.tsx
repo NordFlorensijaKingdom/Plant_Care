@@ -9,6 +9,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useColorScheme,
 } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -36,7 +37,7 @@ function WaterBar({ progress, color, trackColor }: WaterBarProps) {
   const width = useSharedValue(0);
 
   useEffect(() => {
-    width.value = withTiming(progress, { duration: 800 });
+    width.value = withTiming(progress, { duration: 900 });
   }, [progress]);
 
   const animStyle = useAnimatedStyle(() => ({
@@ -51,12 +52,8 @@ function WaterBar({ progress, color, trackColor }: WaterBarProps) {
       : color;
 
   return (
-    <View
-      style={[styles.track, { backgroundColor: trackColor }]}
-    >
-      <Animated.View
-        style={[animStyle, styles.fill, { backgroundColor: barColor }]}
-      />
+    <View style={[styles.track, { backgroundColor: trackColor }]}>
+      <Animated.View style={[animStyle, styles.fill, { backgroundColor: barColor }]} />
     </View>
   );
 }
@@ -70,18 +67,20 @@ export function PlantCard({ plant }: PlantCardProps) {
   const theme = useTheme();
   const router = useRouter();
   const { waterPlant, mistPlant } = usePlants();
+  const colorScheme = useColorScheme();
+  const hasWallpaper = !!theme.backgroundImage;
 
   const waterProgress = getProgress(plant.lastWatered, plant.wateringInterval);
   const mistProgress = getProgress(plant.lastMisted, plant.mistingInterval);
+  const waterRemaining = getTimeRemaining(plant.lastWatered, plant.wateringInterval);
+  const mistRemaining = getTimeRemaining(plant.lastMisted, plant.mistingInterval);
 
-  const waterRemaining = getTimeRemaining(
-    plant.lastWatered,
-    plant.wateringInterval
-  );
-  const mistRemaining = getTimeRemaining(
-    plant.lastMisted,
-    plant.mistingInterval
-  );
+  // Semi-transparent card when wallpaper is active
+  const cardBg = hasWallpaper
+    ? colorScheme === "dark"
+      ? "rgba(26,46,37,0.82)"
+      : "rgba(255,255,255,0.82)"
+    : colors.card;
 
   const scale = useSharedValue(1);
   const animCardStyle = useAnimatedStyle(() => ({
@@ -91,11 +90,9 @@ export function PlantCard({ plant }: PlantCardProps) {
   function handlePress() {
     router.push(`/plant/${plant.id}`);
   }
-
   function handlePressIn() {
     scale.value = 0.97;
   }
-
   function handlePressOut() {
     scale.value = 1;
   }
@@ -110,9 +107,6 @@ export function PlantCard({ plant }: PlantCardProps) {
     mistPlant(plant.id);
   }
 
-  const textColor = theme.textColor;
-  const uiColor = theme.uiColor;
-
   return (
     <Animated.View style={animCardStyle}>
       <Pressable
@@ -122,20 +116,15 @@ export function PlantCard({ plant }: PlantCardProps) {
         style={[
           styles.card,
           {
-            backgroundColor: colors.card,
-            borderColor: colors.border,
+            backgroundColor: cardBg,
+            borderColor: hasWallpaper ? "rgba(200,221,211,0.4)" : colors.border,
             shadowColor: colors.foreground,
           },
         ]}
       >
         <View style={styles.row}>
           {/* Photo */}
-          <View
-            style={[
-              styles.photoWrapper,
-              { backgroundColor: colors.muted },
-            ]}
-          >
+          <View style={[styles.photoWrapper, { backgroundColor: colors.muted }]}>
             {plant.mainPhoto ? (
               <Image
                 source={{ uri: plant.mainPhoto }}
@@ -143,20 +132,13 @@ export function PlantCard({ plant }: PlantCardProps) {
                 contentFit="cover"
               />
             ) : (
-              <Ionicons
-                name="leaf"
-                size={28}
-                color={uiColor}
-              />
+              <Ionicons name="leaf" size={28} color={theme.uiColor} />
             )}
           </View>
 
           {/* Info */}
           <View style={styles.info}>
-            <Text
-              style={[styles.name, { color: textColor }]}
-              numberOfLines={1}
-            >
+            <Text style={[styles.name, { color: theme.textColor }]} numberOfLines={1}>
               {plant.name}
             </Text>
             <Text
@@ -166,30 +148,26 @@ export function PlantCard({ plant }: PlantCardProps) {
               {plant.species}
             </Text>
 
-            {/* Watering */}
+            {/* Watering Progress */}
             <View style={styles.progressRow}>
               <Ionicons
                 name="water-outline"
                 size={12}
-                color={
-                  waterProgress >= 1 ? "#E53E3E" : uiColor
-                }
+                color={waterProgress >= 1 ? "#E53E3E" : theme.uiColor}
                 style={styles.progressIcon}
               />
               <View style={styles.progressLabelRow}>
                 <WaterBar
                   progress={waterProgress}
-                  color={uiColor}
-                  trackColor={colors.muted}
+                  color={theme.uiColor}
+                  trackColor={hasWallpaper ? "rgba(200,221,211,0.35)" : colors.muted}
                 />
                 <Text
                   style={[
                     styles.timeLabel,
                     {
                       color:
-                        waterProgress >= 1
-                          ? "#E53E3E"
-                          : colors.mutedForeground,
+                        waterProgress >= 1 ? "#E53E3E" : colors.mutedForeground,
                     },
                   ]}
                 >
@@ -198,30 +176,26 @@ export function PlantCard({ plant }: PlantCardProps) {
               </View>
             </View>
 
-            {/* Misting */}
+            {/* Misting Progress */}
             <View style={styles.progressRow}>
               <Ionicons
                 name="rainy-outline"
                 size={12}
-                color={
-                  mistProgress >= 1 ? "#E53E3E" : uiColor
-                }
+                color={mistProgress >= 1 ? "#E53E3E" : theme.uiColor}
                 style={styles.progressIcon}
               />
               <View style={styles.progressLabelRow}>
                 <WaterBar
                   progress={mistProgress}
-                  color={uiColor}
-                  trackColor={colors.muted}
+                  color={theme.uiColor}
+                  trackColor={hasWallpaper ? "rgba(200,221,211,0.35)" : colors.muted}
                 />
                 <Text
                   style={[
                     styles.timeLabel,
                     {
                       color:
-                        mistProgress >= 1
-                          ? "#E53E3E"
-                          : colors.mutedForeground,
+                        mistProgress >= 1 ? "#E53E3E" : colors.mutedForeground,
                     },
                   ]}
                 >
@@ -231,25 +205,33 @@ export function PlantCard({ plant }: PlantCardProps) {
             </View>
           </View>
 
-          {/* Actions */}
+          {/* Quick actions */}
           <View style={styles.actions}>
             <TouchableOpacity
               onPress={handleWater}
               style={[
                 styles.actionBtn,
-                { backgroundColor: uiColor + "20" },
+                {
+                  backgroundColor: hasWallpaper
+                    ? "rgba(45,106,79,0.18)"
+                    : theme.uiColor + "18",
+                },
               ]}
             >
-              <Ionicons name="water" size={18} color={uiColor} />
+              <Ionicons name="water" size={18} color={theme.uiColor} />
             </TouchableOpacity>
             <TouchableOpacity
               onPress={handleMist}
               style={[
                 styles.actionBtn,
-                { backgroundColor: uiColor + "20" },
+                {
+                  backgroundColor: hasWallpaper
+                    ? "rgba(45,106,79,0.18)"
+                    : theme.uiColor + "18",
+                },
               ]}
             >
-              <Ionicons name="rainy" size={18} color={uiColor} />
+              <Ionicons name="rainy" size={18} color={theme.uiColor} />
             </TouchableOpacity>
           </View>
         </View>
@@ -260,81 +242,51 @@ export function PlantCard({ plant }: PlantCardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 16,
+    borderRadius: 18,
     marginHorizontal: 16,
     marginVertical: 6,
     padding: 14,
     borderWidth: 1,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
+    shadowOpacity: 0.07,
     shadowRadius: 8,
     elevation: 2,
   },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
+  row: { flexDirection: "row", alignItems: "center", gap: 12 },
   photoWrapper: {
     width: 62,
     height: 62,
-    borderRadius: 14,
+    borderRadius: 16,
     overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
   },
-  photo: {
-    width: "100%",
-    height: "100%",
-  },
-  info: {
-    flex: 1,
-    gap: 3,
-  },
-  name: {
-    fontSize: 15,
-    fontFamily: "Inter_600SemiBold",
-  },
+  photo: { width: "100%", height: "100%" },
+  info: { flex: 1, gap: 3 },
+  name: { fontSize: 15, fontFamily: "Inter_600SemiBold" },
   species: {
     fontSize: 12,
     fontFamily: "Inter_400Regular",
     marginBottom: 4,
   },
-  progressRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  progressIcon: {
-    width: 14,
-  },
+  progressRow: { flexDirection: "row", alignItems: "center", gap: 4 },
+  progressIcon: { width: 14 },
   progressLabelRow: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
   },
-  track: {
-    flex: 1,
-    height: 5,
-    borderRadius: 99,
-    overflow: "hidden",
-  },
-  fill: {
-    height: "100%",
-    borderRadius: 99,
-  },
+  track: { flex: 1, height: 5, borderRadius: 99, overflow: "hidden" },
+  fill: { height: "100%", borderRadius: 99 },
   timeLabel: {
     fontSize: 10,
     fontFamily: "Inter_500Medium",
     minWidth: 32,
     textAlign: "right",
   },
-  actions: {
-    gap: 6,
-    flexShrink: 0,
-  },
+  actions: { gap: 6, flexShrink: 0 },
   actionBtn: {
     width: 36,
     height: 36,

@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Plant Care",
-    "slug": "mobile",
+    "name": "PlantCare",
+    "slug": "plant-care",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mobile",
+    "scheme": "plant-care",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -15,16 +15,30 @@
     },
     "ios": {
       "supportsTablet": false,
+      "bundleIdentifier": "com.plantcare.app",
       "infoPlist": {
-        "NSPhotoLibraryUsageDescription": "Allow Plant Care to access your photos for plant pictures and backgrounds.",
-        "NSCameraUsageDescription": "Allow Plant Care to use your camera to take plant photos."
+        "NSPhotoLibraryUsageDescription": "Allow PlantCare to access your photos for plant pictures and backgrounds.",
+        "NSCameraUsageDescription": "Allow PlantCare to use your camera to take plant photos.",
+        "NSUserNotificationUsageDescription": "Allow PlantCare to send you watering and care reminders."
       }
     },
     "android": {
+      "package": "com.plantcare.app",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/icon.png",
+        "backgroundColor": "#1A2E25"
+      },
       "permissions": [
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE",
-        "CAMERA"
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.VIBRATE",
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "android.permission.USE_EXACT_ALARM"
       ]
     },
     "web": {
@@ -42,8 +56,16 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow Plant Care to access your photos for plant pictures and backgrounds.",
-          "cameraPermission": "Allow Plant Care to take plant photos."
+          "photosPermission": "Allow PlantCare to access your photos for plant pictures and backgrounds.",
+          "cameraPermission": "Allow PlantCare to take plant photos."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#2D6A4F",
+          "sounds": []
         }
       ]
     ],

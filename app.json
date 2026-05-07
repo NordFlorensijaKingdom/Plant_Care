@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "df70705e-4c87-4dad-b77e-643f278b083e"
+      }
+    },
+    "android": {
+      "package": "com.nordflorensija.workspace"
+    }
+  }
+}

@@ -19,6 +19,9 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import {
+  HEALTH_STATUS_CONFIG,
+  HealthStatus,
+  PlantLog,
   Recurrence,
   getProgress,
   getTimeRemaining,
@@ -31,7 +34,7 @@ import { useColors } from "@/hooks/useColors";
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const PHOTO_SIZE = (SCREEN_WIDTH - 48) / 3;
 
-type DetailTab = "gallery" | "notes" | "reminders";
+type DetailTab = "gallery" | "notes" | "reminders" | "history";
 
 // Reminder add form component (extracted to avoid hook-in-loop issue)
 function ReminderForm({
@@ -235,6 +238,107 @@ function ReminderForm({
   );
 }
 
+function HealthLogForm({
+  onAdd,
+  onCancel,
+  uiColor,
+  colors,
+  textColor,
+}: {
+  onAdd: (status: HealthStatus, comment?: string) => void;
+  onCancel: () => void;
+  uiColor: string;
+  colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
+  textColor: string;
+}) {
+  const [status, setStatus] = useState<HealthStatus>("good");
+  const [comment, setComment] = useState("");
+
+  const inputStyle = [
+    formStyles.input,
+    { backgroundColor: colors.background, borderColor: colors.border, color: textColor },
+  ];
+
+  return (
+    <View
+      style={[
+        formStyles.form,
+        { backgroundColor: colors.card, borderColor: colors.border },
+      ]}
+    >
+      <Text style={[formStyles.formTitle, { color: textColor }]}>
+        Проверка здоровья
+      </Text>
+
+      <View style={formStyles.statusRow}>
+        {(["excellent", "good", "needs_attention", "sick"] as HealthStatus[]).map(
+          (s) => {
+            const config = HEALTH_STATUS_CONFIG[s];
+            const selected = s === status;
+            return (
+              <TouchableOpacity
+                key={s}
+                onPress={() => setStatus(s)}
+                style={[
+                  formStyles.statusChip,
+                  {
+                    borderColor: selected ? uiColor : colors.border,
+                    backgroundColor: selected ? uiColor + "18" : colors.background,
+                  },
+                ]}
+              >
+                <Ionicons
+                  name={config.icon as any}
+                  size={14}
+                  color={selected ? uiColor : config.color}
+                />
+                <Text
+                  style={[
+                    formStyles.statusChipText,
+                    { color: selected ? uiColor : textColor },
+                  ]}
+                  numberOfLines={1}
+                >
+                  {config.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          }
+        )}
+      </View>
+
+      <TextInput
+        style={[inputStyle, formStyles.healthComment]}
+        value={comment}
+        onChangeText={setComment}
+        placeholder="Комментарий (необязательно)"
+        placeholderTextColor={colors.mutedForeground}
+        multiline
+      />
+
+      <View style={formStyles.formActions}>
+        <TouchableOpacity
+          onPress={onCancel}
+          style={[formStyles.formBtn, { backgroundColor: colors.muted }]}
+        >
+          <Text style={[formStyles.formBtnText, { color: colors.mutedForeground }]}>
+            Отмена
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => onAdd(status, comment)}
+          style={[formStyles.formBtn, { backgroundColor: uiColor }]}
+        >
+          <Ionicons name="checkmark" size={15} color="#FFFFFF" />
+          <Text style={[formStyles.formBtnText, { color: "#FFFFFF" }]}>
+            Сохранить
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
 const formStyles = StyleSheet.create({
   form: {
     borderRadius: 16,
@@ -277,6 +381,18 @@ const formStyles = StyleSheet.create({
     borderRadius: 10,
   },
   formBtnText: { fontSize: 14, fontFamily: "Inter_600SemiBold" },
+  statusRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  statusChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    height: 34,
+  },
+  statusChipText: { fontSize: 13, fontFamily: "Inter_500Medium" },
+  healthComment: { height: 92, paddingTop: 10, textAlignVertical: "top" as any },
 });
 
 // ---- Main Screen ----
@@ -287,6 +403,7 @@ export default function PlantDetailScreen() {
     plants,
     waterPlant,
     mistPlant,
+    addHealthLog,
     addNote,
     updateNote,
     deleteNote,
@@ -309,6 +426,7 @@ export default function PlantDetailScreen() {
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [editingNoteText, setEditingNoteText] = useState("");
   const [showReminderForm, setShowReminderForm] = useState(false);
+  const [showHealthForm, setShowHealthForm] = useState(false);
 
   if (!plant) {
     return (
@@ -320,6 +438,9 @@ export default function PlantDetailScreen() {
       </View>
     );
   }
+
+  const plantId = plant.id;
+  const plantName = plant.name;
 
   const waterProgress = getProgress(plant.lastWatered, plant.wateringInterval);
   const mistProgress = getProgress(plant.lastMisted, plant.mistingInterval);
@@ -334,12 +455,18 @@ export default function PlantDetailScreen() {
 
   async function handleWater() {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    waterPlant(plant.id);
+    waterPlant(plantId);
   }
 
   async function handleMist() {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    mistPlant(plant.id);
+    mistPlant(plantId);
+  }
+
+  async function handleAddHealthLog(status: HealthStatus, comment?: string) {
+    addHealthLog(plantId, status, comment);
+    setShowHealthForm(false);
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   }
 
   async function handleAddPhoto() {
@@ -353,21 +480,21 @@ export default function PlantDetailScreen() {
       quality: 0.8,
     });
     if (!result.canceled && result.assets[0]) {
-      addPhoto(plant.id, result.assets[0].uri);
+      addPhoto(plantId, result.assets[0].uri);
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
   }
 
   function handleAddNote() {
     if (!newNoteText.trim()) return;
-    addNote(plant.id, newNoteText.trim());
+    addNote(plantId, newNoteText.trim());
     setNewNoteText("");
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }
 
   function saveEditNote() {
     if (!editingNoteId || !editingNoteText.trim()) return;
-    updateNote(plant.id, editingNoteId, editingNoteText.trim());
+    updateNote(plantId, editingNoteId, editingNoteText.trim());
     setEditingNoteId(null);
     setEditingNoteText("");
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -376,28 +503,28 @@ export default function PlantDetailScreen() {
   function confirmDeleteNote(noteId: string) {
     Alert.alert("Delete Note", "Remove this note?", [
       { text: "Cancel", style: "cancel" },
-      { text: "Delete", style: "destructive", onPress: () => deleteNote(plant.id, noteId) },
+      { text: "Delete", style: "destructive", onPress: () => deleteNote(plantId, noteId) },
     ]);
   }
 
   function confirmDeletePhoto(index: number) {
     Alert.alert("Delete Photo", "Remove this photo?", [
       { text: "Cancel", style: "cancel" },
-      { text: "Delete", style: "destructive", onPress: () => deletePhoto(plant.id, index) },
+      { text: "Delete", style: "destructive", onPress: () => deletePhoto(plantId, index) },
     ]);
   }
 
   function handleDeletePlant() {
     Alert.alert(
       "Delete Plant",
-      `Remove ${plant.name} from your garden? This cannot be undone.`,
+      `Remove ${plantName} from your garden? This cannot be undone.`,
       [
         { text: "Cancel", style: "cancel" },
         {
           text: "Delete",
           style: "destructive",
           onPress: () => {
-            deletePlant(plant.id);
+            deletePlant(plantId);
             router.back();
           },
         },
@@ -410,7 +537,7 @@ export default function PlantDetailScreen() {
     date: number,
     recurrence: Recurrence
   ) {
-    await addReminder(plant.id, { title, date, recurrence });
+    await addReminder(plantId, { title, date, recurrence });
     setShowReminderForm(false);
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   }
@@ -422,7 +549,7 @@ export default function PlantDetailScreen() {
         text: "Delete",
         style: "destructive",
         onPress: () => {
-          deleteReminder(plant.id, reminderId);
+          deleteReminder(plantId, reminderId);
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         },
       },
@@ -433,7 +560,12 @@ export default function PlantDetailScreen() {
     { key: "gallery", label: "Gallery", icon: "images-outline" },
     { key: "notes", label: "Notes", icon: "document-text-outline" },
     { key: "reminders", label: "Reminders", icon: "alarm-outline" },
+    { key: "history", label: "История", icon: "time-outline" },
   ];
+
+  const sortedLogs: PlantLog[] = [...(plant.logs ?? [])].sort(
+    (a, b) => b.timestamp - a.timestamp
+  );
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -627,6 +759,8 @@ export default function PlantDetailScreen() {
               ? plant.reminders.length
               : tab.key === "gallery"
               ? plant.photoAlbum.length
+              : tab.key === "history"
+              ? plant.logs.length
               : 0;
           return (
             <TouchableOpacity
@@ -842,6 +976,122 @@ export default function PlantDetailScreen() {
                 )}
               </View>
             ))
+          )}
+        </ScrollView>
+      ) : activeTab === "history" ? (
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={[
+            styles.notesContent,
+            { paddingBottom: Platform.OS === "web" ? 34 : insets.bottom + 16 },
+          ]}
+          showsVerticalScrollIndicator={false}
+        >
+          {!showHealthForm && (
+            <TouchableOpacity
+              onPress={() => setShowHealthForm(true)}
+              style={[styles.addReminderBtn, { borderColor: theme.uiColor }]}
+            >
+              <Ionicons name="heart-outline" size={18} color={theme.uiColor} />
+              <Text style={[styles.addReminderText, { color: theme.uiColor }]}>
+                Добавить проверку здоровья
+              </Text>
+            </TouchableOpacity>
+          )}
+
+          {showHealthForm && (
+            <HealthLogForm
+              onAdd={handleAddHealthLog}
+              onCancel={() => setShowHealthForm(false)}
+              uiColor={theme.uiColor}
+              colors={colors}
+              textColor={theme.textColor}
+            />
+          )}
+
+          {sortedLogs.length === 0 && !showHealthForm ? (
+            <View style={styles.emptyTab}>
+              <Ionicons name="time-outline" size={40} color={colors.mutedForeground} />
+              <Text style={[styles.emptyTabText, { color: colors.mutedForeground }]}>
+                Записей пока нет
+              </Text>
+              <Text style={[styles.emptyTabSubText, { color: colors.mutedForeground }]}>
+                Здесь будет история поливов, опрыскиваний и проверок здоровья
+              </Text>
+            </View>
+          ) : (
+            sortedLogs.map((log) => {
+              const isBad =
+                log.healthStatus === "needs_attention" || log.healthStatus === "sick";
+              const accent =
+                log.healthStatus === "sick" ? colors.destructive : colors.warning;
+              const icon =
+                log.type === "water"
+                  ? "water"
+                  : log.type === "mist"
+                  ? "rainy"
+                  : HEALTH_STATUS_CONFIG[log.healthStatus]?.icon ?? "heart";
+              const title =
+                log.type === "water"
+                  ? "Полив"
+                  : log.type === "mist"
+                  ? "Опрыскивание"
+                  : "Проверка здоровья";
+
+              return (
+                <View
+                  key={log.id}
+                  style={[
+                    styles.historyCard,
+                    {
+                      backgroundColor: effectiveCard,
+                      borderColor: isBad ? accent : colors.border,
+                    },
+                  ]}
+                >
+                  <View style={styles.historyLeft}>
+                    <View
+                      style={[
+                        styles.historyIconBg,
+                        {
+                          backgroundColor: (isBad ? accent : theme.uiColor) + "18",
+                        },
+                      ]}
+                    >
+                      <Ionicons
+                        name={icon as any}
+                        size={18}
+                        color={isBad ? accent : theme.uiColor}
+                      />
+                    </View>
+                    <View style={styles.historyInfo}>
+                      <View style={styles.historyTitleRow}>
+                        <Text style={[styles.historyTitle, { color: theme.textColor }]}>
+                          {title}
+                        </Text>
+                        <HealthBadge status={log.healthStatus} />
+                      </View>
+                      <Text style={[styles.historyDate, { color: effectiveSecondary }]}>
+                        {new Date(log.timestamp).toLocaleString(undefined, {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </Text>
+                      {!!log.comment && (
+                        <Text
+                          style={[styles.historyComment, { color: effectiveSecondary }]}
+                        >
+                          {log.comment}
+                        </Text>
+                      )}
+                    </View>
+                  </View>
+                </View>
+              );
+            })
           )}
         </ScrollView>
       ) : (
@@ -1156,4 +1406,28 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   recurrenceBadgeText: { fontSize: 11, fontFamily: "Inter_600SemiBold" },
+  historyCard: {
+    borderRadius: 14,
+    borderWidth: 1,
+    padding: 14,
+  },
+  historyLeft: { flexDirection: "row", gap: 10 },
+  historyIconBg: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+  historyInfo: { flex: 1, gap: 3 },
+  historyTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 10,
+  },
+  historyTitle: { fontSize: 14, fontFamily: "Inter_600SemiBold", flex: 1 },
+  historyDate: { fontSize: 12, fontFamily: "Inter_400Regular" },
+  historyComment: { fontSize: 12, fontFamily: "Inter_400Regular", lineHeight: 16 },
 });

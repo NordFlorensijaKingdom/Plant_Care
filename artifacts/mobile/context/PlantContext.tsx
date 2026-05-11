@@ -37,15 +37,25 @@ export const HEALTH_STATUS_CONFIG: Record<
   HealthStatus,
   { label: string; icon: string; color: string }
 > = {
-  excellent: { label: "Excellent", icon: "heart", color: "#2D6A4F" },
-  good: { label: "Good", icon: "checkmark-circle", color: "#52B788" },
+  excellent: { label: "Отлично", icon: "heart", color: "#2D6A4F" },
+  good: { label: "Хорошо", icon: "checkmark-circle", color: "#52B788" },
   needs_attention: {
-    label: "Needs Attention",
+    label: "Нужен уход",
     icon: "alert-circle",
     color: "#F4A261",
   },
-  sick: { label: "Sick", icon: "warning", color: "#E53E3E" },
+  sick: { label: "Болеет", icon: "warning", color: "#E53E3E" },
 };
+
+export type PlantLogType = "water" | "mist" | "health";
+
+export interface PlantLog {
+  id: string;
+  timestamp: number;
+  type: PlantLogType;
+  healthStatus: HealthStatus;
+  comment?: string;
+}
 
 export interface Plant {
   id: string;
@@ -57,6 +67,7 @@ export interface Plant {
   wateringEnabled: boolean;
   mistingEnabled: boolean;
   healthStatus: HealthStatus;
+  logs: PlantLog[];
   notes: Note[];
   photoAlbum: string[];
   reminders: Reminder[];
@@ -169,6 +180,7 @@ type AddPlantData = Omit<
   Plant,
   | "id"
   | "createdAt"
+  | "logs"
   | "notes"
   | "photoAlbum"
   | "reminders"
@@ -196,6 +208,7 @@ interface PlantContextType {
   deletePlant: (id: string) => void;
   waterPlant: (id: string) => void;
   mistPlant: (id: string) => void;
+  addHealthLog: (plantId: string, status: HealthStatus, comment?: string) => void;
   addNote: (plantId: string, text: string) => void;
   updateNote: (plantId: string, noteId: string, text: string) => void;
   deleteNote: (plantId: string, noteId: string) => void;
@@ -246,6 +259,7 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
       const newPlant: Plant = {
         ...data,
         id: generateId(),
+        logs: [],
         notes: [],
         photoAlbum: [],
         reminders: [],
@@ -317,7 +331,18 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
     (id: string) => {
       const updated = plants.map((p) => {
         if (p.id !== id) return p;
-        const watered = { ...p, lastWatered: Date.now() };
+        const now = Date.now();
+        const log: PlantLog = {
+          id: generateId(),
+          timestamp: now,
+          type: "water",
+          healthStatus: p.healthStatus,
+        };
+        const watered = {
+          ...p,
+          lastWatered: now,
+          logs: [...(p.logs ?? []), log],
+        };
         if (watered.wateringEnabled) {
           const triggerMs =
             watered.lastWatered! + getIntervalMs(watered.wateringInterval);
@@ -339,7 +364,14 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
     (id: string) => {
       const updated = plants.map((p) => {
         if (p.id !== id) return p;
-        const misted = { ...p, lastMisted: Date.now() };
+        const now = Date.now();
+        const log: PlantLog = {
+          id: generateId(),
+          timestamp: now,
+          type: "mist",
+          healthStatus: p.healthStatus,
+        };
+        const misted = { ...p, lastMisted: now, logs: [...(p.logs ?? []), log] };
         if (misted.mistingEnabled) {
           const triggerMs =
             misted.lastMisted! + getIntervalMs(misted.mistingInterval);
@@ -352,6 +384,26 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
         }
         return misted;
       });
+      persist(updated);
+    },
+    [plants, persist]
+  );
+
+  const addHealthLog = useCallback(
+    (plantId: string, status: HealthStatus, comment?: string) => {
+      const now = Date.now();
+      const log: PlantLog = {
+        id: generateId(),
+        timestamp: now,
+        type: "health",
+        healthStatus: status,
+        comment: comment?.trim() ? comment.trim() : undefined,
+      };
+      const updated = plants.map((p) =>
+        p.id === plantId
+          ? { ...p, healthStatus: status, logs: [...(p.logs ?? []), log] }
+          : p
+      );
       persist(updated);
     },
     [plants, persist]
@@ -476,6 +528,7 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
         deletePlant,
         waterPlant,
         mistPlant,
+        addHealthLog,
         addNote,
         updateNote,
         deleteNote,
@@ -504,5 +557,6 @@ function migrate(p: any): Plant {
     mistingEnabled: true,
     healthStatus: "good" as HealthStatus,
     ...p,
+    logs: Array.isArray(p?.logs) ? p.logs : [],
   };
 }

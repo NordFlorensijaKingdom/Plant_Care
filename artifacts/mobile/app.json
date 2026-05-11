@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "PlantCare",
-    "slug": "plant-care",
+    "name": "Plant Care",
+    "slug": "plant-care-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "plant-care",
+    "scheme": "plant-care-app",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -15,19 +15,19 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.plantcare.app",
+      "bundleIdentifier": "com.user.plantcare",
       "infoPlist": {
-        "NSPhotoLibraryUsageDescription": "Allow PlantCare to access your photos for plant pictures and backgrounds.",
-        "NSCameraUsageDescription": "Allow PlantCare to use your camera to take plant photos.",
-        "NSUserNotificationUsageDescription": "Allow PlantCare to send you watering and care reminders."
+        "NSPhotoLibraryUsageDescription": "Allow Plant Care to access your photos for plant pictures and backgrounds.",
+        "NSCameraUsageDescription": "Allow Plant Care to use your camera to take plant photos.",
+        "NSUserNotificationUsageDescription": "Allow Plant Care to send you watering and care reminders."
       }
     },
     "android": {
-      "package": "com.plantcare.app",
+      "package": "com.user.plantcare",
       "versionCode": 1,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/icon.png",
-        "backgroundColor": "#1A2E25"
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#ffffff"
       },
       "permissions": [
         "android.permission.CAMERA",
@@ -51,8 +51,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow PlantCare to access your photos for plant pictures and backgrounds.",
-          "cameraPermission": "Allow PlantCare to take plant photos."
+          "photosPermission": "Allow Plant Care to access your photos for plant pictures and backgrounds.",
+          "cameraPermission": "Allow Plant Care to take plant photos."
         }
       ],
       [

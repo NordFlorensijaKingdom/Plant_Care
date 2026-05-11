@@ -7,57 +7,95 @@ import React, {
   useState,
 } from "react";
 
-export const TEXT_COLOR_PRESETS = [
+// ---- Preset palettes ----
+
+export const PRIMARY_TEXT_PRESETS = [
   "#1A2E25",
   "#0D1B14",
-  "#FFFFFF",
-  "#F8FBF9",
   "#2D3748",
-  "#4A5568",
-  "#2D6A4F",
-  "#1A3A5C",
+  "#1A1A2E",
   "#7B3F00",
   "#5C2D52",
-  "#8B4513",
-  "#B7410E",
+  "#FFFFFF",
+  "#F8FBF9",
+  "#E2E8F0",
 ];
 
-export const UI_COLOR_PRESETS = [
+export const SECONDARY_TEXT_PRESETS = [
+  "#6B8F7A",
+  "#52735D",
+  "#718096",
+  "#94A3B8",
+  "#A0AEC0",
+  "#6B7280",
+  "#9CA3AF",
+  "#B4C5BC",
+  "#8FA89A",
+];
+
+export const ACCENT_PRESETS = [
   "#2D6A4F",
   "#52B788",
   "#40916C",
   "#1B4332",
   "#3182CE",
+  "#6366F1",
   "#805AD5",
   "#D69E2E",
   "#DD6B20",
   "#D53F8C",
   "#E53E3E",
   "#319795",
-  "#718096",
 ];
 
-interface ThemeSettings {
+export const CARD_BG_PRESETS = [
+  "#FFFFFF",
+  "#F8FBF9",
+  "#EFF6F2",
+  "#E8F4F0",
+  "#F0F4FF",
+  "#FFF8F0",
+  "#1A2E25",
+  "#0D1B14",
+  "#1E293B",
+  "#1A1A2E",
+  "#1C1C1E",
+  "#2A2A35",
+];
+
+// ---- Types ----
+
+export interface ThemeSettings {
   textColor: string;
+  secondaryTextColor: string | null;
   uiColor: string;
+  cardColor: string | null;
   backgroundImage: string | null;
 }
 
 interface ThemeContextType extends ThemeSettings {
   setTextColor: (color: string) => void;
+  setSecondaryTextColor: (color: string | null) => void;
   setUiColor: (color: string) => void;
+  setCardColor: (color: string | null) => void;
   setBackgroundImage: (uri: string | null) => void;
   resetTheme: () => void;
 }
 
-const defaults: ThemeSettings = {
+// ---- Defaults ----
+
+export const defaults: ThemeSettings = {
   textColor: "#1A2E25",
+  secondaryTextColor: null,
   uiColor: "#2D6A4F",
+  cardColor: null,
   backgroundImage: null,
 };
 
 const ThemeContext = createContext<ThemeContextType | null>(null);
-const STORAGE_KEY = "plant_care_theme_v1";
+const STORAGE_KEY = "plant_care_theme_v2";
+
+// ---- Provider ----
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<ThemeSettings>(defaults);
@@ -70,6 +108,25 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         } catch {
           // ignore
         }
+      } else {
+        // Migrate from v1
+        AsyncStorage.getItem("plant_care_theme_v1").then((old) => {
+          if (old) {
+            try {
+              const parsed = JSON.parse(old);
+              const migrated: ThemeSettings = {
+                ...defaults,
+                textColor: parsed.textColor ?? defaults.textColor,
+                uiColor: parsed.uiColor ?? defaults.uiColor,
+                backgroundImage: parsed.backgroundImage ?? null,
+              };
+              setSettings(migrated);
+              AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+            } catch {
+              // ignore
+            }
+          }
+        });
       }
     });
   }, []);
@@ -84,8 +141,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     [settings, save]
   );
 
+  const setSecondaryTextColor = useCallback(
+    (color: string | null) => save({ ...settings, secondaryTextColor: color }),
+    [settings, save]
+  );
+
   const setUiColor = useCallback(
     (color: string) => save({ ...settings, uiColor: color }),
+    [settings, save]
+  );
+
+  const setCardColor = useCallback(
+    (color: string | null) => save({ ...settings, cardColor: color }),
     [settings, save]
   );
 
@@ -101,7 +168,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       value={{
         ...settings,
         setTextColor,
+        setSecondaryTextColor,
         setUiColor,
+        setCardColor,
         setBackgroundImage,
         resetTheme,
       }}

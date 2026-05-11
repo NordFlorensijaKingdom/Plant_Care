@@ -20,7 +20,6 @@ import Animated, {
 
 import { useTheme } from "@/context/ThemeContext";
 import {
-  HEALTH_STATUS_CONFIG,
   Plant,
   getProgress,
   getTimeRemaining,
@@ -73,11 +72,13 @@ export function PlantCard({ plant }: PlantCardProps) {
   const waterRemaining = getTimeRemaining(plant.lastWatered, plant.wateringInterval);
   const mistRemaining = getTimeRemaining(plant.lastMisted, plant.mistingInterval);
 
+  const effectiveCard = theme.cardColor ?? colors.card;
+  const effectiveSecondary = theme.secondaryTextColor ?? colors.mutedForeground;
   const cardBg = hasWallpaper
     ? colorScheme === "dark"
       ? "rgba(26,46,37,0.82)"
       : "rgba(255,255,255,0.82)"
-    : colors.card;
+    : effectiveCard;
 
   const scale = useSharedValue(1);
   const animCardStyle = useAnimatedStyle(() => ({
@@ -99,8 +100,6 @@ export function PlantCard({ plant }: PlantCardProps) {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     mistPlant(plant.id);
   }
-
-  const healthCfg = HEALTH_STATUS_CONFIG[plant.healthStatus];
 
   return (
     <Animated.View style={animCardStyle}>
@@ -147,7 +146,7 @@ export function PlantCard({ plant }: PlantCardProps) {
               {plant.name}
             </Text>
             <Text
-              style={[styles.species, { color: colors.mutedForeground }]}
+              style={[styles.species, { color: effectiveSecondary }]}
               numberOfLines={1}
             >
               {plant.species}
@@ -174,7 +173,7 @@ export function PlantCard({ plant }: PlantCardProps) {
                   <Text
                     style={[
                       styles.timeLabel,
-                      { color: waterProgress >= 1 ? "#E53E3E" : colors.mutedForeground },
+                      { color: waterProgress >= 1 ? "#E53E3E" : effectiveSecondary },
                     ]}
                   >
                     {waterRemaining}
@@ -208,7 +207,7 @@ export function PlantCard({ plant }: PlantCardProps) {
                   <Text
                     style={[
                       styles.timeLabel,
-                      { color: mistProgress >= 1 ? "#E53E3E" : colors.mutedForeground },
+                      { color: mistProgress >= 1 ? "#E53E3E" : effectiveSecondary },
                     ]}
                   >
                     {mistRemaining}

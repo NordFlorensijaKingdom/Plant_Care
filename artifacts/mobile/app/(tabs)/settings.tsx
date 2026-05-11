@@ -15,21 +15,29 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { ColorPickerModal } from "@/components/ColorPickerModal";
 import {
-  TEXT_COLOR_PRESETS,
-  UI_COLOR_PRESETS,
+  ACCENT_PRESETS,
+  CARD_BG_PRESETS,
+  PRIMARY_TEXT_PRESETS,
+  SECONDARY_TEXT_PRESETS,
+  defaults,
   useTheme,
 } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
+
+// ---- Sub-components ----
 
 function ColorSwatch({
   color,
   isSelected,
   onPress,
+  size = 34,
 }: {
   color: string;
   isSelected: boolean;
   onPress: () => void;
+  size?: number;
 }) {
   return (
     <TouchableOpacity
@@ -37,12 +45,15 @@ function ColorSwatch({
       style={[
         styles.swatch,
         {
+          width: size,
+          height: size,
+          borderRadius: size / 2,
           backgroundColor: color,
-          borderWidth: isSelected ? 3 : 0,
-          borderColor: "#FFFFFF",
+          borderWidth: isSelected ? 3 : 1.5,
+          borderColor: isSelected ? "#FFFFFF" : "rgba(0,0,0,0.1)",
           shadowColor: color,
-          shadowOpacity: isSelected ? 0.6 : 0,
-          shadowRadius: 4,
+          shadowOpacity: isSelected ? 0.55 : 0,
+          shadowRadius: 5,
           shadowOffset: { width: 0, height: 2 },
           elevation: isSelected ? 4 : 0,
         },
@@ -51,15 +62,169 @@ function ColorSwatch({
       {isSelected && (
         <Ionicons
           name="checkmark"
-          size={14}
-          color={
-            color === "#FFFFFF" || color === "#F8FBF9" ? "#000000" : "#FFFFFF"
-          }
+          size={size * 0.4}
+          color={isDark(color) ? "#FFFFFF" : "#000000"}
         />
       )}
     </TouchableOpacity>
   );
 }
+
+function isDark(hex: string): boolean {
+  const h = hex.replace("#", "");
+  if (h.length < 6) return false;
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return r * 0.299 + g * 0.587 + b * 0.114 < 128;
+}
+
+interface ColorSectionProps {
+  label: string;
+  description: string;
+  icon: string;
+  presets: string[];
+  currentColor: string | null;
+  defaultColor: string;
+  onSelect: (color: string) => void;
+  onReset?: () => void;
+  pickerTitle: string;
+  preview: React.ReactNode;
+}
+
+function ColorSection({
+  label,
+  description,
+  icon,
+  presets,
+  currentColor,
+  defaultColor,
+  onSelect,
+  onReset,
+  pickerTitle,
+  preview,
+}: ColorSectionProps) {
+  const colors = useColors();
+  const theme = useTheme();
+  const [pickerOpen, setPickerOpen] = useState(false);
+
+  const activeColor = currentColor ?? defaultColor;
+  const isCustom =
+    currentColor !== null && !presets.includes(currentColor);
+
+  return (
+    <View
+      style={[
+        styles.sectionCard,
+        { backgroundColor: colors.card, borderColor: colors.border },
+      ]}
+    >
+      {/* Header */}
+      <View style={styles.sectionCardHeader}>
+        <View style={[styles.iconBg, { backgroundColor: theme.uiColor + "18" }]}>
+          <Ionicons name={icon as any} size={18} color={theme.uiColor} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.sectionLabel, { color: theme.textColor }]}>
+            {label}
+          </Text>
+          <Text style={[styles.sectionDesc, { color: colors.mutedForeground }]}>
+            {description}
+          </Text>
+        </View>
+        {/* Active color chip */}
+        <View style={[styles.activeChip, { backgroundColor: activeColor + "20", borderColor: activeColor + "50" }]}>
+          <View style={[styles.activeChipDot, { backgroundColor: activeColor }]} />
+          <Text style={[styles.activeChipText, { color: activeColor }]}>
+            {activeColor.toUpperCase()}
+          </Text>
+        </View>
+      </View>
+
+      {/* Preset swatches */}
+      <View style={styles.swatchGrid}>
+        {presets.map((c) => (
+          <ColorSwatch
+            key={c}
+            color={c}
+            isSelected={activeColor === c && !isCustom}
+            onPress={() => {
+              onSelect(c);
+              Haptics.selectionAsync();
+            }}
+          />
+        ))}
+        {/* Custom picker button */}
+        <TouchableOpacity
+          onPress={() => setPickerOpen(true)}
+          style={[
+            styles.customBtn,
+            {
+              borderColor: isCustom ? activeColor : colors.border,
+              backgroundColor: isCustom ? activeColor + "18" : "transparent",
+            },
+          ]}
+        >
+          <Ionicons
+            name="color-palette-outline"
+            size={16}
+            color={isCustom ? activeColor : colors.mutedForeground}
+          />
+          <Text
+            style={[
+              styles.customBtnText,
+              { color: isCustom ? activeColor : colors.mutedForeground },
+            ]}
+          >
+            {isCustom ? "Custom" : "Custom"}
+          </Text>
+          {isCustom && (
+            <View
+              style={[styles.customActiveDot, { backgroundColor: activeColor }]}
+            />
+          )}
+        </TouchableOpacity>
+      </View>
+
+      {/* Preview */}
+      <View
+        style={[
+          styles.previewArea,
+          { borderTopColor: colors.border },
+        ]}
+      >
+        <Text style={[styles.previewLabel, { color: colors.mutedForeground }]}>
+          Preview
+        </Text>
+        {preview}
+      </View>
+
+      {/* Reset to default link */}
+      {onReset && currentColor !== null && (
+        <TouchableOpacity onPress={onReset} style={styles.resetLink}>
+          <Ionicons name="refresh-outline" size={12} color={colors.mutedForeground} />
+          <Text style={[styles.resetLinkText, { color: colors.mutedForeground }]}>
+            Reset to system default
+          </Text>
+        </TouchableOpacity>
+      )}
+
+      {/* Color picker modal */}
+      <ColorPickerModal
+        visible={pickerOpen}
+        initialColor={activeColor}
+        title={pickerTitle}
+        onClose={() => setPickerOpen(false)}
+        onConfirm={(hex) => {
+          onSelect(hex);
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        }}
+      />
+    </View>
+  );
+}
+
+// ---- Main screen ----
 
 export default function SettingsScreen() {
   const colors = useColors();
@@ -69,20 +234,20 @@ export default function SettingsScreen() {
 
   const [notifEnabled, setNotifEnabled] = useState(false);
 
+  const effectiveSecondary = theme.secondaryTextColor ?? "#6B8F7A";
+  const effectiveCard = theme.cardColor ?? colors.card;
+
   async function toggleNotifications(val: boolean) {
     if (val && Platform.OS !== "web") {
       try {
         const Notifications = await import("expo-notifications");
-        const { status, canAskAgain } =
-          await Notifications.getPermissionsAsync();
+        const { status, canAskAgain } = await Notifications.getPermissionsAsync();
         if (status !== "granted") {
           if (canAskAgain) {
             const result = await Notifications.requestPermissionsAsync();
             if (result.status === "granted") {
               setNotifEnabled(true);
-              await Haptics.notificationAsync(
-                Haptics.NotificationFeedbackType.Success
-              );
+              await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
               return;
             }
           }
@@ -93,9 +258,7 @@ export default function SettingsScreen() {
           return;
         }
         setNotifEnabled(true);
-        await Haptics.notificationAsync(
-          Haptics.NotificationFeedbackType.Success
-        );
+        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       } catch {
         Alert.alert("Unavailable", "Notifications are not available on this platform.");
       }
@@ -107,10 +270,7 @@ export default function SettingsScreen() {
   async function pickBackground() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert(
-        "Permission needed",
-        "Allow access to your photos to set a background image."
-      );
+      Alert.alert("Permission needed", "Allow access to your photos to set a background image.");
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -129,14 +289,14 @@ export default function SettingsScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }
 
-  function handleReset() {
+  function handleResetAll() {
     Alert.alert(
-      "Reset Theme",
-      "Restore all colors and background to defaults?",
+      "Reset All Theme Settings",
+      "Restore all colors and background to their original defaults?",
       [
         { text: "Cancel", style: "cancel" },
         {
-          text: "Reset",
+          text: "Reset Everything",
           style: "destructive",
           onPress: () => {
             theme.resetTheme();
@@ -147,28 +307,20 @@ export default function SettingsScreen() {
     );
   }
 
-  const sectionHeaderStyle = [
-    styles.sectionHeader,
-    { color: colors.mutedForeground },
-  ];
+  const shLabel = [styles.sectionHeader, { color: colors.mutedForeground }];
 
   return (
-    <View
-      style={[styles.container, { backgroundColor: colors.background }]}
-    >
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View
         style={[
           styles.header,
-          {
-            paddingTop: topPad + 12,
-            borderBottomColor: colors.border,
-            backgroundColor: colors.background,
-          },
+          { paddingTop: topPad + 12, borderBottomColor: colors.border, backgroundColor: colors.background },
         ]}
       >
-        <Text style={[styles.title, { color: theme.textColor }]}>
-          Settings
+        <Text style={[styles.title, { color: theme.textColor }]}>Settings</Text>
+        <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
+          Customize your app appearance
         </Text>
       </View>
 
@@ -176,107 +328,120 @@ export default function SettingsScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.content,
-          {
-            paddingBottom:
-              Platform.OS === "web" ? 84 + 34 : 80 + insets.bottom,
-          },
+          { paddingBottom: Platform.OS === "web" ? 84 + 34 : 80 + insets.bottom },
         ]}
       >
-        {/* Text Color */}
-        <Text style={sectionHeaderStyle}>TEXT COLOR</Text>
-        <View
-          style={[
-            styles.card,
-            { backgroundColor: colors.card, borderColor: colors.border },
-          ]}
-        >
-          <View style={styles.swatchGrid}>
-            {TEXT_COLOR_PRESETS.map((c) => (
-              <ColorSwatch
-                key={c}
-                color={c}
-                isSelected={theme.textColor === c}
-                onPress={() => {
-                  theme.setTextColor(c);
-                  Haptics.selectionAsync();
-                }}
-              />
-            ))}
-          </View>
-          <View style={styles.previewRow}>
-            <Text
-              style={[
-                styles.previewLabel,
-                { color: colors.mutedForeground },
-              ]}
-            >
-              Preview:
-            </Text>
-            <Text
-              style={[
-                styles.previewText,
-                { color: theme.textColor },
-              ]}
-            >
-              My Beautiful Plant
-            </Text>
-          </View>
-        </View>
+        {/* ── CUSTOM THEME ── */}
+        <Text style={shLabel}>CUSTOM THEME</Text>
 
-        {/* UI Color */}
-        <Text style={[sectionHeaderStyle, { marginTop: 24 }]}>
-          UI ELEMENT COLOR
-        </Text>
-        <View
-          style={[
-            styles.card,
-            { backgroundColor: colors.card, borderColor: colors.border },
-          ]}
-        >
-          <View style={styles.swatchGrid}>
-            {UI_COLOR_PRESETS.map((c) => (
-              <ColorSwatch
-                key={c}
-                color={c}
-                isSelected={theme.uiColor === c}
-                onPress={() => {
-                  theme.setUiColor(c);
-                  Haptics.selectionAsync();
-                }}
+        {/* 1. Primary Text */}
+        <ColorSection
+          label="Primary Text"
+          description="Titles, plant names, and main labels"
+          icon="text-outline"
+          presets={PRIMARY_TEXT_PRESETS}
+          currentColor={theme.textColor !== defaults.textColor ? theme.textColor : null}
+          defaultColor={defaults.textColor}
+          onSelect={theme.setTextColor}
+          pickerTitle="Primary Text Color"
+          preview={
+            <View style={styles.previewRow}>
+              <Text style={[styles.previewPlantName, { color: theme.textColor }]}>
+                Boston Fern
+              </Text>
+              <Text style={[styles.previewSmallLabel, { color: theme.textColor }]}>
+                Add Plant
+              </Text>
+            </View>
+          }
+        />
+
+        {/* 2. Secondary Text */}
+        <ColorSection
+          label="Secondary Text"
+          description="Species names, descriptions, and timestamps"
+          icon="chatbubble-ellipses-outline"
+          presets={SECONDARY_TEXT_PRESETS}
+          currentColor={theme.secondaryTextColor}
+          defaultColor="#6B8F7A"
+          onSelect={theme.setSecondaryTextColor}
+          onReset={() => theme.setSecondaryTextColor(null)}
+          pickerTitle="Secondary Text Color"
+          preview={
+            <View style={styles.previewRow}>
+              <Text style={[styles.previewSpecies, { color: effectiveSecondary }]}>
+                Nephrolepis exaltata
+              </Text>
+              <Text style={[styles.previewSmallLabel, { color: effectiveSecondary }]}>
+                3 days ago
+              </Text>
+            </View>
+          }
+        />
+
+        {/* 3. Accent Elements */}
+        <ColorSection
+          label="Accent Elements"
+          description="Buttons, toggles, icons, and progress bars"
+          icon="color-fill-outline"
+          presets={ACCENT_PRESETS}
+          currentColor={theme.uiColor !== defaults.uiColor ? theme.uiColor : null}
+          defaultColor={defaults.uiColor}
+          onSelect={theme.setUiColor}
+          pickerTitle="Accent Color"
+          preview={
+            <View style={styles.previewRow}>
+              <View style={[styles.previewBtn, { backgroundColor: theme.uiColor }]}>
+                <Ionicons name="water" size={13} color="#FFFFFF" />
+                <Text style={styles.previewBtnText}>Water</Text>
+              </View>
+              <View style={[styles.previewBadge, { backgroundColor: theme.uiColor + "22", borderColor: theme.uiColor + "55" }]}>
+                <Ionicons name="leaf" size={12} color={theme.uiColor} />
+                <Text style={[styles.previewBadgeText, { color: theme.uiColor }]}>Icon</Text>
+              </View>
+              <Switch
+                value
+                trackColor={{ false: colors.muted, true: theme.uiColor + "80" }}
+                thumbColor={theme.uiColor}
+                style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
               />
-            ))}
-          </View>
-          <View style={styles.previewRow}>
-            <Text
-              style={[
-                styles.previewLabel,
-                { color: colors.mutedForeground },
-              ]}
-            >
-              Preview:
-            </Text>
+            </View>
+          }
+        />
+
+        {/* 4. Card Backgrounds */}
+        <ColorSection
+          label="Card Backgrounds"
+          description="Plant cards, note blocks, and info panels"
+          icon="albums-outline"
+          presets={CARD_BG_PRESETS}
+          currentColor={theme.cardColor}
+          defaultColor={colors.card}
+          onSelect={theme.setCardColor}
+          onReset={() => theme.setCardColor(null)}
+          pickerTitle="Card Background Color"
+          preview={
             <View
               style={[
-                styles.previewBtn,
-                { backgroundColor: theme.uiColor },
+                styles.previewCardMini,
+                {
+                  backgroundColor: effectiveCard,
+                  borderColor: colors.border,
+                },
               ]}
             >
-              <Ionicons name="water" size={14} color="#FFFFFF" />
-              <Text style={styles.previewBtnText}>Water Now</Text>
+              <View style={[styles.previewCardDot, { backgroundColor: theme.uiColor }]} />
+              <View style={styles.previewCardLines}>
+                <View style={[styles.previewCardLine, { backgroundColor: theme.textColor, width: "60%" }]} />
+                <View style={[styles.previewCardLine, { backgroundColor: effectiveSecondary, width: "40%", height: 6 }]} />
+              </View>
             </View>
-          </View>
-        </View>
+          }
+        />
 
-        {/* Background */}
-        <Text style={[sectionHeaderStyle, { marginTop: 24 }]}>
-          BACKGROUND WALLPAPER
-        </Text>
-        <View
-          style={[
-            styles.card,
-            { backgroundColor: colors.card, borderColor: colors.border },
-          ]}
-        >
+        {/* ── BACKGROUND WALLPAPER ── */}
+        <Text style={[shLabel, { marginTop: 24 }]}>BACKGROUND WALLPAPER</Text>
+        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
           {theme.backgroundImage ? (
             <View style={styles.bgPreviewRow}>
               <Image
@@ -285,44 +450,23 @@ export default function SettingsScreen() {
                 contentFit="cover"
               />
               <View style={styles.bgActions}>
-                <Text
-                  style={[styles.bgSelectedText, { color: theme.textColor }]}
-                >
+                <Text style={[styles.bgSelectedText, { color: theme.textColor }]}>
                   Custom background set
                 </Text>
                 <View style={styles.bgBtnRow}>
                   <TouchableOpacity
                     onPress={pickBackground}
-                    style={[
-                      styles.bgBtn,
-                      { backgroundColor: theme.uiColor + "20" },
-                    ]}
+                    style={[styles.bgBtn, { backgroundColor: theme.uiColor + "20" }]}
                   >
                     <Ionicons name="swap-horizontal" size={16} color={theme.uiColor} />
-                    <Text style={[styles.bgBtnText, { color: theme.uiColor }]}>
-                      Change
-                    </Text>
+                    <Text style={[styles.bgBtnText, { color: theme.uiColor }]}>Change</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={removeBackground}
-                    style={[
-                      styles.bgBtn,
-                      { backgroundColor: colors.destructive + "15" },
-                    ]}
+                    style={[styles.bgBtn, { backgroundColor: colors.destructive + "15" }]}
                   >
-                    <Ionicons
-                      name="trash-outline"
-                      size={16}
-                      color={colors.destructive}
-                    />
-                    <Text
-                      style={[
-                        styles.bgBtnText,
-                        { color: colors.destructive },
-                      ]}
-                    >
-                      Remove
-                    </Text>
+                    <Ionicons name="trash-outline" size={16} color={colors.destructive} />
+                    <Text style={[styles.bgBtnText, { color: colors.destructive }]}>Remove</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -330,48 +474,27 @@ export default function SettingsScreen() {
           ) : (
             <TouchableOpacity
               onPress={pickBackground}
-              style={[
-                styles.bgPicker,
-                { borderColor: colors.border },
-              ]}
+              style={[styles.bgPicker, { borderColor: colors.border }]}
             >
-              <Ionicons
-                name="image-outline"
-                size={28}
-                color={colors.mutedForeground}
-              />
-              <Text
-                style={[styles.bgPickerText, { color: colors.mutedForeground }]}
-              >
+              <Ionicons name="image-outline" size={28} color={colors.mutedForeground} />
+              <Text style={[styles.bgPickerText, { color: colors.mutedForeground }]}>
                 Choose from gallery
               </Text>
             </TouchableOpacity>
           )}
         </View>
 
-        {/* Notifications */}
-        <Text style={[sectionHeaderStyle, { marginTop: 24 }]}>
-          NOTIFICATIONS
-        </Text>
-        <View
-          style={[
-            styles.card,
-            { backgroundColor: colors.card, borderColor: colors.border },
-          ]}
-        >
+        {/* ── NOTIFICATIONS ── */}
+        <Text style={[shLabel, { marginTop: 24 }]}>NOTIFICATIONS</Text>
+        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.switchRow}>
             <View style={styles.switchInfo}>
               <Ionicons name="notifications-outline" size={20} color={theme.uiColor} />
-              <View>
+              <View style={{ flex: 1 }}>
                 <Text style={[styles.switchLabel, { color: theme.textColor }]}>
                   Watering Reminders
                 </Text>
-                <Text
-                  style={[
-                    styles.switchDesc,
-                    { color: colors.mutedForeground },
-                  ]}
-                >
+                <Text style={[styles.switchDesc, { color: colors.mutedForeground }]}>
                   Get notified when plants need care
                 </Text>
               </View>
@@ -379,29 +502,24 @@ export default function SettingsScreen() {
             <Switch
               value={notifEnabled}
               onValueChange={toggleNotifications}
-              trackColor={{
-                false: colors.muted,
-                true: theme.uiColor + "80",
-              }}
+              trackColor={{ false: colors.muted, true: theme.uiColor + "80" }}
               thumbColor={notifEnabled ? theme.uiColor : colors.border}
             />
           </View>
         </View>
 
-        {/* Reset */}
-        <Text style={[sectionHeaderStyle, { marginTop: 24 }]}>
-          DANGER ZONE
-        </Text>
+        {/* ── DANGER ZONE ── */}
+        <Text style={[shLabel, { marginTop: 24 }]}>DANGER ZONE</Text>
         <TouchableOpacity
-          onPress={handleReset}
+          onPress={handleResetAll}
           style={[
             styles.resetBtn,
             { backgroundColor: colors.card, borderColor: colors.destructive + "40" },
           ]}
         >
-          <Ionicons name="refresh" size={18} color={colors.destructive} />
+          <Ionicons name="refresh-circle-outline" size={20} color={colors.destructive} />
           <Text style={[styles.resetText, { color: colors.destructive }]}>
-            Reset Theme to Defaults
+            Reset All Theme to Defaults
           </Text>
         </TouchableOpacity>
       </ScrollView>
@@ -416,79 +534,125 @@ const styles = StyleSheet.create({
     paddingBottom: 14,
     borderBottomWidth: 1,
   },
-  title: {
-    fontSize: 26,
-    fontFamily: "Inter_700Bold",
-  },
-  content: { padding: 20 },
+  title: { fontSize: 26, fontFamily: "Inter_700Bold" },
+  subtitle: { fontSize: 13, fontFamily: "Inter_400Regular", marginTop: 2 },
+  content: { padding: 16, gap: 0 },
   sectionHeader: {
     fontSize: 11,
     fontFamily: "Inter_600SemiBold",
     letterSpacing: 0.8,
     marginBottom: 8,
+    marginTop: 4,
+    paddingHorizontal: 4,
   },
-  card: {
+  sectionCard: {
     borderRadius: 16,
     borderWidth: 1,
-    padding: 16,
+    padding: 14,
+    marginBottom: 12,
+    gap: 12,
   },
+  sectionCardHeader: { flexDirection: "row", alignItems: "flex-start", gap: 10 },
+  iconBg: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+  sectionLabel: { fontSize: 15, fontFamily: "Inter_600SemiBold" },
+  sectionDesc: { fontSize: 12, fontFamily: "Inter_400Regular", marginTop: 1 },
+  activeChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    borderWidth: 1,
+    alignSelf: "flex-start",
+  },
+  activeChipDot: { width: 8, height: 8, borderRadius: 4 },
+  activeChipText: { fontSize: 10, fontFamily: "Inter_600SemiBold", letterSpacing: 0.5 },
   swatchGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
-    marginBottom: 14,
+    gap: 8,
+    alignItems: "center",
   },
   swatch: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",
   },
+  customBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    height: 34,
+    paddingHorizontal: 10,
+    borderRadius: 17,
+    borderWidth: 1.5,
+  },
+  customBtnText: { fontSize: 12, fontFamily: "Inter_500Medium" },
+  customActiveDot: { width: 7, height: 7, borderRadius: 3.5, marginLeft: 2 },
+  previewArea: {
+    borderTopWidth: 1,
+    paddingTop: 12,
+    gap: 8,
+  },
+  previewLabel: { fontSize: 11, fontFamily: "Inter_500Medium" },
   previewRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(0,0,0,0.06)",
+    gap: 12,
+    flexWrap: "wrap",
   },
-  previewLabel: {
-    fontSize: 12,
-    fontFamily: "Inter_400Regular",
-  },
-  previewText: {
-    fontSize: 15,
-    fontFamily: "Inter_600SemiBold",
-  },
+  previewPlantName: { fontSize: 16, fontFamily: "Inter_700Bold" },
+  previewSpecies: { fontSize: 13, fontFamily: "Inter_400Regular", fontStyle: "italic" },
+  previewSmallLabel: { fontSize: 12, fontFamily: "Inter_600SemiBold" },
   previewBtn: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    gap: 4,
     paddingHorizontal: 12,
     paddingVertical: 7,
-    borderRadius: 10,
+    borderRadius: 9,
   },
-  previewBtnText: {
-    color: "#FFFFFF",
-    fontSize: 13,
-    fontFamily: "Inter_600SemiBold",
-  },
-  bgPreviewRow: {
+  previewBtnText: { color: "#FFFFFF", fontSize: 13, fontFamily: "Inter_600SemiBold" },
+  previewBadge: {
     flexDirection: "row",
-    gap: 14,
     alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: 8,
+    borderWidth: 1,
   },
-  bgThumb: {
-    width: 72,
-    height: 72,
+  previewBadgeText: { fontSize: 12, fontFamily: "Inter_600SemiBold" },
+  previewCardMini: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    padding: 12,
     borderRadius: 12,
+    borderWidth: 1,
   },
+  previewCardDot: { width: 32, height: 32, borderRadius: 8 },
+  previewCardLines: { flex: 1, gap: 5 },
+  previewCardLine: { height: 8, borderRadius: 4 },
+  resetLink: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    alignSelf: "flex-start",
+  },
+  resetLinkText: { fontSize: 11, fontFamily: "Inter_400Regular" },
+  card: { borderRadius: 16, borderWidth: 1, padding: 16, marginBottom: 4 },
+  bgPreviewRow: { flexDirection: "row", gap: 14, alignItems: "center" },
+  bgThumb: { width: 72, height: 72, borderRadius: 12 },
   bgActions: { flex: 1, gap: 8 },
-  bgSelectedText: {
-    fontSize: 14,
-    fontFamily: "Inter_500Medium",
-  },
+  bgSelectedText: { fontSize: 14, fontFamily: "Inter_500Medium" },
   bgBtnRow: { flexDirection: "row", gap: 8 },
   bgBtn: {
     flexDirection: "row",
@@ -508,27 +672,21 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderStyle: "dashed",
   },
-  bgPickerText: {
-    fontSize: 14,
-    fontFamily: "Inter_500Medium",
-  },
+  bgPickerText: { fontSize: 14, fontFamily: "Inter_500Medium" },
   switchRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
   switchInfo: { flexDirection: "row", alignItems: "center", gap: 12, flex: 1 },
-  switchLabel: {
-    fontSize: 15,
-    fontFamily: "Inter_500Medium",
-  },
+  switchLabel: { fontSize: 15, fontFamily: "Inter_500Medium" },
   switchDesc: { fontSize: 12, fontFamily: "Inter_400Regular", marginTop: 1 },
   resetBtn: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    height: 50,
+    height: 52,
     borderRadius: 14,
     borderWidth: 1,
   },

@@ -329,6 +329,9 @@ export default function PlantDetailScreen() {
   const progressBarColor = (p: number) =>
     p >= 1 ? "#E53E3E" : p >= 0.75 ? "#F4A261" : theme.uiColor;
 
+  const effectiveCard = theme.cardColor ?? colors.card;
+  const effectiveSecondary = theme.secondaryTextColor ?? colors.mutedForeground;
+
   async function handleWater() {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     waterPlant(plant.id);
@@ -529,7 +532,7 @@ export default function PlantDetailScreen() {
               {
                 color: plant.mainPhoto
                   ? "rgba(255,255,255,0.8)"
-                  : colors.mutedForeground,
+                  : effectiveSecondary,
               },
             ]}
           >
@@ -546,12 +549,12 @@ export default function PlantDetailScreen() {
         <View
           style={[
             styles.careCard,
-            { backgroundColor: colors.card, borderColor: colors.border },
+            { backgroundColor: effectiveCard, borderColor: colors.border },
           ]}
         >
           <View style={styles.careCardHeader}>
             <Ionicons name="water" size={15} color={progressBarColor(waterProgress)} />
-            <Text style={[styles.careLabel, { color: colors.mutedForeground }]}>
+            <Text style={[styles.careLabel, { color: effectiveSecondary }]}>
               Watering
             </Text>
           </View>
@@ -581,12 +584,12 @@ export default function PlantDetailScreen() {
         <View
           style={[
             styles.careCard,
-            { backgroundColor: colors.card, borderColor: colors.border },
+            { backgroundColor: effectiveCard, borderColor: colors.border },
           ]}
         >
           <View style={styles.careCardHeader}>
             <Ionicons name="rainy" size={15} color={progressBarColor(mistProgress)} />
-            <Text style={[styles.careLabel, { color: colors.mutedForeground }]}>
+            <Text style={[styles.careLabel, { color: effectiveSecondary }]}>
               Misting
             </Text>
           </View>
@@ -615,7 +618,7 @@ export default function PlantDetailScreen() {
       </View>
 
       {/* Tabs */}
-      <View style={[styles.tabBar, { borderColor: colors.border, backgroundColor: colors.card }]}>
+      <View style={[styles.tabBar, { borderColor: colors.border, backgroundColor: effectiveCard }]}>
         {tabs.map((tab) => {
           const count =
             tab.key === "notes"
@@ -726,7 +729,7 @@ export default function PlantDetailScreen() {
           <View
             style={[
               styles.addNoteRow,
-              { backgroundColor: colors.card, borderColor: colors.border },
+              { backgroundColor: effectiveCard, borderColor: colors.border },
             ]}
           >
             <TextInput
@@ -767,11 +770,11 @@ export default function PlantDetailScreen() {
                 key={note.id}
                 style={[
                   styles.noteCard,
-                  { backgroundColor: colors.card, borderColor: colors.border },
+                  { backgroundColor: effectiveCard, borderColor: colors.border },
                 ]}
               >
                 <View style={styles.noteCardHeader}>
-                  <Text style={[styles.noteTimestamp, { color: colors.mutedForeground }]}>
+                  <Text style={[styles.noteTimestamp, { color: effectiveSecondary }]}>
                     {new Date(note.timestamp).toLocaleDateString(undefined, {
                       month: "short",
                       day: "numeric",
@@ -890,7 +893,7 @@ export default function PlantDetailScreen() {
                 key={reminder.id}
                 style={[
                   styles.reminderCard,
-                  { backgroundColor: colors.card, borderColor: colors.border },
+                  { backgroundColor: effectiveCard, borderColor: colors.border },
                 ]}
               >
                 <View style={styles.reminderLeft}>
@@ -907,7 +910,7 @@ export default function PlantDetailScreen() {
                       {reminder.title}
                     </Text>
                     <Text
-                      style={[styles.reminderDate, { color: colors.mutedForeground }]}
+                      style={[styles.reminderDate, { color: effectiveSecondary }]}
                     >
                       {new Date(reminder.date).toLocaleDateString(undefined, {
                         month: "long",

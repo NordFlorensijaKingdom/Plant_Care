@@ -33,3 +33,8 @@ externalPort = 3000
 
 [nix]
 packages = ["hol"]
+
+[userenv]
+
+[userenv.shared]
+EXPO_TOKEN = "3uV5gzfQ2P154DZDVU4EnSw9t3C1vZ2SifglB4uj"

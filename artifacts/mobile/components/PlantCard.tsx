@@ -20,12 +20,14 @@ import Animated, {
 
 import { useTheme } from "@/context/ThemeContext";
 import {
+  HEALTH_STATUS_CONFIG,
   Plant,
   getProgress,
   getTimeRemaining,
   usePlants,
 } from "@/context/PlantContext";
 import { useColors } from "@/hooks/useColors";
+import { HealthBadge } from "@/components/HealthBadge";
 
 interface WaterBarProps {
   progress: number;
@@ -45,11 +47,7 @@ function WaterBar({ progress, color, trackColor }: WaterBarProps) {
   }));
 
   const barColor =
-    progress >= 1
-      ? "#E53E3E"
-      : progress >= 0.75
-      ? "#F4A261"
-      : color;
+    progress >= 1 ? "#E53E3E" : progress >= 0.75 ? "#F4A261" : color;
 
   return (
     <View style={[styles.track, { backgroundColor: trackColor }]}>
@@ -75,7 +73,6 @@ export function PlantCard({ plant }: PlantCardProps) {
   const waterRemaining = getTimeRemaining(plant.lastWatered, plant.wateringInterval);
   const mistRemaining = getTimeRemaining(plant.lastMisted, plant.mistingInterval);
 
-  // Semi-transparent card when wallpaper is active
   const cardBg = hasWallpaper
     ? colorScheme === "dark"
       ? "rgba(26,46,37,0.82)"
@@ -90,12 +87,8 @@ export function PlantCard({ plant }: PlantCardProps) {
   function handlePress() {
     router.push(`/plant/${plant.id}`);
   }
-  function handlePressIn() {
-    scale.value = 0.97;
-  }
-  function handlePressOut() {
-    scale.value = 1;
-  }
+  function handlePressIn() { scale.value = 0.97; }
+  function handlePressOut() { scale.value = 1; }
 
   async function handleWater() {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -107,6 +100,8 @@ export function PlantCard({ plant }: PlantCardProps) {
     mistPlant(plant.id);
   }
 
+  const healthCfg = HEALTH_STATUS_CONFIG[plant.healthStatus];
+
   return (
     <Animated.View style={animCardStyle}>
       <Pressable
@@ -117,7 +112,11 @@ export function PlantCard({ plant }: PlantCardProps) {
           styles.card,
           {
             backgroundColor: cardBg,
-            borderColor: hasWallpaper ? "rgba(200,221,211,0.4)" : colors.border,
+            borderColor: plant.healthStatus === "sick"
+              ? "#E53E3E44"
+              : hasWallpaper
+              ? "rgba(200,221,211,0.4)"
+              : colors.border,
             shadowColor: colors.foreground,
           },
         ]}
@@ -134,6 +133,12 @@ export function PlantCard({ plant }: PlantCardProps) {
             ) : (
               <Ionicons name="leaf" size={28} color={theme.uiColor} />
             )}
+            {/* Sick indicator overlay */}
+            {plant.healthStatus === "sick" && (
+              <View style={styles.sickOverlay}>
+                <Ionicons name="warning" size={12} color="#FFFFFF" />
+              </View>
+            )}
           </View>
 
           {/* Info */}
@@ -148,61 +153,76 @@ export function PlantCard({ plant }: PlantCardProps) {
               {plant.species}
             </Text>
 
+            {/* Health Badge */}
+            <HealthBadge status={plant.healthStatus} size="sm" />
+
             {/* Watering Progress */}
-            <View style={styles.progressRow}>
-              <Ionicons
-                name="water-outline"
-                size={12}
-                color={waterProgress >= 1 ? "#E53E3E" : theme.uiColor}
-                style={styles.progressIcon}
-              />
-              <View style={styles.progressLabelRow}>
-                <WaterBar
-                  progress={waterProgress}
-                  color={theme.uiColor}
-                  trackColor={hasWallpaper ? "rgba(200,221,211,0.35)" : colors.muted}
+            {plant.wateringEnabled ? (
+              <View style={styles.progressRow}>
+                <Ionicons
+                  name="water-outline"
+                  size={12}
+                  color={waterProgress >= 1 ? "#E53E3E" : theme.uiColor}
+                  style={styles.progressIcon}
                 />
-                <Text
-                  style={[
-                    styles.timeLabel,
-                    {
-                      color:
-                        waterProgress >= 1 ? "#E53E3E" : colors.mutedForeground,
-                    },
-                  ]}
-                >
-                  {waterRemaining}
+                <View style={styles.progressLabelRow}>
+                  <WaterBar
+                    progress={waterProgress}
+                    color={theme.uiColor}
+                    trackColor={hasWallpaper ? "rgba(200,221,211,0.35)" : colors.muted}
+                  />
+                  <Text
+                    style={[
+                      styles.timeLabel,
+                      { color: waterProgress >= 1 ? "#E53E3E" : colors.mutedForeground },
+                    ]}
+                  >
+                    {waterRemaining}
+                  </Text>
+                </View>
+              </View>
+            ) : (
+              <View style={styles.progressRow}>
+                <Ionicons name="water-outline" size={12} color={colors.mutedForeground} style={styles.progressIcon} />
+                <Text style={[styles.mutedLabel, { color: colors.mutedForeground }]}>
+                  Alerts muted
                 </Text>
               </View>
-            </View>
+            )}
 
             {/* Misting Progress */}
-            <View style={styles.progressRow}>
-              <Ionicons
-                name="rainy-outline"
-                size={12}
-                color={mistProgress >= 1 ? "#E53E3E" : theme.uiColor}
-                style={styles.progressIcon}
-              />
-              <View style={styles.progressLabelRow}>
-                <WaterBar
-                  progress={mistProgress}
-                  color={theme.uiColor}
-                  trackColor={hasWallpaper ? "rgba(200,221,211,0.35)" : colors.muted}
+            {plant.mistingEnabled ? (
+              <View style={styles.progressRow}>
+                <Ionicons
+                  name="rainy-outline"
+                  size={12}
+                  color={mistProgress >= 1 ? "#E53E3E" : theme.uiColor}
+                  style={styles.progressIcon}
                 />
-                <Text
-                  style={[
-                    styles.timeLabel,
-                    {
-                      color:
-                        mistProgress >= 1 ? "#E53E3E" : colors.mutedForeground,
-                    },
-                  ]}
-                >
-                  {mistRemaining}
+                <View style={styles.progressLabelRow}>
+                  <WaterBar
+                    progress={mistProgress}
+                    color={theme.uiColor}
+                    trackColor={hasWallpaper ? "rgba(200,221,211,0.35)" : colors.muted}
+                  />
+                  <Text
+                    style={[
+                      styles.timeLabel,
+                      { color: mistProgress >= 1 ? "#E53E3E" : colors.mutedForeground },
+                    ]}
+                  >
+                    {mistRemaining}
+                  </Text>
+                </View>
+              </View>
+            ) : (
+              <View style={styles.progressRow}>
+                <Ionicons name="rainy-outline" size={12} color={colors.mutedForeground} style={styles.progressIcon} />
+                <Text style={[styles.mutedLabel, { color: colors.mutedForeground }]}>
+                  Alerts muted
                 </Text>
               </View>
-            </View>
+            )}
           </View>
 
           {/* Quick actions */}
@@ -263,13 +283,20 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   photo: { width: "100%", height: "100%" },
+  sickOverlay: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: "#E53E3E",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   info: { flex: 1, gap: 3 },
   name: { fontSize: 15, fontFamily: "Inter_600SemiBold" },
-  species: {
-    fontSize: 12,
-    fontFamily: "Inter_400Regular",
-    marginBottom: 4,
-  },
+  species: { fontSize: 12, fontFamily: "Inter_400Regular" },
   progressRow: { flexDirection: "row", alignItems: "center", gap: 4 },
   progressIcon: { width: 14 },
   progressLabelRow: {
@@ -286,6 +313,7 @@ const styles = StyleSheet.create({
     minWidth: 32,
     textAlign: "right",
   },
+  mutedLabel: { fontSize: 10, fontFamily: "Inter_400Regular", fontStyle: "italic" },
   actions: { gap: 6, flexShrink: 0 },
   actionBtn: {
     width: 36,

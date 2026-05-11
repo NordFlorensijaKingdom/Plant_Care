@@ -7,9 +7,9 @@ import React, { useState } from "react";
 import {
   Alert,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   TouchableOpacity,
@@ -17,7 +17,12 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { usePlants, TimeUnit } from "@/context/PlantContext";
+import {
+  HEALTH_STATUS_CONFIG,
+  HealthStatus,
+  TimeUnit,
+  usePlants,
+} from "@/context/PlantContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
 
@@ -28,40 +33,87 @@ function UnitPicker({
   onChange,
   uiColor,
   colors,
+  disabled,
 }: {
   value: UnitOption;
   onChange: (v: UnitOption) => void;
   uiColor: string;
   colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
+  disabled?: boolean;
 }) {
   return (
-    <View style={styles.unitRow}>
+    <View style={[styles.unitRow, disabled && { opacity: 0.4 }]}>
       {(["hours", "days"] as UnitOption[]).map((unit) => (
         <TouchableOpacity
           key={unit}
-          onPress={() => onChange(unit)}
+          onPress={() => !disabled && onChange(unit)}
           style={[
             styles.unitBtn,
             {
-              backgroundColor:
-                value === unit ? uiColor : colors.muted,
-              borderColor:
-                value === unit ? uiColor : colors.border,
+              backgroundColor: value === unit ? uiColor : colors.muted,
+              borderColor: value === unit ? uiColor : colors.border,
             },
           ]}
+          disabled={disabled}
         >
           <Text
             style={[
               styles.unitText,
-              {
-                color: value === unit ? "#FFFFFF" : colors.mutedForeground,
-              },
+              { color: value === unit ? "#FFFFFF" : colors.mutedForeground },
             ]}
           >
             {unit}
           </Text>
         </TouchableOpacity>
       ))}
+    </View>
+  );
+}
+
+function HealthStatusPicker({
+  value,
+  onChange,
+  textColor,
+}: {
+  value: HealthStatus;
+  onChange: (v: HealthStatus) => void;
+  textColor: string;
+}) {
+  const statuses = Object.keys(HEALTH_STATUS_CONFIG) as HealthStatus[];
+  return (
+    <View style={styles.healthGrid}>
+      {statuses.map((status) => {
+        const cfg = HEALTH_STATUS_CONFIG[status];
+        const selected = value === status;
+        return (
+          <TouchableOpacity
+            key={status}
+            onPress={() => onChange(status)}
+            style={[
+              styles.healthBtn,
+              {
+                backgroundColor: selected ? cfg.color + "22" : "transparent",
+                borderColor: selected ? cfg.color : cfg.color + "44",
+                borderWidth: selected ? 2 : 1,
+              },
+            ]}
+          >
+            <Ionicons
+              name={cfg.icon as any}
+              size={18}
+              color={cfg.color}
+            />
+            <Text
+              style={[
+                styles.healthBtnText,
+                { color: selected ? cfg.color : textColor, opacity: selected ? 1 : 0.7 },
+              ]}
+            >
+              {cfg.label}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 }
@@ -77,6 +129,9 @@ export default function AddPlantScreen() {
   const [name, setName] = useState("");
   const [species, setSpecies] = useState("");
   const [mainPhoto, setMainPhoto] = useState<string | null>(null);
+  const [healthStatus, setHealthStatus] = useState<HealthStatus>("good");
+  const [wateringEnabled, setWateringEnabled] = useState(true);
+  const [mistingEnabled, setMistingEnabled] = useState(true);
   const [waterValue, setWaterValue] = useState("3");
   const [waterUnit, setWaterUnit] = useState<TimeUnit>("days");
   const [mistValue, setMistValue] = useState("1");
@@ -85,10 +140,7 @@ export default function AddPlantScreen() {
   async function pickPhoto() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert(
-        "Permission needed",
-        "Allow access to your photos to add plant images."
-      );
+      Alert.alert("Permission needed", "Allow access to your photos.");
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -105,10 +157,7 @@ export default function AddPlantScreen() {
   async function takePhoto() {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert(
-        "Permission needed",
-        "Allow camera access to take plant photos."
-      );
+      Alert.alert("Permission needed", "Allow camera access.");
       return;
     }
     const result = await ImagePicker.launchCameraAsync({
@@ -140,68 +189,49 @@ export default function AddPlantScreen() {
     }
     const wVal = parseFloat(waterValue);
     const mVal = parseFloat(mistValue);
-    if (isNaN(wVal) || wVal <= 0) {
+    if (wateringEnabled && (isNaN(wVal) || wVal <= 0)) {
       Alert.alert("Invalid interval", "Please enter a valid watering interval.");
       return;
     }
-    if (isNaN(mVal) || mVal <= 0) {
+    if (mistingEnabled && (isNaN(mVal) || mVal <= 0)) {
       Alert.alert("Invalid interval", "Please enter a valid misting interval.");
       return;
     }
-
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     addPlant({
       name: name.trim(),
       species: species.trim(),
       mainPhoto,
-      wateringInterval: { value: wVal, unit: waterUnit },
-      mistingInterval: { value: mVal, unit: mistUnit },
+      healthStatus,
+      wateringEnabled,
+      mistingEnabled,
+      wateringInterval: { value: wVal || 3, unit: waterUnit },
+      mistingInterval: { value: mVal || 1, unit: mistUnit },
     });
-    router.replace("/(tabs)/");
+    router.replace("/(tabs)");
   }
 
   const inputStyle = [
     styles.input,
-    {
-      backgroundColor: colors.card,
-      borderColor: colors.border,
-      color: theme.textColor,
-    },
+    { backgroundColor: colors.card, borderColor: colors.border, color: theme.textColor },
   ];
-
   const labelStyle = [styles.label, { color: theme.textColor }];
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: colors.background },
-      ]}
-    >
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View
         style={[
           styles.header,
-          {
-            paddingTop: topPad + 12,
-            borderBottomColor: colors.border,
-            backgroundColor: colors.background,
-          },
+          { paddingTop: topPad + 12, borderBottomColor: colors.border, backgroundColor: colors.background },
         ]}
       >
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.backBtn}
-        >
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={22} color={theme.uiColor} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: theme.textColor }]}>
-          Add Plant
-        </Text>
+        <Text style={[styles.headerTitle, { color: theme.textColor }]}>Add Plant</Text>
         <TouchableOpacity onPress={handleSave} style={styles.saveBtn}>
-          <Text style={[styles.saveBtnText, { color: theme.uiColor }]}>
-            Save
-          </Text>
+          <Text style={[styles.saveBtnText, { color: theme.uiColor }]}>Save</Text>
         </TouchableOpacity>
       </View>
 
@@ -209,56 +239,31 @@ export default function AddPlantScreen() {
         style={styles.scroll}
         contentContainerStyle={[
           styles.scrollContent,
-          {
-            paddingBottom:
-              Platform.OS === "web" ? 84 + 34 : 80 + insets.bottom,
-          },
+          { paddingBottom: Platform.OS === "web" ? 84 + 34 : 80 + insets.bottom },
         ]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
         {/* Photo picker */}
         <TouchableOpacity onPress={handlePhotoPress} style={styles.photoPickerWrapper}>
-          <View
-            style={[
-              styles.photoPicker,
-              { backgroundColor: colors.muted, borderColor: colors.border },
-            ]}
-          >
+          <View style={[styles.photoPicker, { backgroundColor: colors.muted, borderColor: colors.border }]}>
             {mainPhoto ? (
-              <Image
-                source={{ uri: mainPhoto }}
-                style={styles.photoPreview}
-                contentFit="cover"
-              />
+              <Image source={{ uri: mainPhoto }} style={styles.photoPreview} contentFit="cover" />
             ) : (
               <View style={styles.photoPlaceholder}>
-                <Ionicons
-                  name="camera-outline"
-                  size={32}
-                  color={colors.mutedForeground}
-                />
-                <Text
-                  style={[styles.photoLabel, { color: colors.mutedForeground }]}
-                >
-                  Add Photo
-                </Text>
+                <Ionicons name="camera-outline" size={32} color={colors.mutedForeground} />
+                <Text style={[styles.photoLabel, { color: colors.mutedForeground }]}>Add Photo</Text>
               </View>
             )}
           </View>
           {mainPhoto && (
-            <View
-              style={[
-                styles.photoEditBadge,
-                { backgroundColor: theme.uiColor },
-              ]}
-            >
+            <View style={[styles.photoEditBadge, { backgroundColor: theme.uiColor }]}>
               <Ionicons name="pencil" size={12} color="#FFFFFF" />
             </View>
           )}
         </TouchableOpacity>
 
-        {/* Fields */}
+        {/* Name & Species */}
         <View style={styles.section}>
           <Text style={labelStyle}>Plant Name *</Text>
           <TextInput
@@ -269,7 +274,6 @@ export default function AddPlantScreen() {
             placeholderTextColor={colors.mutedForeground}
             returnKeyType="next"
           />
-
           <Text style={[labelStyle, { marginTop: 16 }]}>Species *</Text>
           <TextInput
             style={inputStyle}
@@ -277,27 +281,46 @@ export default function AddPlantScreen() {
             onChangeText={setSpecies}
             placeholder="e.g. Nephrolepis exaltata"
             placeholderTextColor={colors.mutedForeground}
-            returnKeyType="next"
+          />
+        </View>
+
+        {/* Health Status */}
+        <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <View style={styles.sectionCardHeader}>
+            <Ionicons name="heart-outline" size={20} color={theme.uiColor} />
+            <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>Health Status</Text>
+          </View>
+          <Text style={[styles.sectionCardDesc, { color: colors.mutedForeground }]}>
+            How is this plant doing right now?
+          </Text>
+          <HealthStatusPicker
+            value={healthStatus}
+            onChange={setHealthStatus}
+            textColor={theme.textColor}
           />
         </View>
 
         {/* Watering */}
-        <View
-          style={[
-            styles.intervalCard,
-            { backgroundColor: colors.card, borderColor: colors.border },
-          ]}
-        >
-          <View style={styles.intervalHeader}>
+        <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <View style={styles.sectionCardHeader}>
             <Ionicons name="water" size={20} color={theme.uiColor} />
-            <Text style={[styles.intervalTitle, { color: theme.textColor }]}>
-              Watering
-            </Text>
+            <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>Watering</Text>
+            <View style={styles.toggleRow}>
+              <Text style={[styles.toggleLabel, { color: colors.mutedForeground }]}>
+                {wateringEnabled ? "Alerts on" : "Muted"}
+              </Text>
+              <Switch
+                value={wateringEnabled}
+                onValueChange={setWateringEnabled}
+                trackColor={{ false: colors.muted, true: theme.uiColor + "88" }}
+                thumbColor={wateringEnabled ? theme.uiColor : colors.mutedForeground}
+              />
+            </View>
           </View>
-          <Text style={[styles.intervalDesc, { color: colors.mutedForeground }]}>
+          <Text style={[styles.sectionCardDesc, { color: colors.mutedForeground }]}>
             How often does this plant need watering?
           </Text>
-          <View style={styles.intervalRow}>
+          <View style={[styles.intervalRow, !wateringEnabled && { opacity: 0.4 }]}>
             <TextInput
               style={[
                 styles.numberInput,
@@ -312,41 +335,40 @@ export default function AddPlantScreen() {
               keyboardType="decimal-pad"
               placeholder="3"
               placeholderTextColor={colors.mutedForeground}
+              editable={wateringEnabled}
             />
-            <Text
-              style={[
-                styles.everyLabel,
-                { color: colors.mutedForeground },
-              ]}
-            >
-              every
-            </Text>
+            <Text style={[styles.everyLabel, { color: colors.mutedForeground }]}>every</Text>
             <UnitPicker
               value={waterUnit}
               onChange={setWaterUnit}
               uiColor={theme.uiColor}
               colors={colors}
+              disabled={!wateringEnabled}
             />
           </View>
         </View>
 
         {/* Misting */}
-        <View
-          style={[
-            styles.intervalCard,
-            { backgroundColor: colors.card, borderColor: colors.border },
-          ]}
-        >
-          <View style={styles.intervalHeader}>
+        <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <View style={styles.sectionCardHeader}>
             <Ionicons name="rainy" size={20} color={theme.uiColor} />
-            <Text style={[styles.intervalTitle, { color: theme.textColor }]}>
-              Misting
-            </Text>
+            <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>Misting</Text>
+            <View style={styles.toggleRow}>
+              <Text style={[styles.toggleLabel, { color: colors.mutedForeground }]}>
+                {mistingEnabled ? "Alerts on" : "Muted"}
+              </Text>
+              <Switch
+                value={mistingEnabled}
+                onValueChange={setMistingEnabled}
+                trackColor={{ false: colors.muted, true: theme.uiColor + "88" }}
+                thumbColor={mistingEnabled ? theme.uiColor : colors.mutedForeground}
+              />
+            </View>
           </View>
-          <Text style={[styles.intervalDesc, { color: colors.mutedForeground }]}>
+          <Text style={[styles.sectionCardDesc, { color: colors.mutedForeground }]}>
             How often does this plant need misting?
           </Text>
-          <View style={styles.intervalRow}>
+          <View style={[styles.intervalRow, !mistingEnabled && { opacity: 0.4 }]}>
             <TextInput
               style={[
                 styles.numberInput,
@@ -361,20 +383,15 @@ export default function AddPlantScreen() {
               keyboardType="decimal-pad"
               placeholder="1"
               placeholderTextColor={colors.mutedForeground}
+              editable={mistingEnabled}
             />
-            <Text
-              style={[
-                styles.everyLabel,
-                { color: colors.mutedForeground },
-              ]}
-            >
-              every
-            </Text>
+            <Text style={[styles.everyLabel, { color: colors.mutedForeground }]}>every</Text>
             <UnitPicker
               value={mistUnit}
               onChange={setMistUnit}
               uiColor={theme.uiColor}
               colors={colors}
+              disabled={!mistingEnabled}
             />
           </View>
         </View>
@@ -403,18 +420,12 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   backBtn: { padding: 4 },
-  headerTitle: {
-    fontSize: 17,
-    fontFamily: "Inter_600SemiBold",
-  },
+  headerTitle: { fontSize: 17, fontFamily: "Inter_600SemiBold" },
   saveBtn: { padding: 4 },
   saveBtnText: { fontSize: 16, fontFamily: "Inter_600SemiBold" },
   scroll: { flex: 1 },
   scrollContent: { padding: 20, gap: 0 },
-  photoPickerWrapper: {
-    alignSelf: "center",
-    marginBottom: 24,
-  },
+  photoPickerWrapper: { alignSelf: "center", marginBottom: 24 },
   photoPicker: {
     width: 120,
     height: 120,
@@ -439,11 +450,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   section: { marginBottom: 16 },
-  label: {
-    fontSize: 13,
-    fontFamily: "Inter_600SemiBold",
-    marginBottom: 6,
-  },
+  label: { fontSize: 13, fontFamily: "Inter_600SemiBold", marginBottom: 6 },
   input: {
     height: 48,
     borderRadius: 12,
@@ -452,26 +459,22 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: "Inter_400Regular",
   },
-  intervalCard: {
+  sectionCard: {
     borderRadius: 16,
     borderWidth: 1,
     padding: 16,
     marginBottom: 14,
     gap: 8,
   },
-  intervalHeader: {
+  sectionCardHeader: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
   },
-  intervalTitle: {
-    fontSize: 16,
-    fontFamily: "Inter_600SemiBold",
-  },
-  intervalDesc: {
-    fontSize: 12,
-    fontFamily: "Inter_400Regular",
-  },
+  sectionCardTitle: { fontSize: 16, fontFamily: "Inter_600SemiBold", flex: 1 },
+  sectionCardDesc: { fontSize: 12, fontFamily: "Inter_400Regular" },
+  toggleRow: { flexDirection: "row", alignItems: "center", gap: 6 },
+  toggleLabel: { fontSize: 11, fontFamily: "Inter_500Medium" },
   intervalRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -488,14 +491,8 @@ const styles = StyleSheet.create({
     fontFamily: "Inter_600SemiBold",
     textAlign: "center",
   },
-  everyLabel: {
-    fontSize: 14,
-    fontFamily: "Inter_400Regular",
-  },
-  unitRow: {
-    flexDirection: "row",
-    gap: 6,
-  },
+  everyLabel: { fontSize: 14, fontFamily: "Inter_400Regular" },
+  unitRow: { flexDirection: "row", gap: 6 },
   unitBtn: {
     paddingHorizontal: 14,
     height: 36,
@@ -504,10 +501,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  unitText: {
-    fontSize: 13,
-    fontFamily: "Inter_500Medium",
+  unitText: { fontSize: 13, fontFamily: "Inter_500Medium" },
+  healthGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginTop: 4,
   },
+  healthBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 10,
+    minWidth: "46%",
+    flex: 1,
+  },
+  healthBtnText: { fontSize: 12, fontFamily: "Inter_600SemiBold" },
   saveButton: {
     flexDirection: "row",
     alignItems: "center",
@@ -517,9 +528,5 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginTop: 8,
   },
-  saveButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontFamily: "Inter_600SemiBold",
-  },
+  saveButtonText: { color: "#FFFFFF", fontSize: 16, fontFamily: "Inter_600SemiBold" },
 });

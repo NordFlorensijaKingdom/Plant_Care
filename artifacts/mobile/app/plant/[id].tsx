@@ -24,6 +24,7 @@ import {
   getTimeRemaining,
   usePlants,
 } from "@/context/PlantContext";
+import { HealthBadge } from "@/components/HealthBadge";
 import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
 
@@ -534,6 +535,9 @@ export default function PlantDetailScreen() {
           >
             {plant.species}
           </Text>
+          <View style={{ marginTop: 6 }}>
+            <HealthBadge status={plant.healthStatus} size="md" />
+          </View>
         </View>
       </View>
 

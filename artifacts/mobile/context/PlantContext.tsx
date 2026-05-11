@@ -26,10 +26,26 @@ export type Recurrence = "once" | "yearly";
 export interface Reminder {
   id: string;
   title: string;
-  date: number; // ms timestamp
+  date: number;
   recurrence: Recurrence;
   notificationId: string | null;
 }
+
+export type HealthStatus = "excellent" | "good" | "needs_attention" | "sick";
+
+export const HEALTH_STATUS_CONFIG: Record<
+  HealthStatus,
+  { label: string; icon: string; color: string }
+> = {
+  excellent: { label: "Excellent", icon: "heart", color: "#2D6A4F" },
+  good: { label: "Good", icon: "checkmark-circle", color: "#52B788" },
+  needs_attention: {
+    label: "Needs Attention",
+    icon: "alert-circle",
+    color: "#F4A261",
+  },
+  sick: { label: "Sick", icon: "warning", color: "#E53E3E" },
+};
 
 export interface Plant {
   id: string;
@@ -38,6 +54,9 @@ export interface Plant {
   mainPhoto: string | null;
   wateringInterval: TimeInterval;
   mistingInterval: TimeInterval;
+  wateringEnabled: boolean;
+  mistingEnabled: boolean;
+  healthStatus: HealthStatus;
   notes: Note[];
   photoAlbum: string[];
   reminders: Reminder[];
@@ -96,7 +115,7 @@ async function cancelNotification(id: string | null): Promise<void> {
   }
 }
 
-async function scheduleCarNotification(
+async function scheduleCareNotification(
   identifier: string,
   title: string,
   body: string,
@@ -146,28 +165,34 @@ async function scheduleReminderNotification(
 
 // ---- Context types ----
 
+type AddPlantData = Omit<
+  Plant,
+  | "id"
+  | "createdAt"
+  | "notes"
+  | "photoAlbum"
+  | "reminders"
+  | "lastWatered"
+  | "lastMisted"
+>;
+
+type EditPlantData = Pick<
+  Plant,
+  | "name"
+  | "species"
+  | "mainPhoto"
+  | "wateringInterval"
+  | "mistingInterval"
+  | "healthStatus"
+  | "wateringEnabled"
+  | "mistingEnabled"
+>;
+
 interface PlantContextType {
   plants: Plant[];
   loading: boolean;
-  addPlant: (
-    data: Omit<
-      Plant,
-      | "id"
-      | "createdAt"
-      | "notes"
-      | "photoAlbum"
-      | "reminders"
-      | "lastWatered"
-      | "lastMisted"
-    >
-  ) => void;
-  editPlant: (
-    id: string,
-    data: Pick<
-      Plant,
-      "name" | "species" | "mainPhoto" | "wateringInterval" | "mistingInterval"
-    >
-  ) => void;
+  addPlant: (data: AddPlantData) => void;
+  editPlant: (id: string, data: EditPlantData) => void;
   deletePlant: (id: string) => void;
   waterPlant: (id: string) => void;
   mistPlant: (id: string) => void;
@@ -176,24 +201,36 @@ interface PlantContextType {
   deleteNote: (plantId: string, noteId: string) => void;
   addPhoto: (plantId: string, uri: string) => void;
   deletePhoto: (plantId: string, photoIndex: number) => void;
-  addReminder: (plantId: string, reminder: Omit<Reminder, "id" | "notificationId">) => Promise<void>;
+  addReminder: (
+    plantId: string,
+    reminder: Omit<Reminder, "id" | "notificationId">
+  ) => Promise<void>;
   deleteReminder: (plantId: string, reminderId: string) => void;
 }
 
 const PlantContext = createContext<PlantContextType | null>(null);
-const STORAGE_KEY = "plant_care_plants_v2";
+const STORAGE_KEY = "plant_care_plants_v3";
 
 export function PlantProvider({ children }: { children: React.ReactNode }) {
   const [plants, setPlants] = useState<Plant[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Try v3 first, fall back to v2
     AsyncStorage.getItem(STORAGE_KEY)
-      .then((raw) => {
+      .then(async (raw) => {
         if (raw) {
           const parsed = JSON.parse(raw) as Plant[];
-          // Migrate: ensure reminders field exists
-          setPlants(parsed.map((p) => ({ reminders: [], ...p })));
+          setPlants(parsed.map(migrate));
+          return;
+        }
+        // Migrate from old key
+        const old = await AsyncStorage.getItem("plant_care_plants_v2");
+        if (old) {
+          const parsed = JSON.parse(old) as Plant[];
+          const migrated = parsed.map(migrate);
+          setPlants(migrated);
+          await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
         }
       })
       .finally(() => setLoading(false));
@@ -205,18 +242,7 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const addPlant = useCallback(
-    (
-      data: Omit<
-        Plant,
-        | "id"
-        | "createdAt"
-        | "notes"
-        | "photoAlbum"
-        | "reminders"
-        | "lastWatered"
-        | "lastMisted"
-      >
-    ) => {
+    (data: AddPlantData) => {
       const newPlant: Plant = {
         ...data,
         id: generateId(),
@@ -233,41 +259,43 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
   );
 
   const editPlant = useCallback(
-    (
-      id: string,
-      data: Pick<
-        Plant,
-        "name" | "species" | "mainPhoto" | "wateringInterval" | "mistingInterval"
-      >
-    ) => {
+    (id: string, data: EditPlantData) => {
+      const prev = plants.find((p) => p.id === id);
       const updated = plants.map((p) =>
         p.id === id ? { ...p, ...data } : p
       );
       persist(updated);
-      // Reschedule watering/misting notifications with new intervals
+
       const plant = updated.find((p) => p.id === id);
-      if (plant) {
-        if (plant.lastWatered) {
+      if (!plant) return;
+
+      // Handle watering notification
+      cancelNotification(`watering-${id}`).then(() => {
+        if (plant.wateringEnabled && plant.lastWatered) {
           const triggerMs =
             plant.lastWatered + getIntervalMs(plant.wateringInterval);
-          scheduleCarNotification(
+          scheduleCareNotification(
             `watering-${id}`,
             "Time to water!",
             `${plant.name} needs watering`,
             triggerMs
           );
         }
-        if (plant.lastMisted) {
+      });
+
+      // Handle misting notification
+      cancelNotification(`misting-${id}`).then(() => {
+        if (plant.mistingEnabled && plant.lastMisted) {
           const triggerMs =
             plant.lastMisted + getIntervalMs(plant.mistingInterval);
-          scheduleCarNotification(
+          scheduleCareNotification(
             `misting-${id}`,
             "Time to mist!",
             `${plant.name} needs misting`,
             triggerMs
           );
         }
-      }
+      });
     },
     [plants, persist]
   );
@@ -276,7 +304,6 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
     (id: string) => {
       const plant = plants.find((p) => p.id === id);
       if (plant) {
-        // Cancel all notifications for this plant
         cancelNotification(`watering-${id}`);
         cancelNotification(`misting-${id}`);
         plant.reminders.forEach((r) => cancelNotification(r.notificationId));
@@ -291,13 +318,16 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
       const updated = plants.map((p) => {
         if (p.id !== id) return p;
         const watered = { ...p, lastWatered: Date.now() };
-        const triggerMs = watered.lastWatered + getIntervalMs(watered.wateringInterval);
-        scheduleCarNotification(
-          `watering-${id}`,
-          "Time to water!",
-          `${watered.name} needs watering`,
-          triggerMs
-        );
+        if (watered.wateringEnabled) {
+          const triggerMs =
+            watered.lastWatered! + getIntervalMs(watered.wateringInterval);
+          scheduleCareNotification(
+            `watering-${id}`,
+            "Time to water!",
+            `${watered.name} needs watering`,
+            triggerMs
+          );
+        }
         return watered;
       });
       persist(updated);
@@ -310,13 +340,16 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
       const updated = plants.map((p) => {
         if (p.id !== id) return p;
         const misted = { ...p, lastMisted: Date.now() };
-        const triggerMs = misted.lastMisted + getIntervalMs(misted.mistingInterval);
-        scheduleCarNotification(
-          `misting-${id}`,
-          "Time to mist!",
-          `${misted.name} needs misting`,
-          triggerMs
-        );
+        if (misted.mistingEnabled) {
+          const triggerMs =
+            misted.lastMisted! + getIntervalMs(misted.mistingInterval);
+          scheduleCareNotification(
+            `misting-${id}`,
+            "Time to mist!",
+            `${misted.name} needs misting`,
+            triggerMs
+          );
+        }
         return misted;
       });
       persist(updated);
@@ -397,10 +430,11 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
         id: generateId(),
         notificationId: null,
       };
-      // Schedule notification
-      const notifId = await scheduleReminderNotification(plant.name, newReminder);
+      const notifId = await scheduleReminderNotification(
+        plant.name,
+        newReminder
+      );
       newReminder.notificationId = notifId;
-
       const updated = plants.map((p) =>
         p.id === plantId
           ? { ...p, reminders: [...p.reminders, newReminder] }
@@ -422,7 +456,10 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
       }
       const updated = plants.map((p) => {
         if (p.id !== plantId) return p;
-        return { ...p, reminders: p.reminders.filter((r) => r.id !== reminderId) };
+        return {
+          ...p,
+          reminders: p.reminders.filter((r) => r.id !== reminderId),
+        };
       });
       persist(updated);
     },
@@ -457,4 +494,15 @@ export function usePlants(): PlantContextType {
   const ctx = useContext(PlantContext);
   if (!ctx) throw new Error("usePlants must be used within PlantProvider");
   return ctx;
+}
+
+// ---- Migration helper ----
+function migrate(p: any): Plant {
+  return {
+    reminders: [],
+    wateringEnabled: true,
+    mistingEnabled: true,
+    healthStatus: "good" as HealthStatus,
+    ...p,
+  };
 }

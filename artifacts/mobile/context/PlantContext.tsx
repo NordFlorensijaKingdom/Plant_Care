@@ -7,6 +7,7 @@ import React, {
   useState,
 } from "react";
 import { Platform } from "react-native";
+import { AlertCircle, CircleCheck, Heart, TriangleAlert } from "lucide-react-native";
 
 import { useAppSettings } from "@/context/AppSettingsContext";
 import { adjustForQuietHours } from "@/utils/care";
@@ -38,16 +39,16 @@ export type HealthStatus = "excellent" | "good" | "needs_attention" | "sick";
 
 export const HEALTH_STATUS_CONFIG: Record<
   HealthStatus,
-  { label: string; icon: string; color: string }
+  { label: string; Icon: React.ComponentType<{ size?: number; color?: string }>; color: string }
 > = {
-  excellent: { label: "Отлично", icon: "heart", color: "#2D6A4F" },
-  good: { label: "Хорошо", icon: "checkmark-circle", color: "#52B788" },
+  excellent: { label: "Отлично", Icon: Heart, color: "#2D6A4F" },
+  good: { label: "Хорошо", Icon: CircleCheck, color: "#52B788" },
   needs_attention: {
     label: "Нужен уход",
-    icon: "alert-circle",
+    Icon: AlertCircle,
     color: "#F4A261",
   },
-  sick: { label: "Болеет", icon: "warning", color: "#E53E3E" },
+  sick: { label: "Болеет", Icon: TriangleAlert, color: "#E53E3E" },
 };
 
 export type CareHistoryType = "water" | "mist" | "health";
@@ -60,6 +61,9 @@ export interface CareHistoryEntry {
   comment?: string;
 }
 
+export type LightLevel = "low" | "medium" | "bright";
+export type CareDifficulty = "easy" | "medium" | "hard";
+
 export interface Plant {
   id: string;
   name: string;
@@ -68,8 +72,8 @@ export interface Plant {
   location: string;
   purchaseDate: number | null;
   lastRepotted: number | null;
-  lightLevel: 1 | 2 | 3 | 4 | 5;
-  difficulty: 1 | 2 | 3 | 4 | 5;
+  lightLevel: LightLevel;
+  difficulty: CareDifficulty;
   wateringInterval: TimeInterval;
   mistingInterval: TimeInterval;
   wateringEnabled: boolean;
@@ -123,6 +127,26 @@ function generateId(): string {
   return Date.now().toString() + Math.random().toString(36).substr(2, 9);
 }
 
+function coerceLightLevel(value: unknown): LightLevel {
+  if (value === "low" || value === "medium" || value === "bright") return value;
+  if (typeof value === "number") {
+    if (value <= 2) return "low";
+    if (value >= 4) return "bright";
+    return "medium";
+  }
+  return "medium";
+}
+
+function coerceDifficulty(value: unknown): CareDifficulty {
+  if (value === "easy" || value === "medium" || value === "hard") return value;
+  if (typeof value === "number") {
+    if (value <= 2) return "easy";
+    if (value >= 4) return "hard";
+    return "medium";
+  }
+  return "medium";
+}
+
 // ---- Notification helpers ----
 
 async function cancelNotification(id: string | null): Promise<void> {
@@ -151,7 +175,7 @@ async function scheduleCareNotification(
     if (status !== "granted") return null;
     const id = await N.scheduleNotificationAsync({
       identifier,
-      content: { title, body },
+      content: { title, body, categoryIdentifier: "care" },
       trigger: { type: "date", date: new Date(adjusted) } as any,
     });
     return id;
@@ -248,6 +272,7 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
   const [plants, setPlants] = useState<Plant[]>([]);
   const [loading, setLoading] = useState(true);
   const { quietHoursEnabled } = useAppSettings();
+  const isWeb = Platform.OS === "web";
 
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY)
@@ -480,10 +505,70 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
 
   const skipCare = useCallback(
     (plantId: string, type: "water" | "mist") => {
-      snoozeCare(plantId, type, 3600 * 1000);
+      const plant = plants.find((p) => p.id === plantId);
+      if (!plant) return;
+      const durationMs =
+        type === "water"
+          ? getIntervalMs(plant.wateringInterval)
+          : getIntervalMs(plant.mistingInterval);
+      snoozeCare(plantId, type, durationMs);
     },
-    [snoozeCare]
+    [plants, snoozeCare]
   );
+
+  useEffect(() => {
+    if (isWeb) return;
+    let sub: { remove: () => void } | null = null;
+    (async () => {
+      try {
+        const N = await import("expo-notifications");
+        await N.setNotificationCategoryAsync("care", [
+          {
+            identifier: "care-done",
+            buttonTitle: "Выполнено",
+            options: { opensAppToForeground: false },
+          },
+          {
+            identifier: "care-snooze-1h",
+            buttonTitle: "+1 час",
+            options: { opensAppToForeground: false },
+          },
+          {
+            identifier: "care-skip",
+            buttonTitle: "Пропустить",
+            options: { opensAppToForeground: false },
+          },
+        ]);
+        sub = N.addNotificationResponseReceivedListener((resp) => {
+          const notificationId = resp.notification.request.identifier;
+          const actionId = resp.actionIdentifier;
+          const isWater = notificationId.startsWith("watering-");
+          const isMist = notificationId.startsWith("misting-");
+          if (!isWater && !isMist) return;
+          const plantId = notificationId.slice(
+            isWater ? "watering-".length : "misting-".length
+          );
+          const type = isWater ? "water" : "mist";
+
+          if (actionId === "care-done") {
+            if (type === "water") waterPlant(plantId);
+            else mistPlant(plantId);
+            return;
+          }
+          if (actionId === "care-snooze-1h") {
+            snoozeCare(plantId, type, 3600 * 1000);
+            return;
+          }
+          if (actionId === "care-skip") {
+            skipCare(plantId, type);
+          }
+        });
+      } catch {}
+    })();
+    return () => {
+      sub?.remove();
+    };
+  }, [isWeb, mistPlant, skipCare, snoozeCare, waterPlant]);
 
   const addNote = useCallback(
     (plantId: string, text: string) => {
@@ -650,9 +735,9 @@ function migrate(p: any): Plant {
     location: "",
     purchaseDate: null,
     lastRepotted: null,
-    lightLevel: 3,
-    difficulty: 3,
     ...p,
+    lightLevel: coerceLightLevel(p?.lightLevel),
+    difficulty: coerceDifficulty(p?.difficulty),
     history: Array.isArray(history) ? history : [],
     snooze: {
       waterUntil: typeof p?.snooze?.waterUntil === "number" ? p.snooze.waterUntil : null,

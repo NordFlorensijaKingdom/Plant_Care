@@ -12,6 +12,8 @@ import { Sun } from "lucide-react-native";
 import { useColors } from "@/hooks/useColors";
 import { useTheme } from "@/context/ThemeContext";
 
+export const unstable_settings = { initialRouteName: "today" };
+
 function NativeTabLayout() {
   return (
     <NativeTabs>

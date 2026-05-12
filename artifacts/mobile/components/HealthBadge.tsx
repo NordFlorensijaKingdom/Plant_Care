@@ -1,4 +1,3 @@
-import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -12,6 +11,7 @@ interface HealthBadgeProps {
 export function HealthBadge({ status, size = "sm" }: HealthBadgeProps) {
   const config = HEALTH_STATUS_CONFIG[status];
   const isSmall = size === "sm";
+  const Icon = config.Icon;
 
   return (
     <View
@@ -26,11 +26,7 @@ export function HealthBadge({ status, size = "sm" }: HealthBadgeProps) {
         },
       ]}
     >
-      <Ionicons
-        name={config.icon as any}
-        size={isSmall ? 10 : 13}
-        color={config.color}
-      />
+      <Icon size={isSmall ? 10 : 13} color={config.color} />
       <Text
         style={[
           styles.label,

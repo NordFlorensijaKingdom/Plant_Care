@@ -275,6 +275,7 @@ function HealthLogForm({
           (s) => {
             const config = HEALTH_STATUS_CONFIG[s];
             const selected = s === status;
+            const Icon = config.Icon;
             return (
               <TouchableOpacity
                 key={s}
@@ -287,11 +288,7 @@ function HealthLogForm({
                   },
                 ]}
               >
-                <Ionicons
-                  name={config.icon as any}
-                  size={14}
-                  color={selected ? uiColor : config.color}
-                />
+                <Icon size={14} color={selected ? uiColor : config.color} />
                 <Text
                   style={[
                     formStyles.statusChipText,
@@ -1042,12 +1039,7 @@ export default function PlantDetailScreen() {
                 (healthStatus === "needs_attention" || healthStatus === "sick");
               const accent =
                 healthStatus === "sick" ? colors.destructive : colors.warning;
-              const icon =
-                log.type === "water"
-                  ? "water"
-                  : log.type === "mist"
-                  ? "rainy"
-                  : HEALTH_STATUS_CONFIG[healthStatus]?.icon ?? "heart";
+              const HealthIcon = HEALTH_STATUS_CONFIG[healthStatus]?.Icon;
               const title =
                 log.type === "water"
                   ? "Полив"
@@ -1075,11 +1067,24 @@ export default function PlantDetailScreen() {
                         },
                       ]}
                     >
-                      <Ionicons
-                        name={icon as any}
-                        size={18}
-                        color={isBad ? accent : theme.uiColor}
-                      />
+                      {log.type === "water" ? (
+                        <Ionicons
+                          name="water"
+                          size={18}
+                          color={isBad ? accent : theme.uiColor}
+                        />
+                      ) : log.type === "mist" ? (
+                        <Ionicons
+                          name="rainy"
+                          size={18}
+                          color={isBad ? accent : theme.uiColor}
+                        />
+                      ) : HealthIcon ? (
+                        <HealthIcon
+                          size={18}
+                          color={isBad ? accent : theme.uiColor}
+                        />
+                      ) : null}
                     </View>
                     <View style={styles.historyInfo}>
                       <View style={styles.historyTitleRow}>

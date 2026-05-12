@@ -1,4 +1,3 @@
-import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
@@ -6,7 +5,9 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   Alert,
+  Modal,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Switch,
@@ -16,16 +17,18 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ArrowLeft, Calendar, Camera, Check, ChevronDown, Droplet, Heart, Info, Pencil, SprayCan, X } from "lucide-react-native";
 
 import {
   HEALTH_STATUS_CONFIG,
+  CareDifficulty,
   HealthStatus,
+  LightLevel,
   TimeUnit,
   usePlants,
 } from "@/context/PlantContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
-import { parseISODateToMs } from "@/utils/care";
 
 type UnitOption = TimeUnit;
 
@@ -86,6 +89,7 @@ function HealthStatusPicker({
       {statuses.map((status) => {
         const cfg = HEALTH_STATUS_CONFIG[status];
         const selected = value === status;
+        const Icon = cfg.Icon;
         return (
           <TouchableOpacity
             key={status}
@@ -99,7 +103,7 @@ function HealthStatusPicker({
               },
             ]}
           >
-            <Ionicons name={cfg.icon as any} size={18} color={cfg.color} />
+            <Icon size={18} color={cfg.color} />
             <Text
               style={[
                 styles.healthBtnText,
@@ -115,51 +119,92 @@ function HealthStatusPicker({
   );
 }
 
-function LevelPicker({
+function SelectField<T extends string>({
   label,
+  placeholder,
   value,
   onChange,
-  uiColor,
   colors,
+  textColor,
+  options,
 }: {
   label: string;
-  value: 1 | 2 | 3 | 4 | 5;
-  onChange: (v: 1 | 2 | 3 | 4 | 5) => void;
-  uiColor: string;
+  placeholder: string;
+  value: T;
+  onChange: (v: T) => void;
   colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
+  textColor: string;
+  options: { value: T; label: string }[];
 }) {
+  const theme = useTheme();
+  const [open, setOpen] = useState(false);
+  const selected = options.find((o) => o.value === value)?.label ?? "";
+
   return (
     <View style={styles.levelSection}>
-      <Text style={[styles.levelLabel, { color: colors.mutedForeground }]}>
-        {label}
-      </Text>
-      <View style={styles.levelRow}>
-        {([1, 2, 3, 4, 5] as const).map((n) => {
-          const selected = n === value;
-          return (
-            <TouchableOpacity
-              key={n}
-              onPress={() => onChange(n)}
-              style={[
-                styles.levelBtn,
-                {
-                  backgroundColor: selected ? uiColor : colors.muted,
-                  borderColor: selected ? uiColor : colors.border,
-                },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.levelBtnText,
-                  { color: selected ? "#FFFFFF" : colors.mutedForeground },
-                ]}
-              >
-                {n}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
+      <Text style={[styles.levelLabel, { color: colors.mutedForeground }]}>{label}</Text>
+      <TouchableOpacity
+        onPress={() => setOpen(true)}
+        style={[
+          styles.selectInput,
+          { backgroundColor: colors.background, borderColor: colors.border },
+        ]}
+      >
+        <Text
+          style={[
+            styles.selectText,
+            {
+              color: selected ? textColor : colors.mutedForeground,
+              opacity: selected ? 1 : 0.8,
+            },
+          ]}
+        >
+          {selected || placeholder}
+        </Text>
+        <ChevronDown size={18} color={colors.mutedForeground} />
+      </TouchableOpacity>
+
+      <Modal transparent visible={open} animationType="fade" onRequestClose={() => setOpen(false)}>
+        <Pressable style={styles.modalOverlay} onPress={() => setOpen(false)}>
+          <Pressable
+            style={[
+              styles.modalCard,
+              { backgroundColor: colors.card, borderColor: colors.border },
+            ]}
+            onPress={() => {}}
+          >
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, { color: textColor }]}>{label}</Text>
+              <TouchableOpacity onPress={() => setOpen(false)} style={styles.modalCloseBtn}>
+                <Text style={[styles.modalCloseText, { color: theme.uiColor }]}>Закрыть</Text>
+              </TouchableOpacity>
+            </View>
+            {options.map((opt) => {
+              const isSelected = opt.value === value;
+              return (
+                <TouchableOpacity
+                  key={opt.value}
+                  onPress={() => {
+                    onChange(opt.value);
+                    setOpen(false);
+                  }}
+                  style={[
+                    styles.optionRow,
+                    {
+                      backgroundColor: isSelected ? theme.uiColor + "18" : "transparent",
+                      borderColor: colors.border,
+                    },
+                  ]}
+                >
+                  <Text style={[styles.optionText, { color: isSelected ? theme.uiColor : textColor }]}>
+                    {opt.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
@@ -171,6 +216,177 @@ function formatISODate(ms: number | null): string {
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
+}
+
+function DateField({
+  label,
+  value,
+  onChange,
+  colors,
+  textColor,
+  uiColor,
+}: {
+  label: string;
+  value: number | null;
+  onChange: (v: number | null) => void;
+  colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
+  textColor: string;
+  uiColor: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const initial = value ? new Date(value) : new Date();
+  const [year, setYear] = useState(String(initial.getFullYear()));
+  const [month, setMonth] = useState(String(initial.getMonth() + 1).padStart(2, "0"));
+  const [day, setDay] = useState(String(initial.getDate()).padStart(2, "0"));
+
+  function resetFromValue(next: number | null) {
+    const d = next ? new Date(next) : new Date();
+    setYear(String(d.getFullYear()));
+    setMonth(String(d.getMonth() + 1).padStart(2, "0"));
+    setDay(String(d.getDate()).padStart(2, "0"));
+  }
+
+  function tryBuildDate(): number | null {
+    const y = Number(year);
+    const m = Number(month);
+    const d = Number(day);
+    if (!Number.isFinite(y) || !Number.isFinite(m) || !Number.isFinite(d)) return null;
+    if (m < 1 || m > 12) return null;
+    if (d < 1 || d > 31) return null;
+    const dt = new Date(y, m - 1, d, 0, 0, 0, 0);
+    if (dt.getFullYear() !== y || dt.getMonth() !== m - 1 || dt.getDate() !== d) return null;
+    return dt.getTime();
+  }
+
+  const display = value ? formatISODate(value) : "";
+
+  return (
+    <View style={{ marginTop: 12 }}>
+      <Text style={[styles.label, { color: textColor }]}>{label}</Text>
+      <TouchableOpacity
+        onPress={() => {
+          resetFromValue(value);
+          setOpen(true);
+        }}
+        style={[
+          styles.selectInput,
+          { backgroundColor: colors.background, borderColor: colors.border },
+        ]}
+      >
+        <Text
+          style={[
+            styles.selectText,
+            {
+              color: display ? textColor : colors.mutedForeground,
+              opacity: display ? 1 : 0.8,
+            },
+          ]}
+        >
+          {display || "Выбрать дату"}
+        </Text>
+        <Calendar size={18} color={colors.mutedForeground} />
+      </TouchableOpacity>
+
+      <Modal transparent visible={open} animationType="fade" onRequestClose={() => setOpen(false)}>
+        <Pressable style={styles.modalOverlay} onPress={() => setOpen(false)}>
+          <Pressable
+            style={[
+              styles.modalCard,
+              { backgroundColor: colors.card, borderColor: colors.border },
+            ]}
+            onPress={() => {}}
+          >
+            <Text style={[styles.modalTitle, { color: textColor }]}>{label}</Text>
+            <View style={styles.dateRow}>
+              <View style={styles.dateField}>
+                <Text style={[styles.dateLabel, { color: colors.mutedForeground }]}>Год</Text>
+                <TextInput
+                  style={[
+                    styles.dateInput,
+                    { backgroundColor: colors.background, borderColor: colors.border, color: textColor },
+                  ]}
+                  value={year}
+                  onChangeText={setYear}
+                  keyboardType="number-pad"
+                  maxLength={4}
+                />
+              </View>
+              <View style={styles.dateField}>
+                <Text style={[styles.dateLabel, { color: colors.mutedForeground }]}>Месяц</Text>
+                <TextInput
+                  style={[
+                    styles.dateInput,
+                    { backgroundColor: colors.background, borderColor: colors.border, color: textColor },
+                  ]}
+                  value={month}
+                  onChangeText={setMonth}
+                  keyboardType="number-pad"
+                  maxLength={2}
+                />
+              </View>
+              <View style={styles.dateField}>
+                <Text style={[styles.dateLabel, { color: colors.mutedForeground }]}>День</Text>
+                <TextInput
+                  style={[
+                    styles.dateInput,
+                    { backgroundColor: colors.background, borderColor: colors.border, color: textColor },
+                  ]}
+                  value={day}
+                  onChangeText={setDay}
+                  keyboardType="number-pad"
+                  maxLength={2}
+                />
+              </View>
+            </View>
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                onPress={() => {
+                  onChange(null);
+                  setOpen(false);
+                }}
+                style={[styles.modalBtn, { backgroundColor: colors.muted }]}
+              >
+                <Text style={[styles.modalBtnText, { color: colors.mutedForeground }]}>Очистить</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  const now = new Date();
+                  onChange(new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0).getTime());
+                  setOpen(false);
+                }}
+                style={[styles.modalBtn, { backgroundColor: colors.muted }]}
+              >
+                <Text style={[styles.modalBtnText, { color: colors.mutedForeground }]}>Сегодня</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                onPress={() => setOpen(false)}
+                style={[styles.modalBtn, { backgroundColor: colors.muted }]}
+              >
+                <Text style={[styles.modalBtnText, { color: colors.mutedForeground }]}>Отмена</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  const built = tryBuildDate();
+                  if (built == null) {
+                    Alert.alert("Неверная дата", "Проверьте год/месяц/день.");
+                    return;
+                  }
+                  onChange(built);
+                  setOpen(false);
+                }}
+                style={[styles.modalBtn, { backgroundColor: uiColor }]}
+              >
+                <Text style={[styles.modalBtnText, { color: "#FFFFFF" }]}>Готово</Text>
+              </TouchableOpacity>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+    </View>
+  );
 }
 
 export default function EditPlantScreen() {
@@ -188,18 +404,10 @@ export default function EditPlantScreen() {
   const [species, setSpecies] = useState(plant?.species ?? "");
   const [mainPhoto, setMainPhoto] = useState<string | null>(plant?.mainPhoto ?? null);
   const [location, setLocation] = useState(plant?.location ?? "");
-  const [purchaseDateText, setPurchaseDateText] = useState(
-    formatISODate(plant?.purchaseDate ?? null)
-  );
-  const [lastRepottedText, setLastRepottedText] = useState(
-    formatISODate(plant?.lastRepotted ?? null)
-  );
-  const [lightLevel, setLightLevel] = useState<1 | 2 | 3 | 4 | 5>(
-    (plant?.lightLevel ?? 3) as any
-  );
-  const [difficulty, setDifficulty] = useState<1 | 2 | 3 | 4 | 5>(
-    (plant?.difficulty ?? 3) as any
-  );
+  const [purchaseDate, setPurchaseDate] = useState<number | null>(plant?.purchaseDate ?? null);
+  const [lastRepotted, setLastRepotted] = useState<number | null>(plant?.lastRepotted ?? null);
+  const [lightLevel, setLightLevel] = useState<LightLevel>(plant?.lightLevel ?? "medium");
+  const [difficulty, setDifficulty] = useState<CareDifficulty>(plant?.difficulty ?? "medium");
   const [healthStatus, setHealthStatus] = useState<HealthStatus>(
     plant?.healthStatus ?? "good"
   );
@@ -277,16 +485,6 @@ export default function EditPlantScreen() {
       Alert.alert("Missing species", "Please enter the plant species.");
       return;
     }
-    const purchaseDate = parseISODateToMs(purchaseDateText);
-    if (purchaseDateText.trim() && purchaseDate == null) {
-      Alert.alert("Invalid date", "Purchase date must be YYYY-MM-DD.");
-      return;
-    }
-    const lastRepotted = parseISODateToMs(lastRepottedText);
-    if (lastRepottedText.trim() && lastRepotted == null) {
-      Alert.alert("Invalid date", "Last repotted date must be YYYY-MM-DD.");
-      return;
-    }
     const wVal = parseFloat(waterValue);
     const mVal = parseFloat(mistValue);
     if (wateringEnabled && (isNaN(wVal) || wVal <= 0)) {
@@ -332,7 +530,7 @@ export default function EditPlantScreen() {
         ]}
       >
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Ionicons name="close" size={22} color={theme.uiColor} />
+          <X size={22} color={theme.uiColor} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: theme.textColor }]}>Edit Plant</Text>
         <TouchableOpacity onPress={handleSave}>
@@ -356,13 +554,13 @@ export default function EditPlantScreen() {
               <Image source={{ uri: mainPhoto }} style={styles.photoPreview} contentFit="cover" />
             ) : (
               <View style={styles.photoPlaceholder}>
-                <Ionicons name="camera-outline" size={32} color={colors.mutedForeground} />
+                <Camera size={32} color={colors.mutedForeground} />
                 <Text style={[styles.photoLabel, { color: colors.mutedForeground }]}>Change Photo</Text>
               </View>
             )}
           </View>
           <View style={[styles.photoEditBadge, { backgroundColor: theme.uiColor }]}>
-            <Ionicons name="pencil" size={12} color="#FFFFFF" />
+            <Pencil size={12} color="#FFFFFF" />
           </View>
         </TouchableOpacity>
 
@@ -388,7 +586,7 @@ export default function EditPlantScreen() {
 
         <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.sectionCardHeader}>
-            <Ionicons name="information-circle-outline" size={20} color={theme.uiColor} />
+            <Info size={20} color={theme.uiColor} />
             <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>Details</Text>
           </View>
           <Text style={[styles.sectionCardDesc, { color: colors.mutedForeground }]}>
@@ -403,48 +601,54 @@ export default function EditPlantScreen() {
             placeholderTextColor={colors.mutedForeground}
           />
 
-          <Text style={[labelStyle, { marginTop: 12 }]}>Purchase date</Text>
-          <TextInput
-            style={inputStyle}
-            value={purchaseDateText}
-            onChangeText={setPurchaseDateText}
-            placeholder="YYYY-MM-DD"
-            placeholderTextColor={colors.mutedForeground}
-            autoCapitalize="none"
-            autoCorrect={false}
+          <DateField
+            label="Дата покупки"
+            value={purchaseDate}
+            onChange={setPurchaseDate}
+            colors={colors}
+            textColor={theme.textColor}
+            uiColor={theme.uiColor}
           />
-
-          <Text style={[labelStyle, { marginTop: 12 }]}>Last repotted</Text>
-          <TextInput
-            style={inputStyle}
-            value={lastRepottedText}
-            onChangeText={setLastRepottedText}
-            placeholder="YYYY-MM-DD"
-            placeholderTextColor={colors.mutedForeground}
-            autoCapitalize="none"
-            autoCorrect={false}
+          <DateField
+            label="Последняя пересадка"
+            value={lastRepotted}
+            onChange={setLastRepotted}
+            colors={colors}
+            textColor={theme.textColor}
+            uiColor={theme.uiColor}
           />
-
-          <LevelPicker
-            label="Light level"
+          <SelectField<LightLevel>
+            label="Уровень света"
+            placeholder="Выбрать"
             value={lightLevel}
             onChange={setLightLevel}
-            uiColor={theme.uiColor}
             colors={colors}
+            textColor={theme.textColor}
+            options={[
+              { value: "low", label: "Низкий" },
+              { value: "medium", label: "Средний" },
+              { value: "bright", label: "Яркий" },
+            ]}
           />
-          <LevelPicker
-            label="Care difficulty"
+          <SelectField<CareDifficulty>
+            label="Сложность ухода"
+            placeholder="Выбрать"
             value={difficulty}
             onChange={setDifficulty}
-            uiColor={theme.uiColor}
             colors={colors}
+            textColor={theme.textColor}
+            options={[
+              { value: "easy", label: "Лёгкий" },
+              { value: "medium", label: "Средний" },
+              { value: "hard", label: "Сложный" },
+            ]}
           />
         </View>
 
         {/* Health Status */}
         <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.sectionCardHeader}>
-            <Ionicons name="heart-outline" size={20} color={theme.uiColor} />
+            <Heart size={20} color={theme.uiColor} />
             <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>Health Status</Text>
           </View>
           <Text style={[styles.sectionCardDesc, { color: colors.mutedForeground }]}>
@@ -460,7 +664,7 @@ export default function EditPlantScreen() {
         {/* Watering */}
         <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.sectionCardHeader}>
-            <Ionicons name="water" size={20} color={theme.uiColor} />
+            <Droplet size={20} color={theme.uiColor} />
             <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>Watering</Text>
             <View style={styles.toggleRow}>
               <Text style={[styles.toggleLabel, { color: colors.mutedForeground }]}>
@@ -504,7 +708,7 @@ export default function EditPlantScreen() {
         {/* Misting */}
         <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.sectionCardHeader}>
-            <Ionicons name="rainy" size={20} color={theme.uiColor} />
+            <SprayCan size={20} color={theme.uiColor} />
             <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>Misting</Text>
             <View style={styles.toggleRow}>
               <Text style={[styles.toggleLabel, { color: colors.mutedForeground }]}>
@@ -550,7 +754,7 @@ export default function EditPlantScreen() {
           onPress={handleSave}
           style={[styles.saveButton, { backgroundColor: theme.uiColor }]}
         >
-          <Ionicons name="checkmark" size={20} color="#FFFFFF" />
+          <Check size={20} color="#FFFFFF" />
           <Text style={styles.saveButtonText}>Save Changes</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -656,16 +860,66 @@ const styles = StyleSheet.create({
   healthBtnText: { fontSize: 12, fontFamily: "Inter_600SemiBold" },
   levelSection: { marginTop: 12, gap: 8 },
   levelLabel: { fontSize: 12, fontFamily: "Inter_400Regular" },
-  levelRow: { flexDirection: "row", gap: 8, flexWrap: "wrap" },
-  levelBtn: {
-    width: 44,
-    height: 36,
-    borderRadius: 10,
+  selectInput: {
+    height: 44,
+    borderRadius: 12,
     borderWidth: 1,
+    paddingHorizontal: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 10,
+  },
+  selectText: { fontSize: 14, fontFamily: "Inter_500Medium" },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.35)",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 18,
+  },
+  modalCard: {
+    width: "100%",
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: 14,
+    gap: 10,
+    maxWidth: 520,
+  },
+  modalHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  modalTitle: { fontSize: 15, fontFamily: "Inter_600SemiBold" },
+  modalCloseBtn: { paddingHorizontal: 6, paddingVertical: 4 },
+  modalCloseText: { fontSize: 13, fontFamily: "Inter_600SemiBold" },
+  optionRow: {
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    height: 44,
     alignItems: "center",
     justifyContent: "center",
   },
-  levelBtnText: { fontSize: 13, fontFamily: "Inter_600SemiBold" },
+  optionText: { fontSize: 14, fontFamily: "Inter_600SemiBold" },
+  dateRow: { flexDirection: "row", gap: 8 },
+  dateField: { flex: 1, gap: 4 },
+  dateLabel: { fontSize: 11, fontFamily: "Inter_500Medium" },
+  dateInput: {
+    height: 44,
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    fontSize: 14,
+    fontFamily: "Inter_600SemiBold",
+    textAlign: "center",
+  },
+  modalActions: { flexDirection: "row", gap: 8 },
+  modalBtn: {
+    flex: 1,
+    height: 42,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  modalBtnText: { fontSize: 14, fontFamily: "Inter_600SemiBold" },
   saveButton: {
     flexDirection: "row",
     alignItems: "center",

@@ -53,6 +53,9 @@ pnpm -C artifacts/mobile eas:build:apk
   - используется слишком старая версия `eas-cli`.
   - решение: всегда запускать EAS через `pnpm -C artifacts/mobile eas ...` (проектная версия уже зафиксирована в `devDependencies`).
 
+- Ошибка при установке pnpm в EAS build логах (вроде `pnpm add pnpm@...`):
+  - в некоторых окружениях `corepack prepare`/автоустановка pnpm конфликтует с monorepo.
+  - решение уже заложено в `eas.json`: pnpm ставится через `npm i -g pnpm@10.28.1`, затем выполняется `pnpm install --frozen-lockfile`.
+
 - Нет токена/не залогинены:
   - добавьте `EXPO_TOKEN` в Secrets или выполните `pnpm -C artifacts/mobile eas login`.
-

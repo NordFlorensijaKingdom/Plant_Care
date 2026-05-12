@@ -5,13 +5,11 @@
   },
   "build": {
     "development": {
-      "corepackEnabled": true,
       "pnpm": "10.28.1",
       "developmentClient": true,
       "distribution": "internal"
     },
     "preview": {
-      "corepackEnabled": true,
       "pnpm": "10.28.1",
       "env": {
         "NPM_FLAGS": "--no-frozen-lockfile"
@@ -19,7 +17,6 @@
       "distribution": "internal"
     },
     "production": {
-      "corepackEnabled": true,
       "pnpm": "10.28.1",
       "autoIncrement": true
     }

@@ -63,6 +63,17 @@ export const CARD_BG_PRESETS = [
   "#2A2A35",
 ];
 
+export const BACKGROUND_PRESETS = [
+  "#F0F7F4",
+  "#FFFFFF",
+  "#EFF6F2",
+  "#FFF8F0",
+  "#0D1B14",
+  "#1A2E25",
+  "#111827",
+  "#1E293B",
+];
+
 // ---- Types ----
 
 export interface ThemeSettings {
@@ -70,6 +81,7 @@ export interface ThemeSettings {
   secondaryTextColor: string | null;
   uiColor: string;
   cardColor: string | null;
+  backgroundColor: string | null;
   backgroundImage: string | null;
 }
 
@@ -78,6 +90,7 @@ interface ThemeContextType extends ThemeSettings {
   setSecondaryTextColor: (color: string | null) => void;
   setUiColor: (color: string) => void;
   setCardColor: (color: string | null) => void;
+  setBackgroundColor: (color: string | null) => void;
   setBackgroundImage: (uri: string | null) => void;
   resetTheme: () => void;
 }
@@ -89,6 +102,7 @@ export const defaults: ThemeSettings = {
   secondaryTextColor: null,
   uiColor: "#2D6A4F",
   cardColor: null,
+  backgroundColor: null,
   backgroundImage: null,
 };
 
@@ -156,6 +170,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     [settings, save]
   );
 
+  const setBackgroundColor = useCallback(
+    (color: string | null) => save({ ...settings, backgroundColor: color }),
+    [settings, save]
+  );
+
   const setBackgroundImage = useCallback(
     (uri: string | null) => save({ ...settings, backgroundImage: uri }),
     [settings, save]
@@ -171,6 +190,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         setSecondaryTextColor,
         setUiColor,
         setCardColor,
+        setBackgroundColor,
         setBackgroundImage,
         resetTheme,
       }}

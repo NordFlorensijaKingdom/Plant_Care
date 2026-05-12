@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "PlantCare",
+    "name": "My Garden",
     "slug": "plant-care-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -18,9 +18,9 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.user.plantcare",
       "infoPlist": {
-        "NSPhotoLibraryUsageDescription": "Allow PlantCare to access your photos for plant pictures.",
-        "NSCameraUsageDescription": "Allow PlantCare to use your camera to take plant photos.",
-        "NSUserNotificationUsageDescription": "Allow PlantCare to send you care reminders."
+        "NSPhotoLibraryUsageDescription": "Allow My Garden to access your photos for plant pictures.",
+        "NSCameraUsageDescription": "Allow My Garden to use your camera to take plant photos.",
+        "NSUserNotificationUsageDescription": "Allow My Garden to send you care reminders."
       }
     },
     "android": {
@@ -48,8 +48,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow PlantCare to access your photos.",
-          "cameraPermission": "Allow PlantCare to take plant photos."
+          "photosPermission": "Allow My Garden to access your photos.",
+          "cameraPermission": "Allow My Garden to take plant photos."
         }
       ],
       [

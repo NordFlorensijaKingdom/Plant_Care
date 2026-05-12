@@ -21,7 +21,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   HEALTH_STATUS_CONFIG,
   HealthStatus,
-  PlantLog,
+  CareHistoryEntry,
   Recurrence,
   getProgress,
   getTimeRemaining,
@@ -563,7 +563,7 @@ export default function PlantDetailScreen() {
     { key: "history", label: "История", icon: "time-outline" },
   ];
 
-  const sortedLogs: PlantLog[] = [...(plant.logs ?? [])].sort(
+  const sortedLogs: CareHistoryEntry[] = [...(plant.history ?? [])].sort(
     (a, b) => b.timestamp - a.timestamp
   );
 
@@ -774,7 +774,7 @@ export default function PlantDetailScreen() {
               : tab.key === "gallery"
               ? plant.photoAlbum.length
               : tab.key === "history"
-              ? plant.logs.length
+              ? plant.history.length
               : 0;
           return (
             <TouchableOpacity
@@ -1035,16 +1035,19 @@ export default function PlantDetailScreen() {
             </View>
           ) : (
             sortedLogs.map((log) => {
+              const isHealth = log.type === "health";
+              const healthStatus = log.healthStatus ?? "good";
               const isBad =
-                log.healthStatus === "needs_attention" || log.healthStatus === "sick";
+                isHealth &&
+                (healthStatus === "needs_attention" || healthStatus === "sick");
               const accent =
-                log.healthStatus === "sick" ? colors.destructive : colors.warning;
+                healthStatus === "sick" ? colors.destructive : colors.warning;
               const icon =
                 log.type === "water"
                   ? "water"
                   : log.type === "mist"
                   ? "rainy"
-                  : HEALTH_STATUS_CONFIG[log.healthStatus]?.icon ?? "heart";
+                  : HEALTH_STATUS_CONFIG[healthStatus]?.icon ?? "heart";
               const title =
                 log.type === "water"
                   ? "Полив"
@@ -1083,7 +1086,7 @@ export default function PlantDetailScreen() {
                         <Text style={[styles.historyTitle, { color: theme.textColor }]}>
                           {title}
                         </Text>
-                        <HealthBadge status={log.healthStatus} />
+                        {isHealth && <HealthBadge status={healthStatus} />}
                       </View>
                       <Text style={[styles.historyDate, { color: effectiveSecondary }]}>
                         {new Date(log.timestamp).toLocaleString(undefined, {

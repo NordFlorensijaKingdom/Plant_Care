@@ -14,6 +14,7 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { AppSettingsProvider } from "@/context/AppSettingsContext";
 import { PlantProvider } from "@/context/PlantContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 
@@ -52,13 +53,15 @@ export default function RootLayout() {
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
-            <PlantProvider>
-              <GestureHandlerRootView>
-                <KeyboardProvider>
-                  <RootLayoutNav />
-                </KeyboardProvider>
-              </GestureHandlerRootView>
-            </PlantProvider>
+            <AppSettingsProvider>
+              <PlantProvider>
+                <GestureHandlerRootView>
+                  <KeyboardProvider>
+                    <RootLayoutNav />
+                  </KeyboardProvider>
+                </GestureHandlerRootView>
+              </PlantProvider>
+            </AppSettingsProvider>
           </ThemeProvider>
         </QueryClientProvider>
       </ErrorBoundary>

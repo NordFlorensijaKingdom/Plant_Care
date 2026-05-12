@@ -25,6 +25,7 @@ import {
   defaults,
   useTheme,
 } from "@/context/ThemeContext";
+import { useAppSettings } from "@/context/AppSettingsContext";
 import { useColors } from "@/hooks/useColors";
 
 // ---- Sub-components ----
@@ -230,6 +231,7 @@ function ColorSection({
 export default function SettingsScreen() {
   const colors = useColors();
   const theme = useTheme();
+  const appSettings = useAppSettings();
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
 
@@ -533,6 +535,28 @@ export default function SettingsScreen() {
               thumbColor={notifEnabled ? theme.uiColor : colors.border}
             />
           </View>
+
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+          <View style={styles.switchRow}>
+            <View style={styles.switchInfo}>
+              <Ionicons name="moon-outline" size={20} color={theme.uiColor} />
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.switchLabel, { color: theme.textColor }]}>
+                  Quiet hours
+                </Text>
+                <Text style={[styles.switchDesc, { color: colors.mutedForeground }]}>
+                  Delay notifications from 22:00 to 08:00
+                </Text>
+              </View>
+            </View>
+            <Switch
+              value={appSettings.quietHoursEnabled}
+              onValueChange={appSettings.setQuietHoursEnabled}
+              trackColor={{ false: colors.muted, true: theme.uiColor + "80" }}
+              thumbColor={appSettings.quietHoursEnabled ? theme.uiColor : colors.border}
+            />
+          </View>
         </View>
 
         {/* ── DANGER ZONE ── */}
@@ -709,6 +733,7 @@ const styles = StyleSheet.create({
     borderStyle: "dashed",
   },
   bgPickerText: { fontSize: 14, fontFamily: "Inter_500Medium" },
+  divider: { height: 1, marginVertical: 12, opacity: 0.5 },
   switchRow: {
     flexDirection: "row",
     alignItems: "center",

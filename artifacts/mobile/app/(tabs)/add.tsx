@@ -25,6 +25,7 @@ import {
 } from "@/context/PlantContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
+import { parseISODateToMs } from "@/utils/care";
 
 type UnitOption = TimeUnit;
 
@@ -118,6 +119,64 @@ function HealthStatusPicker({
   );
 }
 
+function LevelPicker({
+  label,
+  value,
+  onChange,
+  uiColor,
+  colors,
+}: {
+  label: string;
+  value: 1 | 2 | 3 | 4 | 5;
+  onChange: (v: 1 | 2 | 3 | 4 | 5) => void;
+  uiColor: string;
+  colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
+}) {
+  return (
+    <View style={styles.levelSection}>
+      <Text style={[styles.levelLabel, { color: colors.mutedForeground }]}>
+        {label}
+      </Text>
+      <View style={styles.levelRow}>
+        {([1, 2, 3, 4, 5] as const).map((n) => {
+          const selected = n === value;
+          return (
+            <TouchableOpacity
+              key={n}
+              onPress={() => onChange(n)}
+              style={[
+                styles.levelBtn,
+                {
+                  backgroundColor: selected ? uiColor : colors.muted,
+                  borderColor: selected ? uiColor : colors.border,
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.levelBtnText,
+                  { color: selected ? "#FFFFFF" : colors.mutedForeground },
+                ]}
+              >
+                {n}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
+function formatISODate(ms: number | null): string {
+  if (!ms) return "";
+  const d = new Date(ms);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
 export default function AddPlantScreen() {
   const colors = useColors();
   const theme = useTheme();
@@ -129,6 +188,11 @@ export default function AddPlantScreen() {
   const [name, setName] = useState("");
   const [species, setSpecies] = useState("");
   const [mainPhoto, setMainPhoto] = useState<string | null>(null);
+  const [location, setLocation] = useState("");
+  const [purchaseDateText, setPurchaseDateText] = useState("");
+  const [lastRepottedText, setLastRepottedText] = useState("");
+  const [lightLevel, setLightLevel] = useState<1 | 2 | 3 | 4 | 5>(3);
+  const [difficulty, setDifficulty] = useState<1 | 2 | 3 | 4 | 5>(3);
   const [healthStatus, setHealthStatus] = useState<HealthStatus>("good");
   const [wateringEnabled, setWateringEnabled] = useState(true);
   const [mistingEnabled, setMistingEnabled] = useState(true);
@@ -187,6 +251,16 @@ export default function AddPlantScreen() {
       Alert.alert("Missing species", "Please enter the plant species.");
       return;
     }
+    const purchaseDate = parseISODateToMs(purchaseDateText);
+    if (purchaseDateText.trim() && purchaseDate == null) {
+      Alert.alert("Invalid date", "Purchase date must be YYYY-MM-DD.");
+      return;
+    }
+    const lastRepotted = parseISODateToMs(lastRepottedText);
+    if (lastRepottedText.trim() && lastRepotted == null) {
+      Alert.alert("Invalid date", "Last repotted date must be YYYY-MM-DD.");
+      return;
+    }
     const wVal = parseFloat(waterValue);
     const mVal = parseFloat(mistValue);
     if (wateringEnabled && (isNaN(wVal) || wVal <= 0)) {
@@ -202,6 +276,11 @@ export default function AddPlantScreen() {
       name: name.trim(),
       species: species.trim(),
       mainPhoto,
+      location: location.trim(),
+      purchaseDate,
+      lastRepotted,
+      lightLevel,
+      difficulty,
       healthStatus,
       wateringEnabled,
       mistingEnabled,
@@ -281,6 +360,61 @@ export default function AddPlantScreen() {
             onChangeText={setSpecies}
             placeholder="e.g. Nephrolepis exaltata"
             placeholderTextColor={colors.mutedForeground}
+          />
+        </View>
+
+        <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <View style={styles.sectionCardHeader}>
+            <Ionicons name="information-circle-outline" size={20} color={theme.uiColor} />
+            <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>Details</Text>
+          </View>
+          <Text style={[styles.sectionCardDesc, { color: colors.mutedForeground }]}>
+            Optional information to help you track this plant.
+          </Text>
+          <Text style={labelStyle}>Location</Text>
+          <TextInput
+            style={inputStyle}
+            value={location}
+            onChangeText={setLocation}
+            placeholder="e.g. Living room"
+            placeholderTextColor={colors.mutedForeground}
+          />
+
+          <Text style={[labelStyle, { marginTop: 12 }]}>Purchase date</Text>
+          <TextInput
+            style={inputStyle}
+            value={purchaseDateText}
+            onChangeText={setPurchaseDateText}
+            placeholder={formatISODate(Date.now())}
+            placeholderTextColor={colors.mutedForeground}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+
+          <Text style={[labelStyle, { marginTop: 12 }]}>Last repotted</Text>
+          <TextInput
+            style={inputStyle}
+            value={lastRepottedText}
+            onChangeText={setLastRepottedText}
+            placeholder="YYYY-MM-DD"
+            placeholderTextColor={colors.mutedForeground}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+
+          <LevelPicker
+            label="Light level"
+            value={lightLevel}
+            onChange={setLightLevel}
+            uiColor={theme.uiColor}
+            colors={colors}
+          />
+          <LevelPicker
+            label="Care difficulty"
+            value={difficulty}
+            onChange={setDifficulty}
+            uiColor={theme.uiColor}
+            colors={colors}
           />
         </View>
 
@@ -519,6 +653,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   healthBtnText: { fontSize: 12, fontFamily: "Inter_600SemiBold" },
+  levelSection: { marginTop: 12, gap: 8 },
+  levelLabel: { fontSize: 12, fontFamily: "Inter_400Regular" },
+  levelRow: { flexDirection: "row", gap: 8, flexWrap: "wrap" },
+  levelBtn: {
+    width: 44,
+    height: 36,
+    borderRadius: 10,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  levelBtnText: { fontSize: 13, fontFamily: "Inter_600SemiBold" },
   saveButton: {
     flexDirection: "row",
     alignItems: "center",

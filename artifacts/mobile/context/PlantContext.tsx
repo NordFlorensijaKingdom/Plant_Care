@@ -8,6 +8,9 @@ import React, {
 } from "react";
 import { Platform } from "react-native";
 
+import { useAppSettings } from "@/context/AppSettingsContext";
+import { adjustForQuietHours } from "@/utils/care";
+
 export interface Note {
   id: string;
   text: string;
@@ -47,13 +50,13 @@ export const HEALTH_STATUS_CONFIG: Record<
   sick: { label: "Болеет", icon: "warning", color: "#E53E3E" },
 };
 
-export type PlantLogType = "water" | "mist" | "health";
+export type CareHistoryType = "water" | "mist" | "health";
 
-export interface PlantLog {
+export interface CareHistoryEntry {
   id: string;
   timestamp: number;
-  type: PlantLogType;
-  healthStatus: HealthStatus;
+  type: CareHistoryType;
+  healthStatus?: HealthStatus;
   comment?: string;
 }
 
@@ -62,12 +65,18 @@ export interface Plant {
   name: string;
   species: string;
   mainPhoto: string | null;
+  location: string;
+  purchaseDate: number | null;
+  lastRepotted: number | null;
+  lightLevel: 1 | 2 | 3 | 4 | 5;
+  difficulty: 1 | 2 | 3 | 4 | 5;
   wateringInterval: TimeInterval;
   mistingInterval: TimeInterval;
   wateringEnabled: boolean;
   mistingEnabled: boolean;
   healthStatus: HealthStatus;
-  logs: PlantLog[];
+  history: CareHistoryEntry[];
+  snooze: { waterUntil: number | null; mistUntil: number | null };
   notes: Note[];
   photoAlbum: string[];
   reminders: Reminder[];
@@ -130,10 +139,12 @@ async function scheduleCareNotification(
   identifier: string,
   title: string,
   body: string,
-  triggerMs: number
+  triggerMs: number,
+  quietHoursEnabled: boolean
 ): Promise<string | null> {
   if (Platform.OS === "web") return null;
-  if (triggerMs <= Date.now()) return null;
+  const adjusted = adjustForQuietHours(triggerMs, quietHoursEnabled);
+  if (adjusted <= Date.now()) return null;
   try {
     const N = await import("expo-notifications");
     const { status } = await N.getPermissionsAsync();
@@ -141,7 +152,7 @@ async function scheduleCareNotification(
     const id = await N.scheduleNotificationAsync({
       identifier,
       content: { title, body },
-      trigger: { type: "date", date: new Date(triggerMs) } as any,
+      trigger: { type: "date", date: new Date(adjusted) } as any,
     });
     return id;
   } catch {
@@ -180,7 +191,8 @@ type AddPlantData = Omit<
   Plant,
   | "id"
   | "createdAt"
-  | "logs"
+  | "history"
+  | "snooze"
   | "notes"
   | "photoAlbum"
   | "reminders"
@@ -193,6 +205,11 @@ type EditPlantData = Pick<
   | "name"
   | "species"
   | "mainPhoto"
+  | "location"
+  | "purchaseDate"
+  | "lastRepotted"
+  | "lightLevel"
+  | "difficulty"
   | "wateringInterval"
   | "mistingInterval"
   | "healthStatus"
@@ -209,6 +226,8 @@ interface PlantContextType {
   waterPlant: (id: string) => void;
   mistPlant: (id: string) => void;
   addHealthLog: (plantId: string, status: HealthStatus, comment?: string) => void;
+  snoozeCare: (plantId: string, type: "water" | "mist", durationMs: number) => void;
+  skipCare: (plantId: string, type: "water" | "mist") => void;
   addNote: (plantId: string, text: string) => void;
   updateNote: (plantId: string, noteId: string, text: string) => void;
   deleteNote: (plantId: string, noteId: string) => void;
@@ -222,14 +241,15 @@ interface PlantContextType {
 }
 
 const PlantContext = createContext<PlantContextType | null>(null);
-const STORAGE_KEY = "plant_care_plants_v3";
+const STORAGE_KEY = "plant_care_plants_v4";
+const OLD_STORAGE_KEYS = ["plant_care_plants_v3", "plant_care_plants_v2"];
 
 export function PlantProvider({ children }: { children: React.ReactNode }) {
   const [plants, setPlants] = useState<Plant[]>([]);
   const [loading, setLoading] = useState(true);
+  const { quietHoursEnabled } = useAppSettings();
 
   useEffect(() => {
-    // Try v3 first, fall back to v2
     AsyncStorage.getItem(STORAGE_KEY)
       .then(async (raw) => {
         if (raw) {
@@ -237,13 +257,14 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
           setPlants(parsed.map(migrate));
           return;
         }
-        // Migrate from old key
-        const old = await AsyncStorage.getItem("plant_care_plants_v2");
-        if (old) {
-          const parsed = JSON.parse(old) as Plant[];
+        for (const k of OLD_STORAGE_KEYS) {
+          const old = await AsyncStorage.getItem(k);
+          if (!old) continue;
+          const parsed = JSON.parse(old) as any[];
           const migrated = parsed.map(migrate);
           setPlants(migrated);
           await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+          break;
         }
       })
       .finally(() => setLoading(false));
@@ -259,7 +280,8 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
       const newPlant: Plant = {
         ...data,
         id: generateId(),
-        logs: [],
+        history: [],
+        snooze: { waterUntil: null, mistUntil: null },
         notes: [],
         photoAlbum: [],
         reminders: [],
@@ -274,7 +296,6 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
 
   const editPlant = useCallback(
     (id: string, data: EditPlantData) => {
-      const prev = plants.find((p) => p.id === id);
       const updated = plants.map((p) =>
         p.id === id ? { ...p, ...data } : p
       );
@@ -283,35 +304,43 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
       const plant = updated.find((p) => p.id === id);
       if (!plant) return;
 
-      // Handle watering notification
       cancelNotification(`watering-${id}`).then(() => {
-        if (plant.wateringEnabled && plant.lastWatered) {
-          const triggerMs =
-            plant.lastWatered + getIntervalMs(plant.wateringInterval);
+        if (plant.wateringEnabled) {
+          const baseTriggerMs =
+            plant.snooze.waterUntil ??
+            (plant.lastWatered
+              ? plant.lastWatered + getIntervalMs(plant.wateringInterval)
+              : 0);
+          if (baseTriggerMs <= 0) return;
           scheduleCareNotification(
             `watering-${id}`,
             "Time to water!",
             `${plant.name} needs watering`,
-            triggerMs
+            baseTriggerMs,
+            quietHoursEnabled
           );
         }
       });
 
-      // Handle misting notification
       cancelNotification(`misting-${id}`).then(() => {
-        if (plant.mistingEnabled && plant.lastMisted) {
-          const triggerMs =
-            plant.lastMisted + getIntervalMs(plant.mistingInterval);
+        if (plant.mistingEnabled) {
+          const baseTriggerMs =
+            plant.snooze.mistUntil ??
+            (plant.lastMisted
+              ? plant.lastMisted + getIntervalMs(plant.mistingInterval)
+              : 0);
+          if (baseTriggerMs <= 0) return;
           scheduleCareNotification(
             `misting-${id}`,
             "Time to mist!",
             `${plant.name} needs misting`,
-            triggerMs
+            baseTriggerMs,
+            quietHoursEnabled
           );
         }
       });
     },
-    [plants, persist]
+    [plants, persist, quietHoursEnabled]
   );
 
   const deletePlant = useCallback(
@@ -332,32 +361,32 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
       const updated = plants.map((p) => {
         if (p.id !== id) return p;
         const now = Date.now();
-        const log: PlantLog = {
+        const entry: CareHistoryEntry = {
           id: generateId(),
           timestamp: now,
           type: "water",
-          healthStatus: p.healthStatus,
         };
         const watered = {
           ...p,
           lastWatered: now,
-          logs: [...(p.logs ?? []), log],
+          snooze: { ...p.snooze, waterUntil: null },
+          history: [...(p.history ?? []), entry],
         };
         if (watered.wateringEnabled) {
-          const triggerMs =
-            watered.lastWatered! + getIntervalMs(watered.wateringInterval);
+          const triggerMs = now + getIntervalMs(watered.wateringInterval);
           scheduleCareNotification(
             `watering-${id}`,
             "Time to water!",
             `${watered.name} needs watering`,
-            triggerMs
+            triggerMs,
+            quietHoursEnabled
           );
         }
         return watered;
       });
       persist(updated);
     },
-    [plants, persist]
+    [plants, persist, quietHoursEnabled]
   );
 
   const mistPlant = useCallback(
@@ -365,34 +394,38 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
       const updated = plants.map((p) => {
         if (p.id !== id) return p;
         const now = Date.now();
-        const log: PlantLog = {
+        const entry: CareHistoryEntry = {
           id: generateId(),
           timestamp: now,
           type: "mist",
-          healthStatus: p.healthStatus,
         };
-        const misted = { ...p, lastMisted: now, logs: [...(p.logs ?? []), log] };
+        const misted = {
+          ...p,
+          lastMisted: now,
+          snooze: { ...p.snooze, mistUntil: null },
+          history: [...(p.history ?? []), entry],
+        };
         if (misted.mistingEnabled) {
-          const triggerMs =
-            misted.lastMisted! + getIntervalMs(misted.mistingInterval);
+          const triggerMs = now + getIntervalMs(misted.mistingInterval);
           scheduleCareNotification(
             `misting-${id}`,
             "Time to mist!",
             `${misted.name} needs misting`,
-            triggerMs
+            triggerMs,
+            quietHoursEnabled
           );
         }
         return misted;
       });
       persist(updated);
     },
-    [plants, persist]
+    [plants, persist, quietHoursEnabled]
   );
 
   const addHealthLog = useCallback(
     (plantId: string, status: HealthStatus, comment?: string) => {
       const now = Date.now();
-      const log: PlantLog = {
+      const entry: CareHistoryEntry = {
         id: generateId(),
         timestamp: now,
         type: "health",
@@ -401,12 +434,55 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
       };
       const updated = plants.map((p) =>
         p.id === plantId
-          ? { ...p, healthStatus: status, logs: [...(p.logs ?? []), log] }
+          ? {
+              ...p,
+              healthStatus: status,
+              history: [...(p.history ?? []), entry],
+            }
           : p
       );
       persist(updated);
     },
     [plants, persist]
+  );
+
+  const snoozeCare = useCallback(
+    (plantId: string, type: "water" | "mist", durationMs: number) => {
+      const now = Date.now();
+      const until = now + durationMs;
+      const updated = plants.map((p) => {
+        if (p.id !== plantId) return p;
+        const snooze =
+          type === "water"
+            ? { ...p.snooze, waterUntil: until }
+            : { ...p.snooze, mistUntil: until };
+        return { ...p, snooze };
+      });
+      persist(updated);
+      const plant = updated.find((p) => p.id === plantId);
+      if (!plant) return;
+      cancelNotification(`${type === "water" ? "watering" : "misting"}-${plantId}`).then(
+        () => {
+          scheduleCareNotification(
+            `${type === "water" ? "watering" : "misting"}-${plantId}`,
+            type === "water" ? "Time to water!" : "Time to mist!",
+            type === "water"
+              ? `${plant.name} needs watering`
+              : `${plant.name} needs misting`,
+            until,
+            quietHoursEnabled
+          );
+        }
+      );
+    },
+    [plants, persist, quietHoursEnabled]
+  );
+
+  const skipCare = useCallback(
+    (plantId: string, type: "water" | "mist") => {
+      snoozeCare(plantId, type, 3600 * 1000);
+    },
+    [snoozeCare]
   );
 
   const addNote = useCallback(
@@ -529,6 +605,8 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
         waterPlant,
         mistPlant,
         addHealthLog,
+        snoozeCare,
+        skipCare,
         addNote,
         updateNote,
         deleteNote,
@@ -551,12 +629,34 @@ export function usePlants(): PlantContextType {
 
 // ---- Migration helper ----
 function migrate(p: any): Plant {
+  const rawHistory = Array.isArray(p?.history) ? p.history : [];
+  const rawLogs = Array.isArray(p?.logs) ? p.logs : [];
+  const history: CareHistoryEntry[] =
+    rawHistory.length > 0
+      ? rawHistory
+      : rawLogs.map((l: any) => ({
+          id: String(l?.id ?? generateId()),
+          timestamp: Number(l?.timestamp ?? Date.now()),
+          type: l?.type as CareHistoryType,
+          healthStatus: l?.healthStatus as HealthStatus,
+          comment: typeof l?.comment === "string" ? l.comment : undefined,
+        }));
+
   return {
     reminders: [],
     wateringEnabled: true,
     mistingEnabled: true,
     healthStatus: "good" as HealthStatus,
+    location: "",
+    purchaseDate: null,
+    lastRepotted: null,
+    lightLevel: 3,
+    difficulty: 3,
     ...p,
-    logs: Array.isArray(p?.logs) ? p.logs : [],
+    history: Array.isArray(history) ? history : [],
+    snooze: {
+      waterUntil: typeof p?.snooze?.waterUntil === "number" ? p.snooze.waterUntil : null,
+      mistUntil: typeof p?.snooze?.mistUntil === "number" ? p.snooze.mistUntil : null,
+    },
   };
 }

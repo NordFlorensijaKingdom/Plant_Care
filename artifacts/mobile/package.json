@@ -55,6 +55,7 @@
     "zod-validation-error": "^3.4.0"
   },
   "dependencies": {
+    "lucide-react-native": "^1.14.0",
     "reanimated-color-picker": "^4.2.0"
   }
 }

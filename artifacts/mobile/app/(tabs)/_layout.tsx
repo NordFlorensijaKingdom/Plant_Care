@@ -7,6 +7,7 @@ import { Feather, Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Platform, StyleSheet, View, useColorScheme } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Sun } from "lucide-react-native";
 
 import { useColors } from "@/hooks/useColors";
 import { useTheme } from "@/context/ThemeContext";
@@ -14,6 +15,10 @@ import { useTheme } from "@/context/ThemeContext";
 function NativeTabLayout() {
   return (
     <NativeTabs>
+      <NativeTabs.Trigger name="today">
+        <Icon sf={{ default: "sun.max", selected: "sun.max.fill" }} />
+        <Label>Today</Label>
+      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="index">
         <Icon sf={{ default: "leaf", selected: "leaf.fill" }} />
         <Label>My Garden</Label>
@@ -71,6 +76,13 @@ function ClassicTabLayout() {
           ) : null,
       }}
     >
+      <Tabs.Screen
+        name="today"
+        options={{
+          title: "Today",
+          tabBarIcon: ({ color }) => <Sun size={22} color={color} />,
+        }}
+      />
       <Tabs.Screen
         name="index"
         options={{

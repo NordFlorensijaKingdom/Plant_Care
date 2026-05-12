@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { adjustForQuietHours, computeDueCareTasks, parseISODateToMs } from "./care";
+import { adjustForQuietHours, computeCalendarEvents, computeDueCareTasks, parseISODateToMs } from "./care";
 
 describe("parseISODateToMs", () => {
   test("returns null for empty input", () => {
@@ -63,3 +63,47 @@ describe("computeDueCareTasks", () => {
   });
 });
 
+describe("computeCalendarEvents", () => {
+  test("includes schedule, reminders, and history in range", () => {
+    const rangeStart = new Date(2026, 4, 12, 0, 0).getTime();
+    const rangeEnd = new Date(2026, 4, 19, 0, 0).getTime();
+    const day = 24 * 3600 * 1000;
+
+    const events = computeCalendarEvents(
+      [
+        {
+          id: "p1",
+          name: "Fern",
+          wateringEnabled: true,
+          mistingEnabled: false,
+          lastWatered: new Date(2026, 4, 11, 9, 0).getTime(),
+          lastMisted: null,
+          wateringIntervalMs: day,
+          mistingIntervalMs: day,
+          snooze: { waterUntil: null, mistUntil: null },
+          reminders: [
+            {
+              id: "r1",
+              title: "Repot",
+              date: new Date(2026, 4, 13, 9, 0).getTime(),
+              recurrence: "once",
+            },
+          ],
+          history: [
+            {
+              id: "h1",
+              timestamp: new Date(2026, 4, 12, 10, 0).getTime(),
+              type: "water",
+            },
+          ],
+        },
+      ],
+      rangeStart,
+      rangeEnd
+    );
+
+    expect(events.some((e) => e.source === "schedule" && e.type === "water")).toBe(true);
+    expect(events.some((e) => e.source === "reminder" && e.title === "Repot")).toBe(true);
+    expect(events.some((e) => e.source === "history" && e.type === "water")).toBe(true);
+  });
+});

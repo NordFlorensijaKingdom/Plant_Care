@@ -29,6 +29,7 @@ import {
 } from "@/context/PlantContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
+import { CARE_PLAN_TEMPLATES, findCarePlanTemplate } from "@/utils/carePlans";
 
 type UnitOption = TimeUnit;
 
@@ -411,6 +412,7 @@ export default function EditPlantScreen() {
   const [healthStatus, setHealthStatus] = useState<HealthStatus>(
     plant?.healthStatus ?? "good"
   );
+  const [carePlanId, setCarePlanId] = useState(plant?.carePlanId ?? "");
   const [wateringEnabled, setWateringEnabled] = useState(
     plant?.wateringEnabled ?? true
   );
@@ -499,6 +501,7 @@ export default function EditPlantScreen() {
     editPlant(id!, {
       name: name.trim(),
       species: species.trim(),
+      carePlanId: carePlanId ? carePlanId : null,
       mainPhoto,
       location: location.trim(),
       purchaseDate,
@@ -658,6 +661,38 @@ export default function EditPlantScreen() {
             value={healthStatus}
             onChange={setHealthStatus}
             textColor={theme.textColor}
+          />
+        </View>
+
+        <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <View style={styles.sectionCardHeader}>
+            <Calendar size={20} color={theme.uiColor} />
+            <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>План ухода</Text>
+          </View>
+          <Text style={[styles.sectionCardDesc, { color: colors.mutedForeground }]}>
+            Выберите шаблон, чтобы автоматически настроить интервалы полива и опрыскивания.
+          </Text>
+          <SelectField<string>
+            label="Шаблон"
+            placeholder="Без шаблона"
+            value={carePlanId}
+            onChange={(v) => {
+              setCarePlanId(v);
+              const tpl = findCarePlanTemplate(v);
+              if (!tpl) return;
+              setWateringEnabled(tpl.wateringEnabled);
+              setMistingEnabled(tpl.mistingEnabled);
+              setWaterValue(String(tpl.wateringInterval.value));
+              setWaterUnit(tpl.wateringInterval.unit);
+              setMistValue(String(tpl.mistingInterval.value));
+              setMistUnit(tpl.mistingInterval.unit);
+            }}
+            colors={colors}
+            textColor={theme.textColor}
+            options={[
+              { value: "", label: "Без шаблона" },
+              ...CARE_PLAN_TEMPLATES.map((t) => ({ value: t.id, label: `${t.title} — ${t.description}` })),
+            ]}
           />
         </View>
 

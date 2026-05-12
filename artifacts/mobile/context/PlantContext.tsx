@@ -68,6 +68,7 @@ export interface Plant {
   id: string;
   name: string;
   species: string;
+  carePlanId: string | null;
   mainPhoto: string | null;
   location: string;
   purchaseDate: number | null;
@@ -209,6 +210,49 @@ async function scheduleReminderNotification(
   }
 }
 
+async function normalizeYearlyReminders(plants: Plant[]): Promise<{ updated: Plant[]; changed: boolean }> {
+  const now = Date.now();
+  let changed = false;
+
+  const updated = await Promise.all(
+    plants.map(async (p) => {
+      if (!p.reminders?.length) return p;
+      let plantChanged = false;
+
+      const reminders = await Promise.all(
+        p.reminders.map(async (r) => {
+          if (r.recurrence !== "yearly") return r;
+          if (r.date > now) return r;
+
+          let next = r.date;
+          while (next <= now) {
+            const d = new Date(next);
+            d.setFullYear(d.getFullYear() + 1);
+            next = d.getTime();
+          }
+
+          if (next === r.date) return r;
+          plantChanged = true;
+          changed = true;
+
+          await cancelNotification(r.notificationId);
+          const scheduled = await scheduleReminderNotification(p.name, {
+            ...r,
+            date: next,
+            notificationId: null,
+          });
+          return { ...r, date: next, notificationId: scheduled };
+        })
+      );
+
+      if (!plantChanged) return p;
+      return { ...p, reminders };
+    })
+  );
+
+  return { updated, changed };
+}
+
 // ---- Context types ----
 
 type AddPlantData = Omit<
@@ -228,6 +272,7 @@ type EditPlantData = Pick<
   Plant,
   | "name"
   | "species"
+  | "carePlanId"
   | "mainPhoto"
   | "location"
   | "purchaseDate"
@@ -279,7 +324,12 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
       .then(async (raw) => {
         if (raw) {
           const parsed = JSON.parse(raw) as Plant[];
-          setPlants(parsed.map(migrate));
+          const migrated = parsed.map(migrate);
+          const normalized = await normalizeYearlyReminders(migrated);
+          setPlants(normalized.updated);
+          if (normalized.changed) {
+            await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(normalized.updated));
+          }
           return;
         }
         for (const k of OLD_STORAGE_KEYS) {
@@ -287,8 +337,9 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
           if (!old) continue;
           const parsed = JSON.parse(old) as any[];
           const migrated = parsed.map(migrate);
-          setPlants(migrated);
-          await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+          const normalized = await normalizeYearlyReminders(migrated);
+          setPlants(normalized.updated);
+          await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(normalized.updated));
           break;
         }
       })
@@ -735,6 +786,7 @@ function migrate(p: any): Plant {
     location: "",
     purchaseDate: null,
     lastRepotted: null,
+    carePlanId: null,
     ...p,
     lightLevel: coerceLightLevel(p?.lightLevel),
     difficulty: coerceDifficulty(p?.difficulty),

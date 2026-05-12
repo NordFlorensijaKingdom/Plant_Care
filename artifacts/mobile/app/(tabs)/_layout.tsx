@@ -21,6 +21,10 @@ function NativeTabLayout() {
         <Icon sf={{ default: "sun.max", selected: "sun.max.fill" }} />
         <Label>Today</Label>
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="calendar">
+        <Icon sf={{ default: "calendar", selected: "calendar.circle.fill" }} />
+        <Label>Calendar</Label>
+      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="index">
         <Icon sf={{ default: "leaf", selected: "leaf.fill" }} />
         <Label>My Garden</Label>
@@ -83,6 +87,18 @@ function ClassicTabLayout() {
         options={{
           title: "Today",
           tabBarIcon: ({ color }) => <Sun size={22} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="calendar"
+        options={{
+          title: "Calendar",
+          tabBarIcon: ({ color }) =>
+            isIOS ? (
+              <SymbolView name="calendar" tintColor={color} size={22} />
+            ) : (
+              <Ionicons name="calendar" size={22} color={color} />
+            ),
         }}
       />
       <Tabs.Screen

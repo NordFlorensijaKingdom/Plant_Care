@@ -5,16 +5,13 @@
   },
   "build": {
     "development": {
-      "installCommand": "npm i -g pnpm@10.28.1 && pnpm --version && pnpm install --frozen-lockfile",
       "developmentClient": true,
       "distribution": "internal"
     },
     "preview": {
-      "installCommand": "npm i -g pnpm@10.28.1 && pnpm --version && pnpm install --frozen-lockfile",
       "distribution": "internal"
     },
     "production": {
-      "installCommand": "npm i -g pnpm@10.28.1 && pnpm --version && pnpm install --frozen-lockfile",
       "autoIncrement": true
     }
   },

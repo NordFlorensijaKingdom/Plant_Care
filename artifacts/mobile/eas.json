@@ -5,14 +5,12 @@
   },
   "build": {
     "preview": {
-      "installCommand": "npm i -g pnpm@10.28.1 && pnpm --version && pnpm install --frozen-lockfile",
       "distribution": "internal",
       "android": {
         "buildType": "apk"
       }
     },
     "production": {
-      "installCommand": "npm i -g pnpm@10.28.1 && pnpm --version && pnpm install --frozen-lockfile",
       "android": {
         "buildType": "app-bundle"
       }

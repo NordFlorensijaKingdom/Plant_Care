@@ -18,6 +18,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ColorPickerModal } from "@/components/ColorPickerModal";
 import {
   ACCENT_PRESETS,
+  BACKGROUND_PRESETS,
   CARD_BG_PRESETS,
   PRIMARY_TEXT_PRESETS,
   SECONDARY_TEXT_PRESETS,
@@ -439,6 +440,32 @@ export default function SettingsScreen() {
           }
         />
 
+        <ColorSection
+          label="App Background"
+          description="Overall page background color"
+          icon="color-filter-outline"
+          presets={BACKGROUND_PRESETS}
+          currentColor={theme.backgroundColor}
+          defaultColor={colors.systemBackground}
+          onSelect={(c) => theme.setBackgroundColor(c)}
+          onReset={() => theme.setBackgroundColor(null)}
+          pickerTitle="Background Color"
+          preview={
+            <View
+              style={[
+                styles.previewBgMini,
+                { backgroundColor: theme.backgroundColor ?? colors.systemBackground, borderColor: colors.border },
+              ]}
+            >
+              <View style={[styles.previewBgDot, { backgroundColor: theme.uiColor }]} />
+              <View style={styles.previewCardLines}>
+                <View style={[styles.previewCardLine, { backgroundColor: theme.textColor, width: "52%" }]} />
+                <View style={[styles.previewCardLine, { backgroundColor: effectiveSecondary, width: "35%", height: 6 }]} />
+              </View>
+            </View>
+          }
+        />
+
         {/* ── BACKGROUND WALLPAPER ── */}
         <Text style={[shLabel, { marginTop: 24 }]}>BACKGROUND WALLPAPER</Text>
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
@@ -641,6 +668,15 @@ const styles = StyleSheet.create({
   previewCardDot: { width: 32, height: 32, borderRadius: 8 },
   previewCardLines: { flex: 1, gap: 5 },
   previewCardLine: { height: 8, borderRadius: 4 },
+  previewBgMini: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  previewBgDot: { width: 32, height: 32, borderRadius: 8 },
   resetLink: {
     flexDirection: "row",
     alignItems: "center",

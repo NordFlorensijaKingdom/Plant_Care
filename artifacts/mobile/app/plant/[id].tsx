@@ -677,77 +677,91 @@ export default function PlantDetailScreen() {
       </View>
 
       {/* Care cards */}
-      <View style={styles.careRow}>
-        <View
-          style={[
-            styles.careCard,
-            { backgroundColor: effectiveCard, borderColor: colors.border },
-          ]}
-        >
-          <View style={styles.careCardHeader}>
-            <Ionicons name="water" size={15} color={progressBarColor(waterProgress)} />
-            <Text style={[styles.careLabel, { color: effectiveSecondary }]}>
-              Watering
-            </Text>
-          </View>
-          <View style={[styles.progressTrack, { backgroundColor: colors.muted }]}>
+      {(plant.wateringEnabled || plant.mistingEnabled) && (
+        <View style={styles.careRow}>
+          {plant.wateringEnabled && (
             <View
               style={[
-                styles.progressFill,
-                {
-                  width: `${Math.min(waterProgress * 100, 100)}%` as any,
-                  backgroundColor: progressBarColor(waterProgress),
-                },
+                styles.careCard,
+                { backgroundColor: effectiveCard, borderColor: colors.border },
               ]}
-            />
-          </View>
-          <Text style={[styles.careTime, { color: progressBarColor(waterProgress) }]}>
-            {waterRemaining}
-          </Text>
-          <TouchableOpacity
-            onPress={handleWater}
-            style={[styles.careBtn, { backgroundColor: theme.uiColor }]}
-          >
-            <Ionicons name="water" size={13} color="#FFFFFF" />
-            <Text style={styles.careBtnText}>Water</Text>
-          </TouchableOpacity>
-        </View>
+            >
+              <View style={styles.careCardHeader}>
+                <Ionicons
+                  name="water"
+                  size={15}
+                  color={progressBarColor(waterProgress)}
+                />
+                <Text style={[styles.careLabel, { color: effectiveSecondary }]}>
+                  Watering
+                </Text>
+              </View>
+              <View style={[styles.progressTrack, { backgroundColor: colors.muted }]}>
+                <View
+                  style={[
+                    styles.progressFill,
+                    {
+                      width: `${Math.min(waterProgress * 100, 100)}%` as any,
+                      backgroundColor: progressBarColor(waterProgress),
+                    },
+                  ]}
+                />
+              </View>
+              <Text style={[styles.careTime, { color: progressBarColor(waterProgress) }]}>
+                {waterRemaining}
+              </Text>
+              <TouchableOpacity
+                onPress={handleWater}
+                style={[styles.careBtn, { backgroundColor: theme.uiColor }]}
+              >
+                <Ionicons name="water" size={13} color="#FFFFFF" />
+                <Text style={styles.careBtnText}>Water</Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
-        <View
-          style={[
-            styles.careCard,
-            { backgroundColor: effectiveCard, borderColor: colors.border },
-          ]}
-        >
-          <View style={styles.careCardHeader}>
-            <Ionicons name="rainy" size={15} color={progressBarColor(mistProgress)} />
-            <Text style={[styles.careLabel, { color: effectiveSecondary }]}>
-              Misting
-            </Text>
-          </View>
-          <View style={[styles.progressTrack, { backgroundColor: colors.muted }]}>
+          {plant.mistingEnabled && (
             <View
               style={[
-                styles.progressFill,
-                {
-                  width: `${Math.min(mistProgress * 100, 100)}%` as any,
-                  backgroundColor: progressBarColor(mistProgress),
-                },
+                styles.careCard,
+                { backgroundColor: effectiveCard, borderColor: colors.border },
               ]}
-            />
-          </View>
-          <Text style={[styles.careTime, { color: progressBarColor(mistProgress) }]}>
-            {mistRemaining}
-          </Text>
-          <TouchableOpacity
-            onPress={handleMist}
-            style={[styles.careBtn, { backgroundColor: theme.uiColor }]}
-          >
-            <Ionicons name="rainy" size={13} color="#FFFFFF" />
-            <Text style={styles.careBtnText}>Mist</Text>
-          </TouchableOpacity>
+            >
+              <View style={styles.careCardHeader}>
+                <Ionicons
+                  name="rainy"
+                  size={15}
+                  color={progressBarColor(mistProgress)}
+                />
+                <Text style={[styles.careLabel, { color: effectiveSecondary }]}>
+                  Misting
+                </Text>
+              </View>
+              <View style={[styles.progressTrack, { backgroundColor: colors.muted }]}>
+                <View
+                  style={[
+                    styles.progressFill,
+                    {
+                      width: `${Math.min(mistProgress * 100, 100)}%` as any,
+                      backgroundColor: progressBarColor(mistProgress),
+                    },
+                  ]}
+                />
+              </View>
+              <Text style={[styles.careTime, { color: progressBarColor(mistProgress) }]}>
+                {mistRemaining}
+              </Text>
+              <TouchableOpacity
+                onPress={handleMist}
+                style={[styles.careBtn, { backgroundColor: theme.uiColor }]}
+              >
+                <Ionicons name="rainy" size={13} color="#FFFFFF" />
+                <Text style={styles.careBtnText}>Mist</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
-      </View>
+      )}
 
       {/* Tabs */}
       <View style={[styles.tabBar, { borderColor: colors.border, backgroundColor: effectiveCard }]}>

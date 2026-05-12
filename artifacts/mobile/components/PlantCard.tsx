@@ -180,14 +180,7 @@ export function PlantCard({ plant }: PlantCardProps) {
                   </Text>
                 </View>
               </View>
-            ) : (
-              <View style={styles.progressRow}>
-                <Ionicons name="water-outline" size={12} color={colors.mutedForeground} style={styles.progressIcon} />
-                <Text style={[styles.mutedLabel, { color: colors.mutedForeground }]}>
-                  Alerts muted
-                </Text>
-              </View>
-            )}
+            ) : null}
 
             {/* Misting Progress */}
             {plant.mistingEnabled ? (
@@ -214,45 +207,44 @@ export function PlantCard({ plant }: PlantCardProps) {
                   </Text>
                 </View>
               </View>
-            ) : (
-              <View style={styles.progressRow}>
-                <Ionicons name="rainy-outline" size={12} color={colors.mutedForeground} style={styles.progressIcon} />
-                <Text style={[styles.mutedLabel, { color: colors.mutedForeground }]}>
-                  Alerts muted
-                </Text>
-              </View>
-            )}
+            ) : null}
           </View>
 
           {/* Quick actions */}
-          <View style={styles.actions}>
-            <TouchableOpacity
-              onPress={handleWater}
-              style={[
-                styles.actionBtn,
-                {
-                  backgroundColor: hasWallpaper
-                    ? "rgba(45,106,79,0.18)"
-                    : theme.uiColor + "18",
-                },
-              ]}
-            >
-              <Ionicons name="water" size={18} color={theme.uiColor} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleMist}
-              style={[
-                styles.actionBtn,
-                {
-                  backgroundColor: hasWallpaper
-                    ? "rgba(45,106,79,0.18)"
-                    : theme.uiColor + "18",
-                },
-              ]}
-            >
-              <Ionicons name="rainy" size={18} color={theme.uiColor} />
-            </TouchableOpacity>
-          </View>
+          {(plant.wateringEnabled || plant.mistingEnabled) && (
+            <View style={styles.actions}>
+              {plant.wateringEnabled && (
+                <TouchableOpacity
+                  onPress={handleWater}
+                  style={[
+                    styles.actionBtn,
+                    {
+                      backgroundColor: hasWallpaper
+                        ? "rgba(45,106,79,0.18)"
+                        : theme.uiColor + "18",
+                    },
+                  ]}
+                >
+                  <Ionicons name="water" size={18} color={theme.uiColor} />
+                </TouchableOpacity>
+              )}
+              {plant.mistingEnabled && (
+                <TouchableOpacity
+                  onPress={handleMist}
+                  style={[
+                    styles.actionBtn,
+                    {
+                      backgroundColor: hasWallpaper
+                        ? "rgba(45,106,79,0.18)"
+                        : theme.uiColor + "18",
+                    },
+                  ]}
+                >
+                  <Ionicons name="rainy" size={18} color={theme.uiColor} />
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
         </View>
       </Pressable>
     </Animated.View>

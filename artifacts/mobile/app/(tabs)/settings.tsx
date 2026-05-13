@@ -235,13 +235,16 @@ export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
 
-  const [notifEnabled, setNotifEnabled] = useState(false);
-
   const effectiveSecondary = theme.secondaryTextColor ?? "#6B8F7A";
   const effectiveCard = theme.cardColor ?? colors.card;
 
   async function toggleNotifications(val: boolean) {
-    if (val && Platform.OS !== "web") {
+    if (!val) {
+      appSettings.setNotificationsEnabled(false);
+      return;
+    }
+
+    if (Platform.OS !== "web") {
       try {
         const Notifications = await import("expo-notifications");
         const { status, canAskAgain } = await Notifications.getPermissionsAsync();
@@ -249,7 +252,7 @@ export default function SettingsScreen() {
           if (canAskAgain) {
             const result = await Notifications.requestPermissionsAsync();
             if (result.status === "granted") {
-              setNotifEnabled(true);
+              appSettings.setNotificationsEnabled(true);
               await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
               return;
             }
@@ -260,13 +263,13 @@ export default function SettingsScreen() {
           );
           return;
         }
-        setNotifEnabled(true);
+        appSettings.setNotificationsEnabled(true);
         await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       } catch {
         Alert.alert("Unavailable", "Notifications are not available on this platform.");
       }
     } else {
-      setNotifEnabled(val);
+      appSettings.setNotificationsEnabled(true);
     }
   }
 
@@ -529,10 +532,10 @@ export default function SettingsScreen() {
               </View>
             </View>
             <Switch
-              value={notifEnabled}
+              value={appSettings.notificationsEnabled}
               onValueChange={toggleNotifications}
               trackColor={{ false: colors.muted, true: theme.uiColor + "80" }}
-              thumbColor={notifEnabled ? theme.uiColor : colors.border}
+              thumbColor={appSettings.notificationsEnabled ? theme.uiColor : colors.border}
             />
           </View>
 

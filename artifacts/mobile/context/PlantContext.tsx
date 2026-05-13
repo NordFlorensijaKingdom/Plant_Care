@@ -4,6 +4,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { Platform } from "react-native";
@@ -316,8 +317,13 @@ const OLD_STORAGE_KEYS = ["plant_care_plants_v3", "plant_care_plants_v2"];
 export function PlantProvider({ children }: { children: React.ReactNode }) {
   const [plants, setPlants] = useState<Plant[]>([]);
   const [loading, setLoading] = useState(true);
-  const { quietHoursEnabled } = useAppSettings();
+  const { quietHoursEnabled, notificationsEnabled } = useAppSettings();
   const isWeb = Platform.OS === "web";
+  const plantsRef = useRef<Plant[]>(plants);
+
+  useEffect(() => {
+    plantsRef.current = plants;
+  }, [plants]);
 
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY)
@@ -345,6 +351,50 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
       })
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (isWeb || loading) return;
+    const current = plantsRef.current;
+
+    current.forEach((p) => {
+      cancelNotification(`watering-${p.id}`);
+      cancelNotification(`misting-${p.id}`);
+    });
+
+    if (!notificationsEnabled) return;
+
+    current.forEach((p) => {
+      if (p.wateringEnabled) {
+        const baseTriggerMs =
+          p.snooze.waterUntil ??
+          (p.lastWatered ? p.lastWatered + getIntervalMs(p.wateringInterval) : 0);
+        if (baseTriggerMs > 0) {
+          scheduleCareNotification(
+            `watering-${p.id}`,
+            "Time to water!",
+            `${p.name} needs watering`,
+            baseTriggerMs,
+            quietHoursEnabled
+          );
+        }
+      }
+
+      if (p.mistingEnabled) {
+        const baseTriggerMs =
+          p.snooze.mistUntil ??
+          (p.lastMisted ? p.lastMisted + getIntervalMs(p.mistingInterval) : 0);
+        if (baseTriggerMs > 0) {
+          scheduleCareNotification(
+            `misting-${p.id}`,
+            "Time to mist!",
+            `${p.name} needs misting`,
+            baseTriggerMs,
+            quietHoursEnabled
+          );
+        }
+      }
+    });
+  }, [isWeb, loading, notificationsEnabled, quietHoursEnabled]);
 
   const persist = useCallback(async (updated: Plant[]) => {
     setPlants(updated);
@@ -381,7 +431,7 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
       if (!plant) return;
 
       cancelNotification(`watering-${id}`).then(() => {
-        if (plant.wateringEnabled) {
+        if (plant.wateringEnabled && notificationsEnabled) {
           const baseTriggerMs =
             plant.snooze.waterUntil ??
             (plant.lastWatered
@@ -399,7 +449,7 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
       });
 
       cancelNotification(`misting-${id}`).then(() => {
-        if (plant.mistingEnabled) {
+        if (plant.mistingEnabled && notificationsEnabled) {
           const baseTriggerMs =
             plant.snooze.mistUntil ??
             (plant.lastMisted
@@ -416,7 +466,7 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
         }
       });
     },
-    [plants, persist, quietHoursEnabled]
+    [plants, persist, quietHoursEnabled, notificationsEnabled]
   );
 
   const deletePlant = useCallback(
@@ -448,7 +498,7 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
           snooze: { ...p.snooze, waterUntil: null },
           history: [...(p.history ?? []), entry],
         };
-        if (watered.wateringEnabled) {
+        if (watered.wateringEnabled && notificationsEnabled) {
           const triggerMs = now + getIntervalMs(watered.wateringInterval);
           scheduleCareNotification(
             `watering-${id}`,
@@ -462,7 +512,7 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
       });
       persist(updated);
     },
-    [plants, persist, quietHoursEnabled]
+    [plants, persist, quietHoursEnabled, notificationsEnabled]
   );
 
   const mistPlant = useCallback(
@@ -481,7 +531,7 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
           snooze: { ...p.snooze, mistUntil: null },
           history: [...(p.history ?? []), entry],
         };
-        if (misted.mistingEnabled) {
+        if (misted.mistingEnabled && notificationsEnabled) {
           const triggerMs = now + getIntervalMs(misted.mistingInterval);
           scheduleCareNotification(
             `misting-${id}`,
@@ -495,7 +545,7 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
       });
       persist(updated);
     },
-    [plants, persist, quietHoursEnabled]
+    [plants, persist, quietHoursEnabled, notificationsEnabled]
   );
 
   const addHealthLog = useCallback(
@@ -539,19 +589,21 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
       if (!plant) return;
       cancelNotification(`${type === "water" ? "watering" : "misting"}-${plantId}`).then(
         () => {
-          scheduleCareNotification(
-            `${type === "water" ? "watering" : "misting"}-${plantId}`,
-            type === "water" ? "Time to water!" : "Time to mist!",
-            type === "water"
-              ? `${plant.name} needs watering`
-              : `${plant.name} needs misting`,
-            until,
-            quietHoursEnabled
-          );
+          if (notificationsEnabled) {
+            scheduleCareNotification(
+              `${type === "water" ? "watering" : "misting"}-${plantId}`,
+              type === "water" ? "Time to water!" : "Time to mist!",
+              type === "water"
+                ? `${plant.name} needs watering`
+                : `${plant.name} needs misting`,
+              until,
+              quietHoursEnabled
+            );
+          }
         }
       );
     },
-    [plants, persist, quietHoursEnabled]
+    [plants, persist, quietHoursEnabled, notificationsEnabled]
   );
 
   const skipCare = useCallback(

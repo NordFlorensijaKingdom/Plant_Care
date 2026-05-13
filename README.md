@@ -1,4 +1,4 @@
-Plant Care Assistant
+##Plant Care Assistant##
 
 
 ​Plant Care Assistant is a cross-platform mobile application built with React Native and Expo. It is designed to help plant enthusiasts—from beginners to experts—track their plants' health, set flexible care schedules, and maintain a beautiful digital garden.

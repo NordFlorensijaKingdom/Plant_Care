@@ -1,0 +1,92 @@
+[
+  {
+    "id": "pothos",
+    "name": "Потос",
+    "latinName": "Epipremnum aureum",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "easy",
+    "temperatureC": { "min": 18, "max": 29 },
+    "quickTips": {
+      "light": "Яркий рассеянный свет, переносит полутень",
+      "watering": "Поливать после подсыхания верхних 2–3 см грунта",
+      "temperature": "18–29°C, без холодных сквозняков",
+      "mistakes": ["Переувлажнение", "Прямое полуденное солнце"]
+    }
+  },
+  {
+    "id": "snake_plant",
+    "name": "Сансевиерия",
+    "latinName": "Dracaena trifasciata",
+    "carePlanId": "succulents",
+    "lightLevel": "medium",
+    "difficulty": "easy",
+    "temperatureC": { "min": 16, "max": 30 },
+    "quickTips": {
+      "light": "От яркого рассеянного до полутени",
+      "watering": "Редко, после полного просыхания",
+      "temperature": "16–30°C, не ниже 12–14°C",
+      "mistakes": ["Частый полив", "Тяжёлый грунт без дренажа"]
+    }
+  },
+  {
+    "id": "monstera",
+    "name": "Монстера",
+    "latinName": "Monstera deliciosa",
+    "carePlanId": "tropical",
+    "lightLevel": "bright",
+    "difficulty": "medium",
+    "temperatureC": { "min": 18, "max": 29 },
+    "quickTips": {
+      "light": "Яркий рассеянный, без прямого солнца",
+      "watering": "Когда верхний слой подсохнет, без застоя воды",
+      "temperature": "18–29°C, любит повышенную влажность",
+      "mistakes": ["Пересушивание", "Прямые солнечные лучи"]
+    }
+  },
+  {
+    "id": "peace_lily",
+    "name": "Спатифиллум",
+    "latinName": "Spathiphyllum wallisii",
+    "carePlanId": "flowering",
+    "lightLevel": "medium",
+    "difficulty": "medium",
+    "temperatureC": { "min": 18, "max": 28 },
+    "quickTips": {
+      "light": "Полутень или рассеянный свет",
+      "watering": "Регулярно, но без заболачивания",
+      "temperature": "18–28°C, не любит холод",
+      "mistakes": ["Сухой воздух", "Жёсткая вода без отстаивания"]
+    }
+  },
+  {
+    "id": "aloe",
+    "name": "Алоэ вера",
+    "latinName": "Aloe vera",
+    "carePlanId": "succulents",
+    "lightLevel": "bright",
+    "difficulty": "easy",
+    "temperatureC": { "min": 16, "max": 30 },
+    "quickTips": {
+      "light": "Яркий свет, допускается прямое утреннее/вечернее солнце",
+      "watering": "Редко, только после просыхания",
+      "temperature": "16–30°C, зимой можно прохладнее",
+      "mistakes": ["Переувлажнение", "Отсутствие дренажа"]
+    }
+  },
+  {
+    "id": "orchid_phalaenopsis",
+    "name": "Орхидея фаленопсис",
+    "latinName": "Phalaenopsis",
+    "carePlanId": "flowering",
+    "lightLevel": "bright",
+    "difficulty": "hard",
+    "temperatureC": { "min": 18, "max": 28 },
+    "quickTips": {
+      "light": "Яркий рассеянный, без прямого полуденного солнца",
+      "watering": "После просыхания коры, избегать воды в розетке",
+      "temperature": "18–28°C, перепады минимальные",
+      "mistakes": ["Вода в точке роста", "Плотный грунт вместо коры"]
+    }
+  }
+]

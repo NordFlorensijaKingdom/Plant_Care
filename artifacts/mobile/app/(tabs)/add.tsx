@@ -1,8 +1,8 @@
 import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "expo-image";
-import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Alert,
   Modal,
@@ -30,6 +30,7 @@ import {
 import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
 import { CARE_PLAN_TEMPLATES, findCarePlanTemplate } from "@/utils/carePlans";
+import { getPlantCatalogById } from "@/utils/plantEncyclopedia";
 
 type UnitOption = TimeUnit;
 
@@ -395,11 +396,13 @@ export default function AddPlantScreen() {
   const theme = useTheme();
   const { addPlant } = usePlants();
   const router = useRouter();
+  const { catalogId: catalogIdParam } = useLocalSearchParams<{ catalogId?: string }>();
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
 
   const [name, setName] = useState("");
   const [species, setSpecies] = useState("");
+  const [catalogId, setCatalogId] = useState<string | null>(null);
   const [mainPhoto, setMainPhoto] = useState<string | null>(null);
   const [location, setLocation] = useState("");
   const [purchaseDate, setPurchaseDate] = useState<number | null>(null);
@@ -414,6 +417,45 @@ export default function AddPlantScreen() {
   const [waterUnit, setWaterUnit] = useState<TimeUnit>("days");
   const [mistValue, setMistValue] = useState("1");
   const [mistUnit, setMistUnit] = useState<TimeUnit>("days");
+  const appliedCatalogRef = useRef<string | null>(null);
+
+  function applyCarePlanTemplate(id: string) {
+    const tpl = findCarePlanTemplate(id);
+    if (!tpl) return;
+    setWateringEnabled(tpl.wateringEnabled);
+    setMistingEnabled(tpl.mistingEnabled);
+    setWaterValue(String(tpl.wateringInterval.value));
+    setWaterUnit(tpl.wateringInterval.unit);
+    setMistValue(String(tpl.mistingInterval.value));
+    setMistUnit(tpl.mistingInterval.unit);
+  }
+
+  useEffect(() => {
+    if (!catalogIdParam) return;
+    if (appliedCatalogRef.current === catalogIdParam) return;
+    const entry = getPlantCatalogById(catalogIdParam);
+    if (!entry) return;
+    appliedCatalogRef.current = catalogIdParam;
+    setCatalogId(entry.id);
+    setName(entry.name);
+    setSpecies(entry.latinName);
+    setLightLevel(entry.lightLevel);
+    setDifficulty(entry.difficulty);
+    setCarePlanId(entry.carePlanId);
+    if (entry.recommended?.wateringEnabled != null) setWateringEnabled(entry.recommended.wateringEnabled);
+    if (entry.recommended?.mistingEnabled != null) setMistingEnabled(entry.recommended.mistingEnabled);
+    if (entry.recommended?.wateringInterval) {
+      setWaterValue(String(entry.recommended.wateringInterval.value));
+      setWaterUnit(entry.recommended.wateringInterval.unit);
+    }
+    if (entry.recommended?.mistingInterval) {
+      setMistValue(String(entry.recommended.mistingInterval.value));
+      setMistUnit(entry.recommended.mistingInterval.unit);
+    }
+    if (!entry.recommended) {
+      applyCarePlanTemplate(entry.carePlanId);
+    }
+  }, [catalogIdParam]);
 
   async function pickPhoto() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -479,6 +521,7 @@ export default function AddPlantScreen() {
     addPlant({
       name: name.trim(),
       species: species.trim(),
+      catalogId,
       carePlanId: carePlanId ? carePlanId : null,
       mainPhoto,
       location: location.trim(),
@@ -659,14 +702,7 @@ export default function AddPlantScreen() {
             value={carePlanId}
             onChange={(v) => {
               setCarePlanId(v);
-              const tpl = findCarePlanTemplate(v);
-              if (!tpl) return;
-              setWateringEnabled(tpl.wateringEnabled);
-              setMistingEnabled(tpl.mistingEnabled);
-              setWaterValue(String(tpl.wateringInterval.value));
-              setWaterUnit(tpl.wateringInterval.unit);
-              setMistValue(String(tpl.mistingInterval.value));
-              setMistUnit(tpl.mistingInterval.unit);
+              applyCarePlanTemplate(v);
             }}
             colors={colors}
             textColor={theme.textColor}

@@ -29,6 +29,10 @@ function NativeTabLayout() {
         <Icon sf={{ default: "leaf", selected: "leaf.fill" }} />
         <Label>My Garden</Label>
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="catalog">
+        <Icon sf={{ default: "book", selected: "book.fill" }} />
+        <Label>Catalog</Label>
+      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="add">
         <Icon sf={{ default: "plus.circle", selected: "plus.circle.fill" }} />
         <Label>Add Plant</Label>
@@ -110,6 +114,18 @@ function ClassicTabLayout() {
               <SymbolView name="leaf.fill" tintColor={color} size={22} />
             ) : (
               <Ionicons name="leaf" size={22} color={color} />
+            ),
+        }}
+      />
+      <Tabs.Screen
+        name="catalog"
+        options={{
+          title: "Catalog",
+          tabBarIcon: ({ color }) =>
+            isIOS ? (
+              <SymbolView name="book.fill" tintColor={color} size={22} />
+            ) : (
+              <Ionicons name="book" size={22} color={color} />
             ),
         }}
       />

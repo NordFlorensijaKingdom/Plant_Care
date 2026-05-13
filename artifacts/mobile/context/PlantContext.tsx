@@ -69,6 +69,7 @@ export interface Plant {
   id: string;
   name: string;
   species: string;
+  catalogId: string | null;
   carePlanId: string | null;
   mainPhoto: string | null;
   location: string;
@@ -840,6 +841,7 @@ function migrate(p: any): Plant {
     lastRepotted: null,
     carePlanId: null,
     ...p,
+    catalogId: typeof p?.catalogId === "string" ? p.catalogId : null,
     lightLevel: coerceLightLevel(p?.lightLevel),
     difficulty: coerceDifficulty(p?.difficulty),
     history: Array.isArray(history) ? history : [],

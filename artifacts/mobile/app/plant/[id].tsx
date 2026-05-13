@@ -673,6 +673,22 @@ export default function PlantDetailScreen() {
         </View>
       </View>
 
+      {plant.catalogId ? (
+        <TouchableOpacity
+          onPress={() => router.push(`/plant-db/${plant.catalogId}`)}
+          style={[
+            styles.catalogLink,
+            { backgroundColor: colors.card, borderColor: colors.border },
+          ]}
+        >
+          <Ionicons name="book-outline" size={16} color={theme.uiColor} />
+          <Text style={[styles.catalogLinkText, { color: theme.textColor }]}>
+            Открыть рекомендации из базы
+          </Text>
+          <Ionicons name="chevron-forward" size={16} color={colors.mutedForeground} />
+        </TouchableOpacity>
+      ) : null}
+
       {/* Care cards */}
       {(plant.wateringEnabled || plant.mistingEnabled) && (
         <View style={styles.careRow}>
@@ -1256,6 +1272,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   heroInfo: { position: "absolute", bottom: 14, left: 16, right: 16 },
+  catalogLink: {
+    marginTop: 12,
+    marginHorizontal: 16,
+    borderWidth: 1,
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    height: 48,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  catalogLinkText: { flex: 1, fontSize: 13, fontFamily: "Inter_600SemiBold" },
   heroName: { fontSize: 22, fontFamily: "Inter_700Bold" },
   heroSpecies: { fontSize: 13, fontFamily: "Inter_400Regular", marginTop: 2 },
   careRow: {

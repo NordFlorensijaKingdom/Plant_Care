@@ -1,92 +1,1503 @@
 [
   {
-    "id": "pothos",
-    "name": "Потос",
-    "latinName": "Epipremnum aureum",
-    "carePlanId": "tropical",
-    "lightLevel": "medium",
-    "difficulty": "easy",
-    "temperatureC": { "min": 18, "max": 29 },
-    "quickTips": {
-      "light": "Яркий рассеянный свет, переносит полутень",
-      "watering": "Поливать после подсыхания верхних 2–3 см грунта",
-      "temperature": "18–29°C, без холодных сквозняков",
-      "mistakes": ["Переувлажнение", "Прямое полуденное солнце"]
-    }
-  },
-  {
-    "id": "snake_plant",
-    "name": "Сансевиерия",
-    "latinName": "Dracaena trifasciata",
-    "carePlanId": "succulents",
-    "lightLevel": "medium",
-    "difficulty": "easy",
-    "temperatureC": { "min": 16, "max": 30 },
-    "quickTips": {
-      "light": "От яркого рассеянного до полутени",
-      "watering": "Редко, после полного просыхания",
-      "temperature": "16–30°C, не ниже 12–14°C",
-      "mistakes": ["Частый полив", "Тяжёлый грунт без дренажа"]
-    }
-  },
-  {
-    "id": "monstera",
-    "name": "Монстера",
-    "latinName": "Monstera deliciosa",
+    "id": "ficus_lyrata",
+    "name": "Фикус лирата",
+    "latinName": "Ficus lyrata",
     "carePlanId": "tropical",
     "lightLevel": "bright",
     "difficulty": "medium",
-    "temperatureC": { "min": 18, "max": 29 },
+    "temperatureC": { "min": 18, "max": 26 },
     "quickTips": {
-      "light": "Яркий рассеянный, без прямого солнца",
-      "watering": "Когда верхний слой подсохнет, без застоя воды",
-      "temperature": "18–29°C, любит повышенную влажность",
-      "mistakes": ["Пересушивание", "Прямые солнечные лучи"]
+      "light": "Яркий рассеянный свет, боится прямых лучей",
+      "watering": "После просыхания верхнего слоя на 3–5 см",
+      "temperature": "Стабильное тепло, беречь от сквозняков",
+      "mistakes": ["Частые перестановки", "Перелив в зимний период"]
     }
   },
   {
-    "id": "peace_lily",
-    "name": "Спатифиллум",
-    "latinName": "Spathiphyllum wallisii",
-    "carePlanId": "flowering",
+    "id": "zamioculcas",
+    "name": "Замиокулькас",
+    "latinName": "Zamioculcas zamiifolia",
+    "carePlanId": "succulents",
+    "lightLevel": "low",
+    "difficulty": "easy",
+    "temperatureC": { "min": 15, "max": 32 },
+    "quickTips": {
+      "light": "Теневынослив, но на свету растет быстрее",
+      "watering": "Редкий, после полного просыхания кома",
+      "temperature": "Любит тепло, выдерживает жару",
+      "mistakes": ["Полив чаще раза в 2 недели", "Слишком большой горшок"]
+    }
+  },
+  {
+    "id": "chlorophytum",
+    "name": "Хлорофитум",
+    "latinName": "Chlorophytum comosum",
+    "carePlanId": "tropical",
     "lightLevel": "medium",
+    "difficulty": "easy",
+    "temperatureC": { "min": 12, "max": 27 },
+    "quickTips": {
+      "light": "Любое освещение, кроме полной тени",
+      "watering": "Обильный летом, умеренный зимой",
+      "temperature": "Неприхотлив к перепадам",
+      "mistakes": ["Длительная пересушка", "Отсутствие пересадки при разрастании корней"]
+    }
+  },
+  {
+    "id": "dracaena_marginata",
+    "name": "Драцена окаймлённая",
+    "latinName": "Dracaena marginata",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "easy",
+    "temperatureC": { "min": 16, "max": 28 },
+    "quickTips": {
+      "light": "Рассеянный свет или полутень",
+      "watering": "Умеренный, после подсыхания грунта на половину",
+      "temperature": "Теплолюбива, не ниже 15°C",
+      "mistakes": ["Застой воды в поддоне", "Сухой воздух от батарей"]
+    }
+  },
+  {
+    "id": "calathea_orbifolia",
+    "name": "Калатея Орбифолия",
+    "latinName": "Calathea orbifolia",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "hard",
+    "temperatureC": { "min": 18, "max": 24 },
+    "quickTips": {
+      "light": "Мягкий свет, никакой прямой инсоляции",
+      "watering": "Всегда слегка влажный грунт (не болото)",
+      "temperature": "Боится сквозняков и перепадов",
+      "mistakes": ["Низкая влажность воздуха", "Полив водопроводной водой"]
+    }
+  },
+  {
+    "id": "crassula_ovata",
+    "name": "Крассула (Денежное дерево)",
+    "latinName": "Crassula ovata",
+    "carePlanId": "succulents",
+    "lightLevel": "bright",
+    "difficulty": "easy",
+    "temperatureC": { "min": 10, "max": 30 },
+    "quickTips": {
+      "light": "Прямое солнце приветствуется",
+      "watering": "Очень редкий, особенно зимой",
+      "temperature": "Летом тепло, зимой желательно прохлада (10–15°C)",
+      "mistakes": ["Обильный полив", "Тяжелый влагоемкий грунт"]
+    }
+  },
+  {
+    "id": "anthurium",
+    "name": "Антуриум",
+    "latinName": "Anthurium andraeanum",
+    "carePlanId": "flowering",
+    "lightLevel": "bright",
     "difficulty": "medium",
     "temperatureC": { "min": 18, "max": 28 },
     "quickTips": {
-      "light": "Полутень или рассеянный свет",
-      "watering": "Регулярно, но без заболачивания",
-      "temperature": "18–28°C, не любит холод",
-      "mistakes": ["Сухой воздух", "Жёсткая вода без отстаивания"]
+      "light": "Яркий свет для цветения, но без ожогов",
+      "watering": "Регулярный, теплой отстоянной водой",
+      "temperature": "Теплые корни, избегать холодных подоконников",
+      "mistakes": ["Полив холодной водой", "Глубокая посадка"]
     }
   },
   {
-    "id": "aloe",
-    "name": "Алоэ вера",
-    "latinName": "Aloe vera",
-    "carePlanId": "succulents",
+    "id": "philodendron_scandens",
+    "name": "Филодендрон лазящий",
+    "latinName": "Philodendron hederaceum",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "easy",
+    "temperatureC": { "min": 16, "max": 24 },
+    "quickTips": {
+      "light": "Рассеянный свет или легкая полутень",
+      "watering": "После просыхания верхнего слоя",
+      "temperature": "Обычная комнатная",
+      "mistakes": ["Темное место (мельчают листья)", "Постоянная сырость"]
+    }
+  },
+  {
+    "id": "dieffenbachia",
+    "name": "Диффенбахия",
+    "latinName": "Dieffenbachia",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "medium",
+    "temperatureC": { "min": 18, "max": 25 },
+    "quickTips": {
+      "light": "Яркий рассеянный, пестрым сортам нужно больше света",
+      "watering": "Обильный в период роста",
+      "temperature": "Без резких колебаний",
+      "mistakes": ["Сквозняки", "Контакт с ядовитым соком без перчаток"]
+    }
+  },
+  {
+    "id": "aglaonema",
+    "name": "Аглаонема",
+    "latinName": "Aglaonema",
+    "carePlanId": "tropical",
+    "lightLevel": "low",
+    "difficulty": "easy",
+    "temperatureC": { "min": 18, "max": 25 },
+    "quickTips": {
+      "light": "Теневынослива, особенно сорта с зелеными листьями",
+      "watering": "Умеренный, после подсыхания верха",
+      "temperature": "Боится холода ниже 16°C",
+      "mistakes": ["Переувлажнение зимой", "Дым и копоть на кухне"]
+    }
+  },
+  {
+    "id": "schefflera",
+    "name": "Шеффлера",
+    "latinName": "Schefflera arboricola",
+    "carePlanId": "tropical",
+    "lightLevel": "bright",
+    "difficulty": "medium",
+    "temperatureC": { "min": 16, "max": 22 },
+    "quickTips": {
+      "light": "Яркий свет, при недостатке сбрасывает листья",
+      "watering": "Умеренный, не допускать застоя",
+      "temperature": "Предпочитает умеренное тепло",
+      "mistakes": ["Резкая смена условий", "Перегрев от батарей"]
+    }
+  },
+  {
+    "id": "nephrolepis",
+    "name": "Нефролепис (Папоротник)",
+    "latinName": "Nephrolepis exaltata",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "medium",
+    "temperatureC": { "min": 16, "max": 24 },
+    "quickTips": {
+      "light": "Рассеянный свет, северные окна",
+      "watering": "Грунт должен быть всегда чуть влажным",
+      "temperature": "Не любит жару и сухой воздух",
+      "mistakes": ["Пересушка земляного кома", "Низкая влажность"]
+    }
+  },
+  {
+    "id": "syngonium",
+    "name": "Сингониум",
+    "latinName": "Syngonium podophyllum",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "easy",
+    "temperatureC": { "min": 18, "max": 24 },
+    "quickTips": {
+      "light": "Рассеянный, без прямых лучей",
+      "watering": "Регулярный после подсыхания поверхности",
+      "temperature": "Комнатная, без холода",
+      "mistakes": ["Недостаток влаги в воздухе", "Слишком темное место"]
+    }
+  },
+  {
+    "id": "tradescantia",
+    "name": "Традесканция",
+    "latinName": "Tradescantia",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "easy",
+    "temperatureC": { "min": 12, "max": 25 },
+    "quickTips": {
+      "light": "Яркий рассеянный для яркости окраса",
+      "watering": "Частый летом, умеренный зимой",
+      "temperature": "Неприхотлива",
+      "mistakes": ["Отсутствие омолаживающей обрезки", "Вытягивание стеблей в тени"]
+    }
+  },
+  {
+    "id": "hoya_carnosa",
+    "name": "Хойя мясистая",
+    "latinName": "Hoya carnosa",
+    "carePlanId": "tropical",
     "lightLevel": "bright",
     "difficulty": "easy",
-    "temperatureC": { "min": 16, "max": 30 },
+    "temperatureC": { "min": 15, "max": 25 },
     "quickTips": {
-      "light": "Яркий свет, допускается прямое утреннее/вечернее солнце",
-      "watering": "Редко, только после просыхания",
-      "temperature": "16–30°C, зимой можно прохладнее",
-      "mistakes": ["Переувлажнение", "Отсутствие дренажа"]
+      "light": "Яркий, способствует цветению",
+      "watering": "Редкий, после просыхания половины горшка",
+      "temperature": "Обычная комнатная",
+      "mistakes": ["Срезание цветоносов после цветения", "Перестановка во время бутонизации"]
     }
   },
   {
-    "id": "orchid_phalaenopsis",
-    "name": "Орхидея фаленопсис",
-    "latinName": "Phalaenopsis",
+    "id": "begonia_rex",
+    "name": "Бегония королевская",
+    "latinName": "Begonia rex",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "medium",
+    "temperatureC": { "min": 18, "max": 23 },
+    "quickTips": {
+      "light": "Яркий рассеянный свет",
+      "watering": "Умеренный, избегать попадания на листья",
+      "temperature": "Стабильная, без жары",
+      "mistakes": ["Опрыскивание листьев", "Переувлажнение корней"]
+    }
+  },
+  {
+    "id": "cyclamen",
+    "name": "Цикламен",
+    "latinName": "Cyclamen",
     "carePlanId": "flowering",
     "lightLevel": "bright",
     "difficulty": "hard",
-    "temperatureC": { "min": 18, "max": 28 },
+    "temperatureC": { "min": 10, "max": 18 },
     "quickTips": {
-      "light": "Яркий рассеянный, без прямого полуденного солнца",
-      "watering": "После просыхания коры, избегать воды в розетке",
-      "temperature": "18–28°C, перепады минимальные",
-      "mistakes": ["Вода в точке роста", "Плотный грунт вместо коры"]
+      "light": "Яркий прохладный свет",
+      "watering": "Через поддон или по краю горшка",
+      "temperature": "Любит прохладу, в жаре гибнет",
+      "mistakes": ["Попадание воды в центр клубня", "Слишком высокая температура"]
+    }
+  },
+  {
+    "id": "schlumbergera",
+    "name": "Шлюмбергера (Декабрист)",
+    "latinName": "Schlumbergera",
+    "carePlanId": "succulents",
+    "lightLevel": "medium",
+    "difficulty": "easy",
+    "temperatureC": { "min": 15, "max": 25 },
+    "quickTips": {
+      "light": "Рассеянный, восточные окна",
+      "watering": "Умеренный, не пересушивать до конца",
+      "temperature": "Нужен период покоя в прохладе для цветения",
+      "mistakes": ["Поворачивание горшка во время цветения", "Прямое солнце"]
+    }
+  },
+  {
+    "id": "croton",
+    "name": "Кротон (Кодиеум)",
+    "latinName": "Codiaeum variegatum",
+    "carePlanId": "tropical",
+    "lightLevel": "bright",
+    "difficulty": "hard",
+    "temperatureC": { "min": 18, "max": 25 },
+    "quickTips": {
+      "light": "Яркий свет необходим для пестроты листьев",
+      "watering": "Регулярный, мягкой водой",
+      "temperature": "Боится сквозняков и холодной почвы",
+      "mistakes": ["Сухой воздух", "Резкое падение температуры"]
+    }
+  },
+  {
+    "id": "aspidistra",
+    "name": "Аспидистра",
+    "latinName": "Aspidistra elatior",
+    "carePlanId": "tropical",
+    "lightLevel": "low",
+    "difficulty": "easy",
+    "temperatureC": { "min": 10, "max": 22 },
+    "quickTips": {
+      "light": "Выносит глубокую тень",
+      "watering": "Умеренный, после подсыхания верха",
+      "temperature": "Неприхотлива, любит прохладу",
+      "mistakes": ["Прямое солнце (ожоги)", "Частая пересадка"]
+    }
+  },
+  {
+    "id": "peperomia_obtusifolia",
+    "name": "Пеперомия туполистная",
+    "latinName": "Peperomia obtusifolia",
+    "carePlanId": "succulents",
+    "lightLevel": "medium",
+    "difficulty": "easy",
+    "temperatureC": { "min": 18, "max": 25 },
+    "quickTips": {
+      "light": "Рассеянный свет или полутень",
+      "watering": "Осторожный, после подсыхания грунта",
+      "temperature": "Теплолюбива",
+      "mistakes": ["Залив", "Холодный сквозняк"]
+    }
+  },
+  {
+    "id": "yucca",
+    "name": "Юкка",
+    "latinName": "Yucca gigantea",
+    "carePlanId": "tropical",
+    "lightLevel": "bright",
+    "difficulty": "easy",
+    "temperatureC": { "min": 15, "max": 30 },
+    "quickTips": {
+      "light": "Максимальное освещение",
+      "watering": "Редкий, после просыхания на 2/3 горшка",
+      "temperature": "Тепло летом, прохлада зимой",
+      "mistakes": ["Избыточный полив", "Темное помещение"]
+    }
+  },
+  {
+    "id": "beaucarnea",
+    "name": "Бокарнея (Нолина)",
+    "latinName": "Beaucarnea recurvata",
+    "carePlanId": "succulents",
+    "lightLevel": "bright",
+    "difficulty": "easy",
+    "temperatureC": { "min": 10, "max": 30 },
+    "quickTips": {
+      "light": "Солнечное место",
+      "watering": "Крайне редкий (запасает воду в стволе)",
+      "temperature": "Комнатная, выносит сухой воздух",
+      "mistakes": ["Полив в «ногу» (ствол)", "Частое увлажнение"]
+    }
+  },
+  {
+    "id": "hedera_helix",
+    "name": "Плющ обыкновенный",
+    "latinName": "Hedera helix",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "medium",
+    "temperatureC": { "min": 12, "max": 22 },
+    "quickTips": {
+      "light": "Рассеянный свет, выносит тень",
+      "watering": "Регулярный, любит опрыскивание",
+      "temperature": "Предпочитает прохладу",
+      "mistakes": ["Сухой и жаркий воздух", "Паутинный клещ при сухости"]
+    }
+  },
+  {
+    "id": "ficus_benjamina",
+    "name": "Фикус Бенджамина",
+    "latinName": "Ficus benjamina",
+    "carePlanId": "tropical",
+    "lightLevel": "bright",
+    "difficulty": "medium",
+    "temperatureC": { "min": 18, "max": 25 },
+    "quickTips": {
+      "light": "Яркий рассеянный свет",
+      "watering": "Умеренный, боится переувлажнения",
+      "temperature": "Без резких перепадов и сквозняков",
+      "mistakes": ["Сбрасывает листья при любом стрессе", "Полив холодной водой"]
+    }
+  },
+  {
+    "id": "pilea_peperomioides",
+    "name": "Пилея пеперомиевидная",
+    "latinName": "Pilea peperomioides",
+    "carePlanId": "tropical",
+    "lightLevel": "bright",
+    "difficulty": "easy",
+    "temperatureC": { "min": 15, "max": 24 },
+    "quickTips": {
+      "light": "Яркий рассеянный, поворачивать для симметрии",
+      "watering": "После просыхания верхнего слоя грунта",
+      "temperature": "Комнатная, беречь от мороза",
+      "mistakes": ["Слишком темное место", "Застой воды"]
+    }
+  },
+  {
+    "id": "oxalis_triangularis",
+    "name": "Кислица треугольная",
+    "latinName": "Oxalis triangularis",
+    "carePlanId": "flowering",
+    "lightLevel": "medium",
+    "difficulty": "easy",
+    "temperatureC": { "min": 15, "max": 22 },
+    "quickTips": {
+      "light": "Яркий рассеянный свет",
+      "watering": "Умеренный, не допускать переувлажнения",
+      "temperature": "Прохлада способствует долгому цветению",
+      "mistakes": ["Прямое солнце", "Отсутствие периода покоя зимой"]
+    }
+  },
+  {
+    "id": "calathea_makoyana",
+    "name": "Калатея Макоя",
+    "latinName": "Calathea makoyana",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "hard",
+    "temperatureC": { "min": 18, "max": 24 },
+    "quickTips": {
+      "light": "Полутень, боится яркого солнца",
+      "watering": "Регулярный, мягкой фильтрованной водой",
+      "temperature": "Стабильное тепло, без сквозняков",
+      "mistakes": ["Низкая влажность", "Полив жесткой водой"]
+    }
+  },
+  {
+    "id": "dracaena_fragrans",
+    "name": "Драцена душистая",
+    "latinName": "Dracaena fragrans",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "easy",
+    "temperatureC": { "min": 16, "max": 24 },
+    "quickTips": {
+      "light": "Рассеянный свет или полутень",
+      "watering": "После просыхания кома на треть",
+      "temperature": "Обычная комнатная",
+      "mistakes": ["Перелив", "Сухой воздух (желтеют кончики)"]
+    }
+  },
+  {
+    "id": "monstera_adansonii",
+    "name": "Монстера Адансона",
+    "latinName": "Monstera adansonii",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "medium",
+    "temperatureC": { "min": 18, "max": 26 },
+    "quickTips": {
+      "light": "Яркий рассеянный свет",
+      "watering": "По мере подсыхания верхнего слоя",
+      "temperature": "Любит тепло и влажность",
+      "mistakes": ["Прямые лучи", "Отсутствие опоры для роста"]
+    }
+  },
+  {
+    "id": "strelitzia_reginae",
+    "name": "Стрелиция королевская",
+    "latinName": "Strelitzia reginae",
+    "carePlanId": "flowering",
+    "lightLevel": "bright",
+    "difficulty": "medium",
+    "temperatureC": { "min": 15, "max": 28 },
+    "quickTips": {
+      "light": "Прямое солнце утром и вечером",
+      "watering": "Обильный летом, умеренный зимой",
+      "temperature": "Зимой желательно чуть прохладнее",
+      "mistakes": ["Тесный горшок для молодых растений", "Недостаток света"]
+    }
+  },
+  {
+    "id": "ceropegia_woodii",
+    "name": "Церопегия Вуда",
+    "latinName": "Ceropegia woodii",
+    "carePlanId": "succulents",
+    "lightLevel": "bright",
+    "difficulty": "easy",
+    "temperatureC": { "min": 15, "max": 25 },
+    "quickTips": {
+      "light": "Яркий свет, выносит немного солнца",
+      "watering": "После полного просыхания почвы",
+      "temperature": "Хорошо переносит комнатные условия",
+      "mistakes": ["Чрезмерный полив", "Слишком глубокий горшок"]
+    }
+  },
+  {
+    "id": "senecio_rowleyanus",
+    "name": "Крестовник Роули",
+    "latinName": "Senecio rowleyanus",
+    "carePlanId": "succulents",
+    "lightLevel": "bright",
+    "difficulty": "medium",
+    "temperatureC": { "min": 12, "max": 25 },
+    "quickTips": {
+      "light": "Яркий рассеянный свет",
+      "watering": "Редкий, после просыхания грунта",
+      "temperature": "Зимой полезно понижение температуры",
+      "mistakes": ["Опрыскивание", "Застой воды в корнях"]
+    }
+  },
+  {
+    "id": "echeveria",
+    "name": "Эхеверия",
+    "latinName": "Echeveria",
+    "carePlanId": "succulents",
+    "lightLevel": "bright",
+    "difficulty": "easy",
+    "temperatureC": { "min": 10, "max": 30 },
+    "quickTips": {
+      "light": "Максимум прямого солнца",
+      "watering": "Редкий, строго под корень",
+      "temperature": "Любит свежий воздух",
+      "mistakes": ["Вода в центре розетки", "Недостаток света (вытягивается)"]
+    }
+  },
+  {
+    "id": "haworthia",
+    "name": "Хавортия",
+    "latinName": "Haworthia",
+    "carePlanId": "succulents",
+    "lightLevel": "medium",
+    "difficulty": "easy",
+    "temperatureC": { "min": 12, "max": 26 },
+    "quickTips": {
+      "light": "Рассеянный свет, боится палящего солнца",
+      "watering": "Умеренный, после просыхания почвы",
+      "temperature": "Неприхотлива",
+      "mistakes": ["Перелив в зимний период", "Слишком глубокая посадка"]
+    }
+  },
+  {
+    "id": "maranta_leuconeura",
+    "name": "Маранта беложильчатая",
+    "latinName": "Maranta leuconeura",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "medium",
+    "temperatureC": { "min": 18, "max": 24 },
+    "quickTips": {
+      "light": "Полутень, не любит яркое освещение",
+      "watering": "Постоянно влажный грунт, но без болота",
+      "temperature": "Боится сквозняков и холода",
+      "mistakes": ["Сухой воздух", "Полив холодной водой"]
+    }
+  },
+  {
+    "id": "kalanchoe_blossfeldiana",
+    "name": "Каланхоэ Блоссфельда",
+    "latinName": "Kalanchoe blossfeldiana",
+    "carePlanId": "flowering",
+    "lightLevel": "bright",
+    "difficulty": "easy",
+    "temperatureC": { "min": 15, "max": 25 },
+    "quickTips": {
+      "light": "Яркий свет, короткий световой день для цветения",
+      "watering": "Редкий, после просыхания почвы",
+      "temperature": "Обычная комнатная",
+      "mistakes": ["Частый полив", "Отсутствие обрезки после цветения"]
+    }
+  },
+  {
+    "id": "aeschynanthus",
+    "name": "Эсхинантус",
+    "latinName": "Aeschynanthus",
+    "carePlanId": "flowering",
+    "lightLevel": "bright",
+    "difficulty": "medium",
+    "temperatureC": { "min": 18, "max": 25 },
+    "quickTips": {
+      "light": "Яркий рассеянный, без солнца",
+      "watering": "Умеренный, мягкой водой",
+      "temperature": "Теплолюбивое, зимой не ниже 16°C",
+      "mistakes": ["Сквозняки", "Резкое падение температуры"]
+    }
+  },
+  {
+    "id": "guzmania",
+    "name": "Гузмания",
+    "latinName": "Guzmania",
+    "carePlanId": "flowering",
+    "lightLevel": "medium",
+    "difficulty": "medium",
+    "temperatureC": { "min": 18, "max": 26 },
+    "quickTips": {
+      "light": "Рассеянный свет",
+      "watering": "В розетку листьев и в почву",
+      "temperature": "Тепло и высокая влажность",
+      "mistakes": ["Застой старой воды в розетке", "Сухой воздух"]
+    }
+  },
+  {
+    "id": "tillandsia",
+    "name": "Тилландсия (атмосферная)",
+    "latinName": "Tillandsia",
+    "carePlanId": "tropical",
+    "lightLevel": "bright",
+    "difficulty": "medium",
+    "temperatureC": { "min": 15, "max": 28 },
+    "quickTips": {
+      "light": "Яркий рассеянный свет",
+      "watering": "Опрыскивание или замачивание в воде",
+      "temperature": "Любит свежий воздух",
+      "mistakes": ["Посадка в грунт", "Плохая вентиляция"]
+    }
+  },
+  {
+    "id": "platycerium",
+    "name": "Платицериум",
+    "latinName": "Platycerium",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "hard",
+    "temperatureC": { "min": 16, "max": 24 },
+    "quickTips": {
+      "light": "Рассеянный свет, никакой прямой инсоляции",
+      "watering": "Замачиванием кома при подсыхании",
+      "temperature": "Стабильная, умеренно теплая",
+      "mistakes": ["Протирание листьев (стирается пушок)", "Пересушка"]
+    }
+  },
+  {
+    "id": "adiantum",
+    "name": "Адиант (Венерин волос)",
+    "latinName": "Adiantum",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "hard",
+    "temperatureC": { "min": 16, "max": 22 },
+    "quickTips": {
+      "light": "Тень или полутень, боится солнца",
+      "watering": "Всегда влажный грунт",
+      "temperature": "Прохлада и высокая влажность",
+      "mistakes": ["Пересушка почвы даже на день", "Сухой воздух"]
+    }
+  },
+  {
+    "id": "asparagus_setaceus",
+    "name": "Аспарагус щетинистый",
+    "latinName": "Asparagus setaceus",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "medium",
+    "temperatureC": { "min": 15, "max": 24 },
+    "quickTips": {
+      "light": "Рассеянный свет",
+      "watering": "Регулярный, обильный летом",
+      "temperature": "Умеренная, без жары",
+      "mistakes": ["Прямое солнце (желтеет)", "Пересушивание кома"]
+    }
+  },
+  {
+    "id": "chamaedorea_elegans",
+    "name": "Хамедорея изящная",
+    "latinName": "Chamaedorea elegans",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "easy",
+    "temperatureC": { "min": 16, "max": 24 },
+    "quickTips": {
+      "light": "Теневынослива, рассеянный свет",
+      "watering": "Умеренный, не допускать перелива",
+      "temperature": "Средняя комнатная",
+      "mistakes": ["Слишком сухой воздух", "Прямое солнце"]
+    }
+  },
+  {
+    "id": "howea_forsteriana",
+    "name": "Ховея Форстера",
+    "latinName": "Howea forsteriana",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "medium",
+    "temperatureC": { "min": 16, "max": 25 },
+    "quickTips": {
+      "light": "Рассеянный свет, переносит полутень",
+      "watering": "После просыхания верхнего слоя",
+      "temperature": "Не любит жару выше 27°C",
+      "mistakes": ["Застой воды", "Полив водопроводной водой"]
+    }
+  },
+  {
+    "id": "cycas_revoluta",
+    "name": "Цикас (Саговник)",
+    "latinName": "Cycas revoluta",
+    "carePlanId": "tropical",
+    "lightLevel": "bright",
+    "difficulty": "hard",
+    "temperatureC": { "min": 12, "max": 28 },
+    "quickTips": {
+      "light": "Максимально яркий свет",
+      "watering": "Осторожный, между поливами почва должна подсохнуть",
+      "temperature": "Зимой желательно прохлада",
+      "mistakes": ["Попадание воды в центр кроны", "Переувлажнение грунта"]
+    }
+  },
+  {
+    "id": "euphorbia_milii",
+    "name": "Эуфорбия Миля",
+    "latinName": "Euphorbia milii",
+    "carePlanId": "succulents",
+    "lightLevel": "bright",
+    "difficulty": "easy",
+    "temperatureC": { "min": 15, "max": 30 },
+    "quickTips": {
+      "light": "Прямое солнце",
+      "watering": "Умеренный, после просыхания",
+      "temperature": "Любит тепло",
+      "mistakes": ["Тень (не цветет)", "Холодные сквозняки"]
+    }
+  },
+  {
+    "id": "euphorbia_trigona",
+    "name": "Эуфорбия тригона",
+    "latinName": "Euphorbia trigona",
+    "carePlanId": "succulents",
+    "lightLevel": "bright",
+    "difficulty": "easy",
+    "temperatureC": { "min": 15, "max": 30 },
+    "quickTips": {
+      "light": "Яркое освещение",
+      "watering": "Редкий, выносит засуху",
+      "temperature": "Устойчива к жаре",
+      "mistakes": ["Перелив в зимнее время", "Контакт с млечным соком"]
+    }
+  },
+  {
+    "id": "adenium_obesum",
+    "name": "Адениум",
+    "latinName": "Adenium obesum",
+    "carePlanId": "succulents",
+    "lightLevel": "bright",
+    "difficulty": "medium",
+    "temperatureC": { "min": 18, "max": 35 },
+    "quickTips": {
+      "light": "Прямое солнце минимум 4-6 часов",
+      "watering": "Регулярный летом, почти без полива зимой",
+      "temperature": "Жара приветствуется",
+      "mistakes": ["Холод ниже 10°C", "Избыточный полив зимой"]
+    }
+  },
+  {
+    "id": "pachira_aquatica",
+    "name": "Пахира водная",
+    "latinName": "Pachira aquatica",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "easy",
+    "temperatureC": { "min": 16, "max": 25 },
+    "quickTips": {
+      "light": "Яркий рассеянный свет",
+      "watering": "После просыхания верхнего слоя на 2-3 см",
+      "temperature": "Боится резких перепадов",
+      "mistakes": ["Перелив (гниение ствола)", "Слишком яркое солнце"]
+    }
+  },
+  {
+    "id": "dypsis_lutescens",
+    "name": "Арека (Дипсис)",
+    "latinName": "Dypsis lutescens",
+    "carePlanId": "tropical",
+    "lightLevel": "bright",
+    "difficulty": "medium",
+    "temperatureC": { "min": 18, "max": 25 },
+    "quickTips": {
+      "light": "Яркий рассеянный свет, боится прямого солнца",
+      "watering": "Регулярный, почва должна быть всегда чуть влажной",
+      "temperature": "Теплолюбива, не переносит сквозняков",
+      "mistakes": ["Сухой воздух", "Полив жесткой водой"]
+    }
+  },
+  {
+    "id": "ficus_elastica",
+    "name": "Фикус каучуконосный",
+    "latinName": "Ficus elastica",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "easy",
+    "temperatureC": { "min": 16, "max": 28 },
+    "quickTips": {
+      "light": "Яркий рассеянный свет или легкая полутень",
+      "watering": "Умеренный, после подсыхания верхнего слоя",
+      "temperature": "Обычная комнатная, беречь от холода",
+      "mistakes": ["Переувлажнение (сброс листьев)", "Пыль на листьях"]
+    }
+  },
+  {
+    "id": "saintpaulia",
+    "name": "Сенполия (Узамбарская фиалка)",
+    "latinName": "Saintpaulia",
+    "carePlanId": "flowering",
+    "lightLevel": "medium",
+    "difficulty": "medium",
+    "temperatureC": { "min": 18, "max": 24 },
+    "quickTips": {
+      "light": "Рассеянный свет, идеальны восточные окна",
+      "watering": "Через поддон или аккуратно по краю",
+      "temperature": "Боится резких перепадов и холода",
+      "mistakes": ["Вода на листьях и в центре розетки", "Слишком большой горшок"]
+    }
+  },
+  {
+    "id": "scindapsus_pictus",
+    "name": "Сциндапсус расписной",
+    "latinName": "Scindapsus pictus",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "easy",
+    "temperatureC": { "min": 16, "max": 25 },
+    "quickTips": {
+      "light": "Яркий рассеянный, переносит полутень",
+      "watering": "После просыхания верхнего слоя на 2–3 см",
+      "temperature": "Любит тепло, не ниже 15°C",
+      "mistakes": ["Постоянная сырость грунта", "Слишком темный угол (теряет пятна)"]
+    }
+  },
+  {
+    "id": "alocasia_amazonica",
+    "name": "Алоказия Полли",
+    "latinName": "Alocasia amazonica",
+    "carePlanId": "tropical",
+    "lightLevel": "bright",
+    "difficulty": "hard",
+    "temperatureC": { "min": 18, "max": 25 },
+    "quickTips": {
+      "light": "Яркий рассеянный свет",
+      "watering": "Регулярный, мягкой водой, без застоя",
+      "temperature": "Нуждается в высокой влажности и тепле",
+      "mistakes": ["Пересушивание", "Холодные сквозняки (впадает в спячку)"]
+    }
+  },
+  {
+    "id": "begonia_maculata",
+    "name": "Бегония макулата (Пятнистая)",
+    "latinName": "Begonia maculata",
+    "carePlanId": "tropical",
+    "lightLevel": "bright",
+    "difficulty": "medium",
+    "temperatureC": { "min": 18, "max": 24 },
+    "quickTips": {
+      "light": "Яркий рассеянный свет",
+      "watering": "Умеренный, не любит переувлажнения листьев",
+      "temperature": "Средняя комнатная, стабильная",
+      "mistakes": ["Опрыскивание (вызывает грибок)", "Прямое солнце"]
+    }
+  },
+  {
+    "id": "curio_radicans",
+    "name": "Крестовник укореняющийся (Бананы)",
+    "latinName": "Curio radicans",
+    "carePlanId": "succulents",
+    "lightLevel": "bright",
+    "difficulty": "easy",
+    "temperatureC": { "min": 12, "max": 28 },
+    "quickTips": {
+      "light": "Яркий свет, выносит немного прямого солнца",
+      "watering": "После полного просыхания почвы",
+      "temperature": "Зимой лучше содержать в прохладе",
+      "mistakes": ["Частый полив", "Недостаток света"]
+    }
+  },
+  {
+    "id": "plectranthus",
+    "name": "Плектрантус (Шведский плющ)",
+    "latinName": "Plectranthus",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "easy",
+    "temperatureC": { "min": 14, "max": 25 },
+    "quickTips": {
+      "light": "Рассеянный свет или полутень",
+      "watering": "Регулярный, после подсыхания поверхности",
+      "temperature": "Неприхотлив, боится мороза",
+      "mistakes": ["Сильная пересушка", "Отсутствие прищипки"]
+    }
+  },
+  {
+    "id": "fatsia_japonica",
+    "name": "Фатсия японская",
+    "latinName": "Fatsia japonica",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "medium",
+    "temperatureC": { "min": 10, "max": 20 },
+    "quickTips": {
+      "light": "Полутень, северные окна",
+      "watering": "Обильный летом, умеренный зимой",
+      "temperature": "Любит прохладу, плохо переносит жару",
+      "mistakes": ["Слишком высокая температура", "Пересушка кома"]
+    }
+  },
+  {
+    "id": "soleirolia_soleirolii",
+    "name": "Солейролия (Хельксина)",
+    "latinName": "Soleirolia soleirolii",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "medium",
+    "temperatureC": { "min": 12, "max": 22 },
+    "quickTips": {
+      "light": "Рассеянный свет, боится прямого солнца",
+      "watering": "Частый, грунт всегда должен быть влажным",
+      "temperature": "Умеренная, не любит жару",
+      "mistakes": ["Пересушка (гибнет мгновенно)", "Полив сверху на листву"]
+    }
+  },
+  {
+    "id": "chlorophytum_amaniense",
+    "name": "Хлорофитум Грин Оранж",
+    "latinName": "Chlorophytum amaniense",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "easy",
+    "temperatureC": { "min": 16, "max": 25 },
+    "quickTips": {
+      "light": "Рассеянный свет, сохраняет яркость черешков",
+      "watering": "Умеренный, без застоя воды",
+      "temperature": "Обычная комнатная",
+      "mistakes": ["Попадание воды в центр розетки", "Прямое солнце"]
+    }
+  },
+  {
+    "id": "euphorbia_tirucalli",
+    "name": "Эуфорбия тирукалли (Карандашный кактус)",
+    "latinName": "Euphorbia tirucalli",
+    "carePlanId": "succulents",
+    "lightLevel": "bright",
+    "difficulty": "easy",
+    "temperatureC": { "min": 15, "max": 30 },
+    "quickTips": {
+      "light": "Максимальное освещение, прямое солнце",
+      "watering": "Очень редкий, после полного просыхания",
+      "temperature": "Устойчива к жаре и сухому воздуху",
+      "mistakes": ["Контакт с ядовитым соком", "Избыточный полив"]
+    }
+  },
+  {
+    "id": "pelargonium",
+    "name": "Пеларгония (Герань)",
+    "latinName": "Pelargonium",
+    "carePlanId": "flowering",
+    "lightLevel": "bright",
+    "difficulty": "easy",
+    "temperatureC": { "min": 10, "max": 25 },
+    "quickTips": {
+      "light": "Прямое солнце приветствуется",
+      "watering": "Обильный, но без застоя воды",
+      "temperature": "Летом тепло, зимой желательно прохлада",
+      "mistakes": ["Опрыскивание листьев", "Недостаток света (вытягивается)"]
+    }
+  },
+  {
+    "id": "caladium",
+    "name": "Каладиум",
+    "latinName": "Caladium",
+    "carePlanId": "tropical",
+    "lightLevel": "bright",
+    "difficulty": "hard",
+    "temperatureC": { "min": 20, "max": 28 },
+    "quickTips": {
+      "light": "Яркий рассеянный свет",
+      "watering": "Регулярный в период роста, сухо в период покоя",
+      "temperature": "Очень теплолюбив",
+      "mistakes": ["Попытка поливать зимой (клубень спит)", "Холодная вода"]
+    }
+  },
+  {
+    "id": "gymnocalycium_mihanovichii",
+    "name": "Гимнокалициум (Лунный кактус)",
+    "latinName": "Gymnocalycium mihanovichii",
+    "carePlanId": "succulents",
+    "lightLevel": "medium",
+    "difficulty": "easy",
+    "temperatureC": { "min": 12, "max": 28 },
+    "quickTips": {
+      "light": "Яркий, но притененный свет",
+      "watering": "Осторожный, только после просыхания",
+      "temperature": "Зимой содержание при 12–15°C",
+      "mistakes": ["Переувлажнение", "Резкое выставление на солнце"]
+    }
+  },
+  {
+    "id": "stephanotis_floribunda",
+    "name": "Стефанотис (Жасмин мадагаскарский)",
+    "latinName": "Stephanotis floribunda",
+    "carePlanId": "flowering",
+    "lightLevel": "bright",
+    "difficulty": "hard",
+    "temperatureC": { "min": 16, "max": 25 },
+    "quickTips": {
+      "light": "Яркий рассеянный свет",
+      "watering": "Регулярный, мягкой водой",
+      "temperature": "Боится перепадов и сквозняков",
+      "mistakes": ["Поворачивание горшка во время бутонизации", "Жесткая вода"]
+    }
+  },
+  {
+    "id": "coffea_arabica",
+    "name": "Кофейное дерево",
+    "latinName": "Coffea arabica",
+    "carePlanId": "tropical",
+    "lightLevel": "bright",
+    "difficulty": "medium",
+    "temperatureC": { "min": 16, "max": 24 },
+    "quickTips": {
+      "light": "Яркий рассеянный, без прямых лучей",
+      "watering": "Обильный летом, почва всегда влажная",
+      "temperature": "Не любит жару выше 25°C",
+      "mistakes": ["Пересушка корней", "Частые перестановки"]
+    }
+  },
+  {
+    "id": "senecio_peregrinus",
+    "name": "Крестовник «Дельфины»",
+    "latinName": "Senecio peregrinus",
+    "carePlanId": "succulents",
+    "lightLevel": "bright",
+    "difficulty": "medium",
+    "temperatureC": { "min": 15, "max": 25 },
+    "quickTips": {
+      "light": "Яркое солнце утром",
+      "watering": "После полного просыхания почвы",
+      "temperature": "Обычная комнатная",
+      "mistakes": ["Чрезмерный полив", "Слишком влажный воздух"]
+    }
+  },
+  {
+    "id": "fittonia_albivenis",
+    "name": "Фиттония",
+    "latinName": "Fittonia albivenis",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "medium",
+    "temperatureC": { "min": 18, "max": 25 },
+    "quickTips": {
+      "light": "Рассеянный свет или полутень",
+      "watering": "Постоянно влажный грунт",
+      "temperature": "Тепло и высокая влажность (идеальна для флорариумов)",
+      "mistakes": ["Забытый полив (вянет мгновенно)", "Сквозняки"]
+    }
+  },
+  {
+    "id": "hypoestes_phyllostachya",
+    "name": "Гипоэстес",
+    "latinName": "Hypoestes phyllostachya",
+    "carePlanId": "tropical",
+    "lightLevel": "bright",
+    "difficulty": "easy",
+    "temperatureC": { "min": 18, "max": 24 },
+    "quickTips": {
+      "light": "Яркий свет для сохранения пятнистости",
+      "watering": "Регулярный, после подсыхания верха",
+      "temperature": "Комнатная, без резких перемен",
+      "mistakes": ["Недостаток света (зеленеет)", "Отсутствие обрезки"]
+    }
+  },
+  {
+    "id": "tradescantia_spathacea",
+    "name": "Рео (Традесканция покрывальчатая)",
+    "latinName": "Tradescantia spathacea",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "easy",
+    "temperatureC": { "min": 16, "max": 25 },
+    "quickTips": {
+      "light": "Яркий рассеянный свет",
+      "watering": "Умеренный, переносит кратковременную засуху",
+      "temperature": "Обычная комнатная",
+      "mistakes": ["Застой воды в пазухах листьев", "Сильное затенение"]
+    }
+  },
+  {
+    "id": "philodendron_birkin",
+    "name": "Филодендрон Биркин",
+    "latinName": "Philodendron Birkin",
+    "carePlanId": "tropical",
+    "lightLevel": "bright",
+    "difficulty": "easy",
+    "temperatureC": { "min": 18, "max": 26 },
+    "quickTips": {
+      "light": "Яркий рассеянный для поддержания вариегатности",
+      "watering": "После просыхания верхнего слоя на 2-3 см",
+      "temperature": "Теплолюбивое растение",
+      "mistakes": ["Перелив", "Слишком темное место"]
+    }
+  },
+  {
+    "id": "opuntia_microdasys",
+    "name": "Опунция мелковолосистая",
+    "latinName": "Opuntia microdasys",
+    "carePlanId": "succulents",
+    "lightLevel": "bright",
+    "difficulty": "easy",
+    "temperatureC": { "min": 10, "max": 32 },
+    "quickTips": {
+      "light": "Прямое солнце",
+      "watering": "Редкий, почти без полива зимой",
+      "temperature": "Зимой желательно 10–12°C",
+      "mistakes": ["Касание голыми руками (глохидии)", "Частый полив"]
+    }
+  },
+  {
+    "id": "hibiscus_rosa_sinensis",
+    "name": "Гибискус (Китайская роза)",
+    "latinName": "Hibiscus rosa-sinensis",
+    "carePlanId": "flowering",
+    "lightLevel": "bright",
+    "difficulty": "medium",
+    "temperatureC": { "min": 15, "max": 26 },
+    "quickTips": {
+      "light": "Яркий свет, утром — прямое солнце",
+      "watering": "Обильный в период цветения",
+      "temperature": "Летом тепло, зимой около 16°C",
+      "mistakes": ["Пересушка (сбрасывает бутоны)", "Тесный горшок"]
+    }
+  },
+  {
+    "id": "jasminum_polyanthum",
+    "name": "Жасмин многоцветковый",
+    "latinName": "Jasminum polyanthum",
+    "carePlanId": "flowering",
+    "lightLevel": "bright",
+    "difficulty": "hard",
+    "temperatureC": { "min": 10, "max": 22 },
+    "quickTips": {
+      "light": "Яркий свет с долей прямого солнца",
+      "watering": "Регулярный, почва всегда влажная",
+      "temperature": "Зимой обязательна прохлада для закладки почек",
+      "mistakes": ["Теплое содержание зимой (не зацветет)", "Сухой воздух"]
+    }
+  },
+  {
+    "id": "asplenium_nidus",
+    "name": "Асплениум (Костенец)",
+    "latinName": "Asplenium nidus",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "medium",
+    "temperatureC": { "min": 18, "max": 24 },
+    "quickTips": {
+      "light": "Полутень или мягкий рассеянный свет",
+      "watering": "Регулярный, почва должна быть постоянно слегка влажной",
+      "temperature": "Стабильное тепло, беречь от сквозняков",
+      "mistakes": ["Полив в центр розетки (вызывает гниение)", "Сухой воздух от батарей"]
+    }
+  },
+  {
+    "id": "impatiens_walleriana",
+    "name": "Бальзамин (Ванька мокрый)",
+    "latinName": "Impatiens walleriana",
+    "carePlanId": "flowering",
+    "lightLevel": "medium",
+    "difficulty": "easy",
+    "temperatureC": { "min": 16, "max": 24 },
+    "quickTips": {
+      "light": "Яркий рассеянный свет, без палящего солнца",
+      "watering": "Обильный и частый, особенно в период цветения",
+      "temperature": "Умеренно теплое содержание",
+      "mistakes": ["Пересушка земляного кома (мгновенно вянет)", "Слишком темное место"]
+    }
+  },
+  {
+    "id": "begonia_semperflorens",
+    "name": "Бегония вечноцветущая",
+    "latinName": "Begonia semperflorens",
+    "carePlanId": "flowering",
+    "lightLevel": "bright",
+    "difficulty": "easy",
+    "temperatureC": { "min": 15, "max": 24 },
+    "quickTips": {
+      "light": "Яркий свет, хорошо переносит утреннее солнце",
+      "watering": "Умеренный, после просыхания верхнего слоя",
+      "temperature": "Обычная комнатная температура",
+      "mistakes": ["Опрыскивание листьев", "Чрезмерное переувлажнение корней"]
+    }
+  },
+  {
+    "id": "gardenia_jasminoides",
+    "name": "Гардения жасминовидная",
+    "latinName": "Gardenia jasminoides",
+    "carePlanId": "flowering",
+    "lightLevel": "bright",
+    "difficulty": "hard",
+    "temperatureC": { "min": 16, "max": 22 },
+    "quickTips": {
+      "light": "Яркий рассеянный свет, обязателен зимой",
+      "watering": "Грунт всегда слегка влажный, полив мягкой теплой водой",
+      "temperature": "Не любит резких перепадов; прохлада ночью стимулирует бутоны",
+      "mistakes": ["Полив жесткой водопроводной водой", "Перестановка горшка во время бутонизации"]
+    }
+  },
+  {
+    "id": "calathea_zebrina",
+    "name": "Калатея полосатая",
+    "latinName": "Calathea zebrina",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "hard",
+    "temperatureC": { "min": 18, "max": 24 },
+    "quickTips": {
+      "light": "Мягкий свет, полутень, северные или восточные окна",
+      "watering": "Регулярный, теплой отфильтрованной водой",
+      "temperature": "Боится малейшего холода и сквозняков",
+      "mistakes": ["Сухой воздух в помещении", "Пересушка корневой системы"]
+    }
+  },
+  {
+    "id": "clivia_miniata",
+    "name": "Кливия киноварная",
+    "latinName": "Clivia miniata",
+    "carePlanId": "flowering",
+    "lightLevel": "medium",
+    "difficulty": "easy",
+    "temperatureC": { "min": 12, "max": 25 },
+    "quickTips": {
+      "light": "Рассеянный свет, восточные или западные окна",
+      "watering": "Умеренный летом, крайне редкий в период покоя",
+      "temperature": "Зимой обязателен период покоя при 12–14°C для цветения",
+      "mistakes": ["Избыточный полив зимой", "Частое перемещение или поворачивание горшка"]
+    }
+  },
+  {
+    "id": "cordyline_fruticosa",
+    "name": "Кордилина верхушечная",
+    "latinName": "Cordyline fruticosa",
+    "carePlanId": "tropical",
+    "lightLevel": "bright",
+    "difficulty": "medium",
+    "temperatureC": { "min": 18, "max": 25 },
+    "quickTips": {
+      "light": "Яркий рассеянный свет необходим для пестроты листьев",
+      "watering": "Регулярный, после подсыхания верхнего слоя грунта",
+      "temperature": "Стабильное комнатное тепло круглый год",
+      "mistakes": ["Низкая влажность воздуха (сохнут кончики)", "Холодная почва"]
+    }
+  },
+  {
+    "id": "myrtus_communis",
+    "name": "Мирт обыкновенный",
+    "latinName": "Myrtus communis",
+    "carePlanId": "tropical",
+    "lightLevel": "bright",
+    "difficulty": "hard",
+    "temperatureC": { "min": 8, "max": 24 },
+    "quickTips": {
+      "light": "Максимум света, приветствуется утреннее солнце",
+      "watering": "Обильный и регулярный, грунт никогда не должен просыхать полностью",
+      "temperature": "Летом — тепло и свежий воздух, зимой — прохлада (8–12°C)",
+      "mistakes": ["Полная пересушка земляного кома (сбрасывает листья)", "Теплое содержание зимой"]
+    }
+  },
+  {
+    "id": "muehlenbeckia_complexa",
+    "name": "Мюленбекия спутанная",
+    "latinName": "Muehlenbeckia complexa",
+    "carePlanId": "tropical",
+    "lightLevel": "bright",
+    "difficulty": "easy",
+    "temperatureC": { "min": 10, "max": 24 },
+    "quickTips": {
+      "light": "Яркий рассеянный свет или легкая полутень",
+      "watering": "Регулярный, без длительной пересушки",
+      "temperature": "Умеренная комнатная, зимой желательно прохладнее",
+      "mistakes": ["Пересыхание почвы", "Слишком темное место содержания"]
+    }
+  },
+  {
+    "id": "nertera_granadensis",
+    "name": "Нертера прижатая",
+    "latinName": "Nertera granadensis",
+    "carePlanId": "flowering",
+    "lightLevel": "bright",
+    "difficulty": "hard",
+    "temperatureC": { "min": 10, "max": 22 },
+    "quickTips": {
+      "light": "Яркий свет, любит хорошее проветривание",
+      "watering": "Обильный, лучше через поддон во время плодоношения",
+      "temperature": "Прохладное содержание, зимой не выше 10–12°C",
+      "mistakes": ["Опрыскивание спелых ягод (начинают гнить)", "Высокая температура воздуха"]
+    }
+  },
+  {
+    "id": "nerium_oleander",
+    "name": "Олеандр",
+    "latinName": "Nerium oleander",
+    "carePlanId": "flowering",
+    "lightLevel": "bright",
+    "difficulty": "medium",
+    "temperatureC": { "min": 15, "max": 30 },
+    "quickTips": {
+      "light": "Прямое солнце, южные окна",
+      "watering": "Обильный летом (можно оставлять воду в поддоне), редкий зимой",
+      "temperature": "Тепло летом, прохладная зимовка (8–12°C)",
+      "mistakes": ["Недостаток света (не цветет)", "Игнорирование правил безопасности (все части растения ядовиты)"]
+    }
+  },
+  {
+    "id": "passiflora_caerulea",
+    "name": "Пассифлора голубая (Страстоцвет)",
+    "latinName": "Passiflora caerulea",
+    "carePlanId": "flowering",
+    "lightLevel": "bright",
+    "difficulty": "medium",
+    "temperatureC": { "min": 15, "max": 28 },
+    "quickTips": {
+      "light": "Максимальное освещение, прямое солнце",
+      "watering": "Обильный летом, регулярный",
+      "temperature": "Любит прохладную зимовку для отдыха",
+      "mistakes": ["Отсутствие прочной опоры для лианы", "Темное место (вытягивается и не цветет)"]
+    }
+  },
+  {
+    "id": "euphorbia_tithymaloides",
+    "name": "Педилантус титималоидный",
+    "latinName": "Euphorbia tithymaloides",
+    "carePlanId": "succulents",
+    "lightLevel": "bright",
+    "difficulty": "easy",
+    "temperatureC": { "min": 16, "max": 25 },
+    "quickTips": {
+      "light": "Яркий свет с долей прямого солнца утром или вечером",
+      "watering": "Умеренный, после подсыхания верхнего слоя",
+      "temperature": "Обычная комнатная",
+      "mistakes": ["Перелив в зимний период", "Контакт с млечным соком без перчаток"]
+    }
+  },
+  {
+    "id": "peperomia_caperata",
+    "name": "Пеперомия сморщенная",
+    "latinName": "Peperomia caperata",
+    "carePlanId": "succulents",
+    "lightLevel": "medium",
+    "difficulty": "easy",
+    "temperatureC": { "min": 18, "max": 24 },
+    "quickTips": {
+      "light": "Рассеянный свет или легкая полутень",
+      "watering": "Осторожный, умеренный, после просыхания грунта наполовину",
+      "temperature": "Не любит холодные полы и сквозняки на подоконнике",
+      "mistakes": ["Избыточный полив (быстро гниют корни)", "Прямое опрыскивание листьев"]
+    }
+  },
+  {
+    "id": "plumeria",
+    "name": "Плюмерия",
+    "latinName": "Plumeria",
+    "carePlanId": "flowering",
+    "lightLevel": "bright",
+    "difficulty": "hard",
+    "temperatureC": { "min": 18, "max": 30 },
+    "quickTips": {
+      "light": "Прямое солнце не менее 6 часов в день для цветения",
+      "watering": "Обильный в период активного роста, минимальный зимой",
+      "temperature": "Очень теплолюбива, боится малейших заморозков",
+      "mistakes": ["Содержание в тени", "Перелив во время зимнего сброса листьев"]
+    }
+  },
+  {
+    "id": "radermachera_sinica",
+    "name": "Радермахера китайская",
+    "latinName": "Radermachera sinica",
+    "carePlanId": "tropical",
+    "lightLevel": "bright",
+    "difficulty": "medium",
+    "temperatureC": { "min": 16, "max": 24 },
+    "quickTips": {
+      "light": "Яркий рассеянный свет, регулярные проветривания",
+      "watering": "Умеренный, равномерно влажный грунт без застоя",
+      "temperature": "Комнатная температура без резких колебаний",
+      "mistakes": ["Табачный дым в помещении (губителен для растения)", "Полная пересушка земляного кома"]
+    }
+  },
+  {
+    "id": "rosa_miniature",
+    "name": "Роза миниатюрная (комнатная)",
+    "latinName": "Rosa",
+    "carePlanId": "flowering",
+    "lightLevel": "bright",
+    "difficulty": "hard",
+    "temperatureC": { "min": 10, "max": 24 },
+    "quickTips": {
+      "light": "Яркий солнечный свет, обилие свежего воздуха",
+      "watering": "Обильный по мере подсыхания верхнего слоя почвы",
+      "temperature": "Летом желательно на улице/балконе, зимой — прохлада",
+      "mistakes": ["Сухой воздух (моментально вызывает паутинного клеща)", "Отсутствие ежегодной обрезки"]
+    }
+  },
+  {
+    "id": "salvia_rosmarinus",
+    "name": "Розмарин лекарственный",
+    "latinName": "Salvia rosmarinus",
+    "carePlanId": "succulents",
+    "lightLevel": "bright",
+    "difficulty": "medium",
+    "temperatureC": { "min": 10, "max": 26 },
+    "quickTips": {
+      "light": "Максимум прямого солнца, южные окна",
+      "watering": "Умеренный, не переносит застоя влаги в корнях",
+      "temperature": "Летом — жара, зимой обязательна прохлада (10–15°C)",
+      "mistakes": ["Перелив грунта", "Содержание в теплом и темном месте зимой"]
+    }
+  },
+  {
+    "id": "dracaena_angolensis",
+    "name": "Сансевиерия цилиндрическая",
+    "latinName": "Dracaena angolensis",
+    "carePlanId": "succulents",
+    "lightLevel": "medium",
+    "difficulty": "easy",
+    "temperatureC": { "min": 15, "max": 30 },
+    "quickTips": {
+      "light": "Любое освещение, от солнца до глубокой тени",
+      "watering": "Редкий, только после полного высыхания грунта",
+      "temperature": "Стойко переносит жару и сухой воздух батарей",
+      "mistakes": ["Полив в розетку листьев", "Частый полив без просушки"]
+    }
+  },
+  {
+    "id": "sedum_morganianum",
+    "name": "Седум Моргана (Очиток)",
+    "latinName": "Sedum morganianum",
+    "carePlanId": "succulents",
+    "lightLevel": "bright",
+    "difficulty": "easy",
+    "temperatureC": { "min": 10, "max": 28 },
+    "quickTips": {
+      "light": "Яркое солнце, идеален для ампельного выращивания на южных окнах",
+      "watering": "Редкий, хорошо переносит засуху",
+      "temperature": "Зимой желательно понижение температуры до 10–13°C",
+      "mistakes": ["Частое прикосновение (опадают очень хрупкие листья)", "Перелив"]
+    }
+  },
+  {
+    "id": "stapelia_variegata",
+    "name": "Стапелия пестрая",
+    "latinName": "Stapelia variegata",
+    "carePlanId": "succulents",
+    "lightLevel": "bright",
+    "difficulty": "easy",
+    "temperatureC": { "min": 12, "max": 26 },
+    "quickTips": {
+      "light": "Яркий рассеянный свет с долей прямого солнца",
+      "watering": "Умеренный летом, минимальный в зимний период",
+      "temperature": "Летом тепло, зимой период покоя при 12–15°C",
+      "mistakes": ["Залив", "Специфический аромат цветов привлекает мух"]
+    }
+  },
+  {
+    "id": "ficus_microcarpa",
+    "name": "Фикус Микрокарпа (Гинсенг)",
+    "latinName": "Ficus microcarpa",
+    "carePlanId": "tropical",
+    "lightLevel": "bright",
+    "difficulty": "medium",
+    "temperatureC": { "min": 16, "max": 24 },
+    "quickTips": {
+      "light": "Яркий рассеянный свет, вдали от отопительных приборов",
+      "watering": "Умеренный, после подсыхания верхнего слоя на 2 см",
+      "temperature": "Беречь от сквозняков и резких температурных перепадов",
+      "mistakes": ["Постоянная перестановка с места на место", "Сухой воздух"]
+    }
+  },
+  {
+    "id": "cyperus_alternifolius",
+    "name": "Циперус очереднолистный",
+    "latinName": "Cyperus alternifolius",
+    "carePlanId": "tropical",
+    "lightLevel": "bright",
+    "difficulty": "easy",
+    "temperatureC": { "min": 16, "max": 24 },
+    "quickTips": {
+      "light": "Яркий рассеянный свет или полутень",
+      "watering": "Очень обильный, горшок можно держать постоянно в воде",
+      "temperature": "Обычная комнатная, любит свежий воздух",
+      "mistakes": ["Пересушивание земли (листья мгновенно желтеют и сохнут)"]
+    }
+  },
+  {
+    "id": "cissus_rhombifolia",
+    "name": "Циссус ромболистный (Березка)",
+    "latinName": "Cissus rhombifolia",
+    "carePlanId": "tropical",
+    "lightLevel": "medium",
+    "difficulty": "easy",
+    "temperatureC": { "min": 15, "max": 25 },
+    "quickTips": {
+      "light": "Рассеянный свет или легкая полутень",
+      "watering": "Регулярный, обильный в период активного роста",
+      "temperature": "Абсолютно неприхотлив к температуре в комнате",
+      "mistakes": ["Сильное переувлажнение почвы зимой", "Слишком темное место"]
+    }
+  },
+  {
+    "id": "echinocactus_grusonii",
+    "name": "Эхинокактус Грузони",
+    "latinName": "Echinocactus grusonii",
+    "carePlanId": "succulents",
+    "lightLevel": "bright",
+    "difficulty": "easy",
+    "temperatureC": { "min": 10, "max": 30 },
+    "quickTips": {
+      "light": "Максимально возможное количество прямых солнечных лучей",
+      "watering": "Редкий летом, практически прекращается зимой",
+      "temperature": "Зимой необходим сухой период покоя при 10–12°C",
+      "mistakes": ["Полив зимой в теплом помещении", "Недостаток света (растение деформируется)"]
     }
   }
 ]
+

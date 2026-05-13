@@ -64,11 +64,6 @@
     "scheme": "plant-care-app",
     "experiments": {
       "typedRoutes": true
-    },
-    "extra": {
-      "eas": {
-        "projectId": "9107aa1c-aa85-4881-9063-d15dd14c6010"
-      }
     }
   }
 }

@@ -27,6 +27,8 @@ function RootLayoutNav() {
     <Stack screenOptions={{ headerBackTitle: "Back" }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="plant" options={{ headerShown: false }} />
+      <Stack.Screen name="plant-db/[id]" options={{ headerShown: false }} />
+      <Stack.Screen name="problems/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="edit" options={{ headerShown: false }} />
     </Stack>
   );

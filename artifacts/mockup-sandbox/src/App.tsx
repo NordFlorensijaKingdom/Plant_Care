@@ -39,7 +39,7 @@ function PreviewRenderer({
       const key = `./components/mockups/${componentPath}.tsx`;
       const loader = modules[key];
       if (!loader) {
-        setError(`No component found at ${componentPath}.tsx`);
+        setError(`Компонент не найден: ${componentPath}.tsx`);
         return;
       }
 
@@ -52,7 +52,7 @@ function PreviewRenderer({
         const comp = _resolveComponent(mod, name);
         if (!comp) {
           setError(
-            `No exported React component found in ${componentPath}.tsx\n\nMake sure the file has at least one exported function component.`,
+            `В ${componentPath}.tsx не найден экспортируемый React-компонент.\n\nУбедитесь, что в файле есть хотя бы один экспортируемый function component.`,
           );
           return;
         }
@@ -63,7 +63,7 @@ function PreviewRenderer({
         }
 
         const message = e instanceof Error ? e.message : String(e);
-        setError(`Failed to load preview.\n${message}`);
+        setError(`Не удалось загрузить превью.\n${message}`);
       }
     }
 
@@ -101,13 +101,13 @@ function Gallery() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
       <div className="text-center max-w-md">
         <h1 className="text-2xl font-semibold text-gray-900 mb-3">
-          Component Preview Server
+          Сервер предпросмотра компонентов
         </h1>
         <p className="text-gray-500 mb-4">
-          This server renders individual components for the workspace canvas.
+          Этот сервер рендерит отдельные компоненты для canvas рабочей области.
         </p>
         <p className="text-sm text-gray-400">
-          Access component previews at{" "}
+          Открывайте предпросмотр компонентов по адресу{" "}
           <code className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">
             {getPreviewExamplePath()}
           </code>

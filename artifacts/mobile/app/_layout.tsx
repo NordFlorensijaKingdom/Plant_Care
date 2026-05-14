@@ -24,7 +24,7 @@ const queryClient = new QueryClient();
 
 function RootLayoutNav() {
   return (
-    <Stack screenOptions={{ headerBackTitle: "Back" }}>
+    <Stack screenOptions={{ headerBackTitle: "Назад" }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="plant" options={{ headerShown: false }} />
       <Stack.Screen name="plant-db/[id]" options={{ headerShown: false }} />

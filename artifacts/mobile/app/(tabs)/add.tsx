@@ -68,7 +68,7 @@ function UnitPicker({
               { color: value === unit ? "#FFFFFF" : colors.mutedForeground },
             ]}
           >
-            {unit}
+            {unit === "hours" ? "ч" : "дн"}
           </Text>
         </TouchableOpacity>
       ))}
@@ -460,7 +460,7 @@ export default function AddPlantScreen() {
   async function pickPhoto() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert("Permission needed", "Allow access to your photos.");
+      Alert.alert("Нужно разрешение", "Разрешите доступ к фото.");
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -477,7 +477,7 @@ export default function AddPlantScreen() {
   async function takePhoto() {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert("Permission needed", "Allow camera access.");
+      Alert.alert("Нужно разрешение", "Разрешите доступ к камере.");
       return;
     }
     const result = await ImagePicker.launchCameraAsync({
@@ -491,30 +491,30 @@ export default function AddPlantScreen() {
   }
 
   function handlePhotoPress() {
-    Alert.alert("Add Photo", "Choose a source", [
-      { text: "Camera", onPress: takePhoto },
-      { text: "Photo Library", onPress: pickPhoto },
-      { text: "Cancel", style: "cancel" },
+    Alert.alert("Добавить фото", "Выберите источник", [
+      { text: "Камера", onPress: takePhoto },
+      { text: "Галерея", onPress: pickPhoto },
+      { text: "Отмена", style: "cancel" },
     ]);
   }
 
   async function handleSave() {
     if (!name.trim()) {
-      Alert.alert("Missing name", "Please enter a plant name.");
+      Alert.alert("Нет названия", "Введите название растения.");
       return;
     }
     if (!species.trim()) {
-      Alert.alert("Missing species", "Please enter the plant species.");
+      Alert.alert("Нет вида", "Введите вид растения.");
       return;
     }
     const wVal = parseFloat(waterValue);
     const mVal = parseFloat(mistValue);
     if (wateringEnabled && (isNaN(wVal) || wVal <= 0)) {
-      Alert.alert("Invalid interval", "Please enter a valid watering interval.");
+      Alert.alert("Неверный интервал", "Введите корректный интервал полива.");
       return;
     }
     if (mistingEnabled && (isNaN(mVal) || mVal <= 0)) {
-      Alert.alert("Invalid interval", "Please enter a valid misting interval.");
+      Alert.alert("Неверный интервал", "Введите корректный интервал опрыскивания.");
       return;
     }
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -556,9 +556,9 @@ export default function AddPlantScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <ArrowLeft size={22} color={theme.uiColor} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: theme.textColor }]}>Add Plant</Text>
+        <Text style={[styles.headerTitle, { color: theme.textColor }]}>Добавить растение</Text>
         <TouchableOpacity onPress={handleSave} style={styles.saveBtn}>
-          <Text style={[styles.saveBtnText, { color: theme.uiColor }]}>Save</Text>
+          <Text style={[styles.saveBtnText, { color: theme.uiColor }]}>Сохранить</Text>
         </TouchableOpacity>
       </View>
 
@@ -579,7 +579,7 @@ export default function AddPlantScreen() {
             ) : (
               <View style={styles.photoPlaceholder}>
                 <Camera size={32} color={colors.mutedForeground} />
-                <Text style={[styles.photoLabel, { color: colors.mutedForeground }]}>Add Photo</Text>
+                <Text style={[styles.photoLabel, { color: colors.mutedForeground }]}>Добавить фото</Text>
               </View>
             )}
           </View>
@@ -592,21 +592,21 @@ export default function AddPlantScreen() {
 
         {/* Name & Species */}
         <View style={styles.section}>
-          <Text style={labelStyle}>Plant Name *</Text>
+          <Text style={labelStyle}>Название растения *</Text>
           <TextInput
             style={inputStyle}
             value={name}
             onChangeText={setName}
-            placeholder="e.g. Living Room Fern"
+            placeholder="например, папоротник в гостиной"
             placeholderTextColor={colors.mutedForeground}
             returnKeyType="next"
           />
-          <Text style={[labelStyle, { marginTop: 16 }]}>Species *</Text>
+          <Text style={[labelStyle, { marginTop: 16 }]}>Вид *</Text>
           <TextInput
             style={inputStyle}
             value={species}
             onChangeText={setSpecies}
-            placeholder="e.g. Nephrolepis exaltata"
+            placeholder="например, Nephrolepis exaltata"
             placeholderTextColor={colors.mutedForeground}
           />
         </View>
@@ -614,17 +614,17 @@ export default function AddPlantScreen() {
         <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.sectionCardHeader}>
             <Info size={20} color={theme.uiColor} />
-            <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>Details</Text>
+            <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>Детали</Text>
           </View>
           <Text style={[styles.sectionCardDesc, { color: colors.mutedForeground }]}>
-            Optional information to help you track this plant.
+            Необязательная информация, чтобы удобнее вести учёт.
           </Text>
-          <Text style={labelStyle}>Location</Text>
+          <Text style={labelStyle}>Место</Text>
           <TextInput
             style={inputStyle}
             value={location}
             onChangeText={setLocation}
-            placeholder="e.g. Living room"
+            placeholder="например, гостиная"
             placeholderTextColor={colors.mutedForeground}
           />
 
@@ -676,10 +676,10 @@ export default function AddPlantScreen() {
         <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.sectionCardHeader}>
             <Heart size={20} color={theme.uiColor} />
-            <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>Health Status</Text>
+            <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>Состояние</Text>
           </View>
           <Text style={[styles.sectionCardDesc, { color: colors.mutedForeground }]}>
-            How is this plant doing right now?
+            Как растение чувствует себя сейчас?
           </Text>
           <HealthStatusPicker
             value={healthStatus}
@@ -717,10 +717,10 @@ export default function AddPlantScreen() {
         <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.sectionCardHeader}>
             <Droplet size={20} color={theme.uiColor} />
-            <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>Watering</Text>
+            <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>Полив</Text>
             <View style={styles.toggleRow}>
               <Text style={[styles.toggleLabel, { color: colors.mutedForeground }]}>
-                {wateringEnabled ? "Alerts on" : "Muted"}
+                {wateringEnabled ? "Вкл." : "Выкл."}
               </Text>
               <Switch
                 value={wateringEnabled}
@@ -731,7 +731,7 @@ export default function AddPlantScreen() {
             </View>
           </View>
           <Text style={[styles.sectionCardDesc, { color: colors.mutedForeground }]}>
-            How often does this plant need watering?
+            Как часто поливать это растение?
           </Text>
           <View style={[styles.intervalRow, !wateringEnabled && { opacity: 0.4 }]}>
             <TextInput
@@ -750,7 +750,7 @@ export default function AddPlantScreen() {
               placeholderTextColor={colors.mutedForeground}
               editable={wateringEnabled}
             />
-            <Text style={[styles.everyLabel, { color: colors.mutedForeground }]}>every</Text>
+            <Text style={[styles.everyLabel, { color: colors.mutedForeground }]}>каждые</Text>
             <UnitPicker
               value={waterUnit}
               onChange={setWaterUnit}
@@ -765,10 +765,10 @@ export default function AddPlantScreen() {
         <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.sectionCardHeader}>
             <SprayCan size={20} color={theme.uiColor} />
-            <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>Misting</Text>
+            <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>Опрыскивание</Text>
             <View style={styles.toggleRow}>
               <Text style={[styles.toggleLabel, { color: colors.mutedForeground }]}>
-                {mistingEnabled ? "Alerts on" : "Muted"}
+                {mistingEnabled ? "Вкл." : "Выкл."}
               </Text>
               <Switch
                 value={mistingEnabled}
@@ -779,7 +779,7 @@ export default function AddPlantScreen() {
             </View>
           </View>
           <Text style={[styles.sectionCardDesc, { color: colors.mutedForeground }]}>
-            How often does this plant need misting?
+            Как часто опрыскивать это растение?
           </Text>
           <View style={[styles.intervalRow, !mistingEnabled && { opacity: 0.4 }]}>
             <TextInput
@@ -798,7 +798,7 @@ export default function AddPlantScreen() {
               placeholderTextColor={colors.mutedForeground}
               editable={mistingEnabled}
             />
-            <Text style={[styles.everyLabel, { color: colors.mutedForeground }]}>every</Text>
+            <Text style={[styles.everyLabel, { color: colors.mutedForeground }]}>каждые</Text>
             <UnitPicker
               value={mistUnit}
               onChange={setMistUnit}
@@ -815,7 +815,7 @@ export default function AddPlantScreen() {
           style={[styles.saveButton, { backgroundColor: theme.uiColor }]}
         >
           <Check size={20} color="#FFFFFF" />
-          <Text style={styles.saveButtonText}>Add Plant</Text>
+          <Text style={styles.saveButtonText}>Добавить растение</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>

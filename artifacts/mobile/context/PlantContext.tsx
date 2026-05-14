@@ -112,18 +112,18 @@ export function getTimeRemaining(
   lastAction: number | null,
   interval: TimeInterval
 ): string {
-  if (!lastAction) return "Overdue";
+  if (!lastAction) return "Просрочено";
   const intervalMs = getIntervalMs(interval);
   const nextAction = lastAction + intervalMs;
   const remaining = nextAction - Date.now();
-  if (remaining <= 0) return "Overdue";
+  if (remaining <= 0) return "Просрочено";
   const totalMins = Math.floor(remaining / 60000);
   const totalHours = Math.floor(totalMins / 60);
   const days = Math.floor(totalHours / 24);
   const hours = totalHours % 24;
-  if (days > 0) return `${days}d ${hours}h`;
-  if (totalHours > 0) return `${totalHours}h`;
-  return `${totalMins}m`;
+  if (days > 0) return `${days}д ${hours}ч`;
+  if (totalHours > 0) return `${totalHours}ч`;
+  return `${totalMins}м`;
 }
 
 function generateId(): string {
@@ -372,8 +372,8 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
         if (baseTriggerMs > 0) {
           scheduleCareNotification(
             `watering-${p.id}`,
-            "Time to water!",
-            `${p.name} needs watering`,
+            "Пора поливать!",
+            `${p.name} нужно полить`,
             baseTriggerMs,
             quietHoursEnabled
           );
@@ -387,8 +387,8 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
         if (baseTriggerMs > 0) {
           scheduleCareNotification(
             `misting-${p.id}`,
-            "Time to mist!",
-            `${p.name} needs misting`,
+            "Пора опрыскивать!",
+            `${p.name} нужно опрыскать`,
             baseTriggerMs,
             quietHoursEnabled
           );
@@ -441,8 +441,8 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
           if (baseTriggerMs <= 0) return;
           scheduleCareNotification(
             `watering-${id}`,
-            "Time to water!",
-            `${plant.name} needs watering`,
+            "Пора поливать!",
+            `${plant.name} нужно полить`,
             baseTriggerMs,
             quietHoursEnabled
           );
@@ -459,8 +459,8 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
           if (baseTriggerMs <= 0) return;
           scheduleCareNotification(
             `misting-${id}`,
-            "Time to mist!",
-            `${plant.name} needs misting`,
+            "Пора опрыскивать!",
+            `${plant.name} нужно опрыскать`,
             baseTriggerMs,
             quietHoursEnabled
           );
@@ -503,8 +503,8 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
           const triggerMs = now + getIntervalMs(watered.wateringInterval);
           scheduleCareNotification(
             `watering-${id}`,
-            "Time to water!",
-            `${watered.name} needs watering`,
+            "Пора поливать!",
+            `${watered.name} нужно полить`,
             triggerMs,
             quietHoursEnabled
           );
@@ -536,8 +536,8 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
           const triggerMs = now + getIntervalMs(misted.mistingInterval);
           scheduleCareNotification(
             `misting-${id}`,
-            "Time to mist!",
-            `${misted.name} needs misting`,
+            "Пора опрыскивать!",
+            `${misted.name} нужно опрыскать`,
             triggerMs,
             quietHoursEnabled
           );
@@ -593,10 +593,10 @@ export function PlantProvider({ children }: { children: React.ReactNode }) {
           if (notificationsEnabled) {
             scheduleCareNotification(
               `${type === "water" ? "watering" : "misting"}-${plantId}`,
-              type === "water" ? "Time to water!" : "Time to mist!",
+              type === "water" ? "Пора поливать!" : "Пора опрыскивать!",
               type === "water"
-                ? `${plant.name} needs watering`
-                : `${plant.name} needs misting`,
+                ? `${plant.name} нужно полить`
+                : `${plant.name} нужно опрыскать`,
               until,
               quietHoursEnabled
             );

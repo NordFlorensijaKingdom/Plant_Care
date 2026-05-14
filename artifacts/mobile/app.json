@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "My Garden",
+    "name": "Мой сад",
     "slug": "plant-care-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -18,9 +18,9 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.user.plantcare",
       "infoPlist": {
-        "NSPhotoLibraryUsageDescription": "Allow My Garden to access your photos for plant pictures.",
-        "NSCameraUsageDescription": "Allow My Garden to use your camera to take plant photos.",
-        "NSUserNotificationUsageDescription": "Allow My Garden to send you care reminders."
+        "NSPhotoLibraryUsageDescription": "Разрешите «Мой сад» доступ к вашим фото для снимков растений.",
+        "NSCameraUsageDescription": "Разрешите «Мой сад» использовать камеру, чтобы фотографировать растения.",
+        "NSUserNotificationUsageDescription": "Разрешите «Мой сад» отправлять напоминания об уходе."
       }
     },
     "android": {
@@ -48,8 +48,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow My Garden to access your photos.",
-          "cameraPermission": "Allow My Garden to take plant photos."
+          "photosPermission": "Разрешите «Мой сад» доступ к вашим фото.",
+          "cameraPermission": "Разрешите «Мой сад» использовать камеру для снимков растений."
         }
       ],
       [

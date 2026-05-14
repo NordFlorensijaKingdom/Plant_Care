@@ -61,7 +61,7 @@ function ReminderForm({
 
   function handleAdd() {
     if (!title.trim()) {
-      Alert.alert("Missing title", "Please enter a reminder title.");
+      Alert.alert("Нет названия", "Введите название напоминания.");
       return;
     }
     const m = parseInt(month);
@@ -76,12 +76,12 @@ function ReminderForm({
       isNaN(h) || h < 0 || h > 23 ||
       isNaN(min) || min < 0 || min > 59
     ) {
-      Alert.alert("Invalid date", "Please enter a valid date and time.");
+      Alert.alert("Неверная дата", "Введите корректные дату и время.");
       return;
     }
     const date = new Date(y, m - 1, d, h, min, 0).getTime();
     if (date <= Date.now()) {
-      Alert.alert("Past date", "Please choose a future date and time.");
+      Alert.alert("Дата в прошлом", "Выберите будущие дату и время.");
       return;
     }
     onAdd(title.trim(), date, recurrence);
@@ -100,14 +100,14 @@ function ReminderForm({
       ]}
     >
       <Text style={[formStyles.formTitle, { color: textColor }]}>
-        New Reminder
+        Новое напоминание
       </Text>
 
       <TextInput
         style={inputStyle}
         value={title}
         onChangeText={setTitle}
-        placeholder="e.g. Fertilize, Repot..."
+        placeholder="например, подкормка, пересадка..."
         placeholderTextColor={colors.mutedForeground}
         returnKeyType="next"
       />
@@ -116,7 +116,7 @@ function ReminderForm({
       <View style={formStyles.dateRow}>
         <View style={formStyles.dateField}>
           <Text style={[formStyles.dateLabel, { color: colors.mutedForeground }]}>
-            Month
+            Месяц
           </Text>
           <TextInput
             style={[inputStyle, formStyles.dateInput]}
@@ -130,7 +130,7 @@ function ReminderForm({
         </View>
         <View style={formStyles.dateField}>
           <Text style={[formStyles.dateLabel, { color: colors.mutedForeground }]}>
-            Day
+            День
           </Text>
           <TextInput
             style={[inputStyle, formStyles.dateInput]}
@@ -144,7 +144,7 @@ function ReminderForm({
         </View>
         <View style={formStyles.dateField}>
           <Text style={[formStyles.dateLabel, { color: colors.mutedForeground }]}>
-            Year
+            Год
           </Text>
           <TextInput
             style={[inputStyle, formStyles.dateInput]}
@@ -158,7 +158,7 @@ function ReminderForm({
         </View>
         <View style={formStyles.dateField}>
           <Text style={[formStyles.dateLabel, { color: colors.mutedForeground }]}>
-            Hour
+            Час
           </Text>
           <TextInput
             style={[inputStyle, formStyles.dateInput]}
@@ -172,7 +172,7 @@ function ReminderForm({
         </View>
         <View style={formStyles.dateField}>
           <Text style={[formStyles.dateLabel, { color: colors.mutedForeground }]}>
-            Min
+            Мин
           </Text>
           <TextInput
             style={[inputStyle, formStyles.dateInput]}
@@ -189,7 +189,7 @@ function ReminderForm({
       {/* Recurrence */}
       <View style={formStyles.recurrenceRow}>
         <Text style={[formStyles.dateLabel, { color: colors.mutedForeground, alignSelf: "center" }]}>
-          Repeat:
+          Повтор:
         </Text>
         {(["once", "yearly"] as Recurrence[]).map((r) => (
           <TouchableOpacity
@@ -209,7 +209,7 @@ function ReminderForm({
                 { color: recurrence === r ? "#FFFFFF" : colors.mutedForeground },
               ]}
             >
-              {r === "once" ? "Once" : "Yearly"}
+              {r === "once" ? "Один раз" : "Ежегодно"}
             </Text>
           </TouchableOpacity>
         ))}
@@ -221,7 +221,7 @@ function ReminderForm({
           style={[formStyles.formBtn, { backgroundColor: colors.muted }]}
         >
           <Text style={[formStyles.formBtnText, { color: colors.mutedForeground }]}>
-            Cancel
+            Отмена
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -230,7 +230,7 @@ function ReminderForm({
         >
           <Ionicons name="alarm-outline" size={15} color="#FFFFFF" />
           <Text style={[formStyles.formBtnText, { color: "#FFFFFF" }]}>
-            Schedule
+            Запланировать
           </Text>
         </TouchableOpacity>
       </View>
@@ -428,9 +428,9 @@ export default function PlantDetailScreen() {
   if (!plant) {
     return (
       <View style={[styles.center, { backgroundColor: colors.background }]}>
-        <Text style={{ color: colors.mutedForeground }}>Plant not found.</Text>
+        <Text style={{ color: colors.mutedForeground }}>Растение не найдено.</Text>
         <TouchableOpacity onPress={() => router.back()}>
-          <Text style={{ color: theme.uiColor, marginTop: 12 }}>Go back</Text>
+          <Text style={{ color: theme.uiColor, marginTop: 12 }}>Назад</Text>
         </TouchableOpacity>
       </View>
     );
@@ -469,7 +469,7 @@ export default function PlantDetailScreen() {
   async function handleAddPhoto() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert("Permission needed", "Allow access to your photos.");
+      Alert.alert("Нужно разрешение", "Разрешите доступ к фото.");
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -498,27 +498,27 @@ export default function PlantDetailScreen() {
   }
 
   function confirmDeleteNote(noteId: string) {
-    Alert.alert("Delete Note", "Remove this note?", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Delete", style: "destructive", onPress: () => deleteNote(plantId, noteId) },
+    Alert.alert("Удалить заметку", "Удалить эту заметку?", [
+      { text: "Отмена", style: "cancel" },
+      { text: "Удалить", style: "destructive", onPress: () => deleteNote(plantId, noteId) },
     ]);
   }
 
   function confirmDeletePhoto(index: number) {
-    Alert.alert("Delete Photo", "Remove this photo?", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Delete", style: "destructive", onPress: () => deletePhoto(plantId, index) },
+    Alert.alert("Удалить фото", "Удалить это фото?", [
+      { text: "Отмена", style: "cancel" },
+      { text: "Удалить", style: "destructive", onPress: () => deletePhoto(plantId, index) },
     ]);
   }
 
   function handleDeletePlant() {
     Alert.alert(
-      "Delete Plant",
-      `Remove ${plantName} from your garden? This cannot be undone.`,
+      "Удалить растение",
+      `Удалить ${plantName} из вашего сада? Это действие нельзя отменить.`,
       [
-        { text: "Cancel", style: "cancel" },
+        { text: "Отмена", style: "cancel" },
         {
-          text: "Delete",
+          text: "Удалить",
           style: "destructive",
           onPress: () => {
             deletePlant(plantId);
@@ -540,10 +540,10 @@ export default function PlantDetailScreen() {
   }
 
   function confirmDeleteReminder(reminderId: string) {
-    Alert.alert("Delete Reminder", "Remove this reminder?", [
-      { text: "Cancel", style: "cancel" },
+    Alert.alert("Удалить напоминание", "Удалить это напоминание?", [
+      { text: "Отмена", style: "cancel" },
       {
-        text: "Delete",
+        text: "Удалить",
         style: "destructive",
         onPress: () => {
           deleteReminder(plantId, reminderId);
@@ -554,9 +554,9 @@ export default function PlantDetailScreen() {
   }
 
   const tabs: { key: DetailTab; label: string; icon: string }[] = [
-    { key: "gallery", label: "Gallery", icon: "images-outline" },
-    { key: "notes", label: "Notes", icon: "document-text-outline" },
-    { key: "reminders", label: "Reminders", icon: "alarm-outline" },
+    { key: "gallery", label: "Фото", icon: "images-outline" },
+    { key: "notes", label: "Заметки", icon: "document-text-outline" },
+    { key: "reminders", label: "Напоминания", icon: "alarm-outline" },
     { key: "history", label: "История", icon: "time-outline" },
   ];
 
@@ -706,7 +706,7 @@ export default function PlantDetailScreen() {
                   color={progressBarColor(waterProgress)}
                 />
                 <Text style={[styles.careLabel, { color: effectiveSecondary }]}>
-                  Watering
+                  Полив
                 </Text>
               </View>
               <View style={[styles.progressTrack, { backgroundColor: colors.muted }]}>
@@ -728,7 +728,7 @@ export default function PlantDetailScreen() {
                 style={[styles.careBtn, { backgroundColor: theme.uiColor }]}
               >
                 <Ionicons name="water" size={13} color="#FFFFFF" />
-                <Text style={styles.careBtnText}>Water</Text>
+                <Text style={styles.careBtnText}>Полить</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -747,7 +747,7 @@ export default function PlantDetailScreen() {
                   color={progressBarColor(mistProgress)}
                 />
                 <Text style={[styles.careLabel, { color: effectiveSecondary }]}>
-                  Misting
+                  Опрыскивание
                 </Text>
               </View>
               <View style={[styles.progressTrack, { backgroundColor: colors.muted }]}>
@@ -769,7 +769,7 @@ export default function PlantDetailScreen() {
                 style={[styles.careBtn, { backgroundColor: theme.uiColor }]}
               >
                 <Ionicons name="rainy" size={13} color="#FFFFFF" />
-                <Text style={styles.careBtnText}>Mist</Text>
+                <Text style={styles.careBtnText}>Опрыскать</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -840,14 +840,14 @@ export default function PlantDetailScreen() {
             <View style={styles.emptyTab}>
               <Ionicons name="images-outline" size={40} color={colors.mutedForeground} />
               <Text style={[styles.emptyTabText, { color: colors.mutedForeground }]}>
-                No photos yet
+                Фото пока нет
               </Text>
               <TouchableOpacity
                 onPress={handleAddPhoto}
                 style={[styles.emptyTabBtn, { backgroundColor: theme.uiColor }]}
               >
                 <Ionicons name="add" size={16} color="#FFFFFF" />
-                <Text style={styles.emptyTabBtnText}>Add Photo</Text>
+                <Text style={styles.emptyTabBtnText}>Добавить фото</Text>
               </TouchableOpacity>
             </View>
           }
@@ -895,7 +895,7 @@ export default function PlantDetailScreen() {
           >
             <TextInput
               style={[styles.noteInput, { color: theme.textColor }]}
-              placeholder="Write a note..."
+              placeholder="Напишите заметку..."
               placeholderTextColor={colors.mutedForeground}
               value={newNoteText}
               onChangeText={setNewNoteText}
@@ -922,7 +922,7 @@ export default function PlantDetailScreen() {
             <View style={styles.emptyTab}>
               <Ionicons name="document-text-outline" size={40} color={colors.mutedForeground} />
               <Text style={[styles.emptyTabText, { color: colors.mutedForeground }]}>
-                No notes yet
+                Заметок пока нет
               </Text>
             </View>
           ) : (
@@ -983,7 +983,7 @@ export default function PlantDetailScreen() {
                         style={[styles.editNoteBtn, { backgroundColor: colors.muted }]}
                       >
                         <Text style={[styles.editNoteBtnText, { color: colors.mutedForeground }]}>
-                          Cancel
+                          Отмена
                         </Text>
                       </TouchableOpacity>
                       <TouchableOpacity
@@ -991,7 +991,7 @@ export default function PlantDetailScreen() {
                         style={[styles.editNoteBtn, { backgroundColor: theme.uiColor }]}
                       >
                         <Text style={[styles.editNoteBtnText, { color: "#FFFFFF" }]}>
-                          Save
+                          Сохранить
                         </Text>
                       </TouchableOpacity>
                     </View>
@@ -1150,7 +1150,7 @@ export default function PlantDetailScreen() {
             >
               <Ionicons name="alarm-outline" size={18} color={theme.uiColor} />
               <Text style={[styles.addReminderText, { color: theme.uiColor }]}>
-                Add Reminder
+                Добавить напоминание
               </Text>
             </TouchableOpacity>
           )}
@@ -1169,10 +1169,10 @@ export default function PlantDetailScreen() {
             <View style={styles.emptyTab}>
               <Ionicons name="alarm-outline" size={40} color={colors.mutedForeground} />
               <Text style={[styles.emptyTabText, { color: colors.mutedForeground }]}>
-                No reminders set
+                Напоминаний пока нет
               </Text>
               <Text style={[styles.emptyTabSubText, { color: colors.mutedForeground }]}>
-                Add reminders for fertilizing, repotting, and more
+                Добавляйте напоминания о подкормке, пересадке и других делах
               </Text>
             </View>
           ) : (
@@ -1218,7 +1218,7 @@ export default function PlantDetailScreen() {
                     ]}
                   >
                     <Text style={[styles.recurrenceBadgeText, { color: theme.uiColor }]}>
-                      {reminder.recurrence === "yearly" ? "Yearly" : "Once"}
+                      {reminder.recurrence === "yearly" ? "Ежегодно" : "Один раз"}
                     </Text>
                   </View>
                   <TouchableOpacity

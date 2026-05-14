@@ -39,9 +39,9 @@ function getAppName() {
   try {
     const appJsonPath = path.resolve(__dirname, "..", "app.json");
     const appJson = JSON.parse(fs.readFileSync(appJsonPath, "utf-8"));
-    return appJson.expo?.name || "App Landing Page";
+    return appJson.expo?.name || "Страница приложения";
   } catch {
-    return "App Landing Page";
+    return "Страница приложения";
   }
 }
 
@@ -51,7 +51,7 @@ function serveManifest(platform, res) {
   if (!fs.existsSync(manifestPath)) {
     res.writeHead(404, { "content-type": "application/json" });
     res.end(
-      JSON.stringify({ error: `Manifest not found for platform: ${platform}` }),
+      JSON.stringify({ error: `Манифест не найден для платформы: ${platform}` }),
     );
     return;
   }
@@ -87,13 +87,13 @@ function serveStaticFile(urlPath, res) {
 
   if (!filePath.startsWith(STATIC_ROOT)) {
     res.writeHead(403);
-    res.end("Forbidden");
+    res.end("Доступ запрещён");
     return;
   }
 
   if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
     res.writeHead(404);
-    res.end("Not Found");
+    res.end("Не найдено");
     return;
   }
 

@@ -178,7 +178,7 @@ function ColorSection({
               { color: isCustom ? activeColor : colors.mutedForeground },
             ]}
           >
-            {isCustom ? "Custom" : "Custom"}
+            {isCustom ? "Своя" : "Своя"}
           </Text>
           {isCustom && (
             <View
@@ -196,7 +196,7 @@ function ColorSection({
         ]}
       >
         <Text style={[styles.previewLabel, { color: colors.mutedForeground }]}>
-          Preview
+          Предпросмотр
         </Text>
         {preview}
       </View>
@@ -206,7 +206,7 @@ function ColorSection({
         <TouchableOpacity onPress={onReset} style={styles.resetLink}>
           <Ionicons name="refresh-outline" size={12} color={colors.mutedForeground} />
           <Text style={[styles.resetLinkText, { color: colors.mutedForeground }]}>
-            Reset to system default
+            Сбросить к системному
           </Text>
         </TouchableOpacity>
       )}
@@ -258,15 +258,15 @@ export default function SettingsScreen() {
             }
           }
           Alert.alert(
-            "Notifications blocked",
-            "Enable notifications in your device Settings to receive watering reminders."
+            "Уведомления заблокированы",
+            "Включите уведомления в настройках устройства, чтобы получать напоминания о поливе."
           );
           return;
         }
         appSettings.setNotificationsEnabled(true);
         await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       } catch {
-        Alert.alert("Unavailable", "Notifications are not available on this platform.");
+        Alert.alert("Недоступно", "Уведомления недоступны на этой платформе.");
       }
     } else {
       appSettings.setNotificationsEnabled(true);
@@ -276,7 +276,7 @@ export default function SettingsScreen() {
   async function pickBackground() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert("Permission needed", "Allow access to your photos to set a background image.");
+      Alert.alert("Нужно разрешение", "Разрешите доступ к фото, чтобы установить фоновое изображение.");
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -297,12 +297,12 @@ export default function SettingsScreen() {
 
   function handleResetAll() {
     Alert.alert(
-      "Reset All Theme Settings",
-      "Restore all colors and background to their original defaults?",
+      "Сбросить настройки темы",
+      "Вернуть все цвета и фон к значениям по умолчанию?",
       [
-        { text: "Cancel", style: "cancel" },
+        { text: "Отмена", style: "cancel" },
         {
-          text: "Reset Everything",
+          text: "Сбросить всё",
           style: "destructive",
           onPress: () => {
             theme.resetTheme();
@@ -324,9 +324,9 @@ export default function SettingsScreen() {
           { paddingTop: topPad + 12, borderBottomColor: colors.border, backgroundColor: colors.background },
         ]}
       >
-        <Text style={[styles.title, { color: theme.textColor }]}>Settings</Text>
+        <Text style={[styles.title, { color: theme.textColor }]}>Настройки</Text>
         <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
-          Customize your app appearance
+          Настройте внешний вид приложения
         </Text>
       </View>
 
@@ -338,25 +338,25 @@ export default function SettingsScreen() {
         ]}
       >
         {/* ── CUSTOM THEME ── */}
-        <Text style={shLabel}>CUSTOM THEME</Text>
+        <Text style={shLabel}>ТЕМА</Text>
 
         {/* 1. Primary Text */}
         <ColorSection
-          label="Primary Text"
-          description="Titles, plant names, and main labels"
+          label="Основной текст"
+          description="Заголовки, названия растений и основные подписи"
           icon="text-outline"
           presets={PRIMARY_TEXT_PRESETS}
           currentColor={theme.textColor !== defaults.textColor ? theme.textColor : null}
           defaultColor={defaults.textColor}
           onSelect={theme.setTextColor}
-          pickerTitle="Primary Text Color"
+          pickerTitle="Цвет основного текста"
           preview={
             <View style={styles.previewRow}>
               <Text style={[styles.previewPlantName, { color: theme.textColor }]}>
-                Boston Fern
+                Бостонский папоротник
               </Text>
               <Text style={[styles.previewSmallLabel, { color: theme.textColor }]}>
-                Add Plant
+                Добавить
               </Text>
             </View>
           }
@@ -364,22 +364,22 @@ export default function SettingsScreen() {
 
         {/* 2. Secondary Text */}
         <ColorSection
-          label="Secondary Text"
-          description="Species names, descriptions, and timestamps"
+          label="Вторичный текст"
+          description="Названия видов, описания и отметки времени"
           icon="chatbubble-ellipses-outline"
           presets={SECONDARY_TEXT_PRESETS}
           currentColor={theme.secondaryTextColor}
           defaultColor="#6B8F7A"
           onSelect={theme.setSecondaryTextColor}
           onReset={() => theme.setSecondaryTextColor(null)}
-          pickerTitle="Secondary Text Color"
+          pickerTitle="Цвет вторичного текста"
           preview={
             <View style={styles.previewRow}>
               <Text style={[styles.previewSpecies, { color: effectiveSecondary }]}>
                 Nephrolepis exaltata
               </Text>
               <Text style={[styles.previewSmallLabel, { color: effectiveSecondary }]}>
-                3 days ago
+                3 дня назад
               </Text>
             </View>
           }
@@ -387,23 +387,23 @@ export default function SettingsScreen() {
 
         {/* 3. Accent Elements */}
         <ColorSection
-          label="Accent Elements"
-          description="Buttons, toggles, icons, and progress bars"
+          label="Акцентные элементы"
+          description="Кнопки, переключатели, иконки и индикаторы прогресса"
           icon="color-fill-outline"
           presets={ACCENT_PRESETS}
           currentColor={theme.uiColor !== defaults.uiColor ? theme.uiColor : null}
           defaultColor={defaults.uiColor}
           onSelect={theme.setUiColor}
-          pickerTitle="Accent Color"
+          pickerTitle="Акцентный цвет"
           preview={
             <View style={styles.previewRow}>
               <View style={[styles.previewBtn, { backgroundColor: theme.uiColor }]}>
                 <Ionicons name="water" size={13} color="#FFFFFF" />
-                <Text style={styles.previewBtnText}>Water</Text>
+                <Text style={styles.previewBtnText}>Полить</Text>
               </View>
               <View style={[styles.previewBadge, { backgroundColor: theme.uiColor + "22", borderColor: theme.uiColor + "55" }]}>
                 <Ionicons name="leaf" size={12} color={theme.uiColor} />
-                <Text style={[styles.previewBadgeText, { color: theme.uiColor }]}>Icon</Text>
+                <Text style={[styles.previewBadgeText, { color: theme.uiColor }]}>Иконка</Text>
               </View>
               <Switch
                 value
@@ -417,15 +417,15 @@ export default function SettingsScreen() {
 
         {/* 4. Card Backgrounds */}
         <ColorSection
-          label="Card Backgrounds"
-          description="Plant cards, note blocks, and info panels"
+          label="Фон карточек"
+          description="Карточки растений, заметки и инфопанели"
           icon="albums-outline"
           presets={CARD_BG_PRESETS}
           currentColor={theme.cardColor}
           defaultColor={colors.card}
           onSelect={theme.setCardColor}
           onReset={() => theme.setCardColor(null)}
-          pickerTitle="Card Background Color"
+          pickerTitle="Цвет фона карточек"
           preview={
             <View
               style={[
@@ -446,15 +446,15 @@ export default function SettingsScreen() {
         />
 
         <ColorSection
-          label="App Background"
-          description="Overall page background color"
+          label="Фон приложения"
+          description="Основной цвет фона"
           icon="color-filter-outline"
           presets={BACKGROUND_PRESETS}
           currentColor={theme.backgroundColor}
           defaultColor={colors.systemBackground}
           onSelect={(c) => theme.setBackgroundColor(c)}
           onReset={() => theme.setBackgroundColor(null)}
-          pickerTitle="Background Color"
+          pickerTitle="Цвет фона"
           preview={
             <View
               style={[
@@ -472,7 +472,7 @@ export default function SettingsScreen() {
         />
 
         {/* ── BACKGROUND WALLPAPER ── */}
-        <Text style={[shLabel, { marginTop: 24 }]}>BACKGROUND WALLPAPER</Text>
+        <Text style={[shLabel, { marginTop: 24 }]}>ОБОИ</Text>
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
           {theme.backgroundImage ? (
             <View style={styles.bgPreviewRow}>
@@ -483,7 +483,7 @@ export default function SettingsScreen() {
               />
               <View style={styles.bgActions}>
                 <Text style={[styles.bgSelectedText, { color: theme.textColor }]}>
-                  Custom background set
+                  Установлен свой фон
                 </Text>
                 <View style={styles.bgBtnRow}>
                   <TouchableOpacity
@@ -491,14 +491,14 @@ export default function SettingsScreen() {
                     style={[styles.bgBtn, { backgroundColor: theme.uiColor + "20" }]}
                   >
                     <Ionicons name="swap-horizontal" size={16} color={theme.uiColor} />
-                    <Text style={[styles.bgBtnText, { color: theme.uiColor }]}>Change</Text>
+                    <Text style={[styles.bgBtnText, { color: theme.uiColor }]}>Изменить</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={removeBackground}
                     style={[styles.bgBtn, { backgroundColor: colors.destructive + "15" }]}
                   >
                     <Ionicons name="trash-outline" size={16} color={colors.destructive} />
-                    <Text style={[styles.bgBtnText, { color: colors.destructive }]}>Remove</Text>
+                    <Text style={[styles.bgBtnText, { color: colors.destructive }]}>Удалить</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -510,24 +510,24 @@ export default function SettingsScreen() {
             >
               <Ionicons name="image-outline" size={28} color={colors.mutedForeground} />
               <Text style={[styles.bgPickerText, { color: colors.mutedForeground }]}>
-                Choose from gallery
+                Выбрать из галереи
               </Text>
             </TouchableOpacity>
           )}
         </View>
 
         {/* ── NOTIFICATIONS ── */}
-        <Text style={[shLabel, { marginTop: 24 }]}>NOTIFICATIONS</Text>
+        <Text style={[shLabel, { marginTop: 24 }]}>УВЕДОМЛЕНИЯ</Text>
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.switchRow}>
             <View style={styles.switchInfo}>
               <Ionicons name="notifications-outline" size={20} color={theme.uiColor} />
               <View style={{ flex: 1 }}>
                 <Text style={[styles.switchLabel, { color: theme.textColor }]}>
-                  Watering Reminders
+                  Напоминания о поливе
                 </Text>
                 <Text style={[styles.switchDesc, { color: colors.mutedForeground }]}>
-                  Get notified when plants need care
+                  Уведомлять, когда растениям нужен уход
                 </Text>
               </View>
             </View>
@@ -546,10 +546,10 @@ export default function SettingsScreen() {
               <Ionicons name="moon-outline" size={20} color={theme.uiColor} />
               <View style={{ flex: 1 }}>
                 <Text style={[styles.switchLabel, { color: theme.textColor }]}>
-                  Quiet hours
+                  Тихие часы
                 </Text>
                 <Text style={[styles.switchDesc, { color: colors.mutedForeground }]}>
-                  Delay notifications from 22:00 to 08:00
+                  Не беспокоить с 22:00 до 08:00
                 </Text>
               </View>
             </View>
@@ -563,7 +563,7 @@ export default function SettingsScreen() {
         </View>
 
         {/* ── DANGER ZONE ── */}
-        <Text style={[shLabel, { marginTop: 24 }]}>DANGER ZONE</Text>
+        <Text style={[shLabel, { marginTop: 24 }]}>ОПАСНАЯ ЗОНА</Text>
         <TouchableOpacity
           onPress={handleResetAll}
           style={[
@@ -573,7 +573,7 @@ export default function SettingsScreen() {
         >
           <Ionicons name="refresh-circle-outline" size={20} color={colors.destructive} />
           <Text style={[styles.resetText, { color: colors.destructive }]}>
-            Reset All Theme to Defaults
+            Сбросить тему по умолчанию
           </Text>
         </TouchableOpacity>
       </ScrollView>

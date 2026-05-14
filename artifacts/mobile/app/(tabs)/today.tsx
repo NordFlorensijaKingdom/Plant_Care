@@ -99,7 +99,7 @@ export default function TodayScreen() {
         >
           <Bell size={16} color={theme.uiColor} />
           <Text style={[styles.headerBadgeText, { color: theme.uiColor }]}>
-            Due
+            К уходу
           </Text>
         </View>
       </View>

@@ -19,27 +19,27 @@ function NativeTabLayout() {
     <NativeTabs>
       <NativeTabs.Trigger name="today">
         <Icon sf={{ default: "sun.max", selected: "sun.max.fill" }} />
-        <Label>Today</Label>
+        <Label>Сегодня</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="calendar">
         <Icon sf={{ default: "calendar", selected: "calendar.circle.fill" }} />
-        <Label>Calendar</Label>
+        <Label>Календарь</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="index">
         <Icon sf={{ default: "leaf", selected: "leaf.fill" }} />
-        <Label>My Garden</Label>
+        <Label>Мой сад</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="catalog">
         <Icon sf={{ default: "book", selected: "book.fill" }} />
-        <Label>Catalog</Label>
+        <Label>Каталог</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="add">
         <Icon sf={{ default: "plus.circle", selected: "plus.circle.fill" }} />
-        <Label>Add Plant</Label>
+        <Label>Добавить</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="settings">
         <Icon sf={{ default: "gearshape", selected: "gearshape.fill" }} />
-        <Label>Settings</Label>
+        <Label>Настройки</Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   );
@@ -89,14 +89,14 @@ function ClassicTabLayout() {
       <Tabs.Screen
         name="today"
         options={{
-          title: "Today",
+          title: "Сегодня",
           tabBarIcon: ({ color }) => <Sun size={22} color={color} />,
         }}
       />
       <Tabs.Screen
         name="calendar"
         options={{
-          title: "Calendar",
+          title: "Календарь",
           tabBarIcon: ({ color }) =>
             isIOS ? (
               <SymbolView name="calendar" tintColor={color} size={22} />
@@ -108,7 +108,7 @@ function ClassicTabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "My Garden",
+          title: "Мой сад",
           tabBarIcon: ({ color }) =>
             isIOS ? (
               <SymbolView name="leaf.fill" tintColor={color} size={22} />
@@ -120,7 +120,7 @@ function ClassicTabLayout() {
       <Tabs.Screen
         name="catalog"
         options={{
-          title: "Catalog",
+          title: "Каталог",
           tabBarIcon: ({ color }) =>
             isIOS ? (
               <SymbolView name="book.fill" tintColor={color} size={22} />
@@ -132,7 +132,7 @@ function ClassicTabLayout() {
       <Tabs.Screen
         name="add"
         options={{
-          title: "Add Plant",
+          title: "Добавить",
           tabBarIcon: ({ color }) =>
             isIOS ? (
               <SymbolView name="plus.circle.fill" tintColor={color} size={22} />
@@ -144,7 +144,7 @@ function ClassicTabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: "Settings",
+          title: "Настройки",
           tabBarIcon: ({ color }) =>
             isIOS ? (
               <SymbolView name="gearshape.fill" tintColor={color} size={22} />

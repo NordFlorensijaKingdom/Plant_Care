@@ -17,6 +17,18 @@ import { usePlants } from "@/context/PlantContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
 
+function formatPlantCount(count: number): string {
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  const word =
+    mod10 === 1 && mod100 !== 11
+      ? "растение"
+      : mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)
+      ? "растения"
+      : "растений";
+  return `${count} ${word}`;
+}
+
 export default function GardenScreen() {
   const colors = useColors();
   const theme = useTheme();
@@ -50,11 +62,11 @@ export default function GardenScreen() {
       >
         <View>
           <Text style={[styles.title, { color: theme.textColor }]}>
-            My Garden
+            Мой сад
           </Text>
           {plants.length > 0 && (
             <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
-              {plants.length} {plants.length === 1 ? "plant" : "plants"}
+              {formatPlantCount(plants.length)}
             </Text>
           )}
         </View>
@@ -71,7 +83,7 @@ export default function GardenScreen() {
         <View style={styles.center}>
           <Ionicons name="leaf" size={40} color={colors.mutedForeground} />
           <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
-            Loading...
+            Загрузка...
           </Text>
         </View>
       ) : plants.length === 0 ? (
@@ -82,17 +94,17 @@ export default function GardenScreen() {
             <Ionicons name="leaf-outline" size={48} color={colors.mutedForeground} />
           </View>
           <Text style={[styles.emptyTitle, { color: theme.textColor }]}>
-            No plants yet
+            Пока нет растений
           </Text>
           <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
-            Add your first plant to start tracking
+            Добавьте первое растение, чтобы начать учёт
           </Text>
           <TouchableOpacity
             onPress={() => router.push("/(tabs)/add")}
             style={[styles.emptyButton, { backgroundColor: theme.uiColor }]}
           >
             <Ionicons name="add" size={18} color="#FFFFFF" />
-            <Text style={styles.emptyButtonText}>Add Plant</Text>
+            <Text style={styles.emptyButtonText}>Добавить растение</Text>
           </TouchableOpacity>
         </View>
       ) : (

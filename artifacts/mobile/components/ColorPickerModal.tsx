@@ -50,7 +50,7 @@ interface Props {
 export function ColorPickerModal({
   visible,
   initialColor,
-  title = "Pick a Color",
+  title = "Выберите цвет",
   onClose,
   onConfirm,
 }: Props) {
@@ -108,7 +108,7 @@ export function ColorPickerModal({
         <View style={[styles.header, { borderBottomColor: colors.border }]}>
           <TouchableOpacity onPress={onClose} style={styles.headerBtn}>
             <Text style={[styles.cancelText, { color: colors.mutedForeground }]}>
-              Cancel
+              Отмена
             </Text>
           </TouchableOpacity>
           <Text style={[styles.title, { color: theme.textColor }]}>{title}</Text>
@@ -116,7 +116,7 @@ export function ColorPickerModal({
             onPress={handleConfirm}
             style={[styles.doneBtn, { backgroundColor: theme.uiColor }]}
           >
-            <Text style={styles.doneText}>Done</Text>
+            <Text style={styles.doneText}>Готово</Text>
           </TouchableOpacity>
         </View>
 
@@ -179,7 +179,7 @@ export function ColorPickerModal({
               />
             </View>
             {hexError && (
-              <Text style={styles.errorText}>Invalid hex</Text>
+              <Text style={styles.errorText}>Неверный HEX</Text>
             )}
           </View>
 

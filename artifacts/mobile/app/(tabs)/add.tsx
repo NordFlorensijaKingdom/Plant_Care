@@ -19,6 +19,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ArrowLeft, Calendar, Camera, Check, ChevronDown, Droplet, Heart, Info, Pencil, SprayCan } from "lucide-react-native";
 
+import { NavigationMenuButton } from "@/components/NavigationMenu";
 import {
   HEALTH_STATUS_CONFIG,
   CareDifficulty,
@@ -535,7 +536,7 @@ export default function AddPlantScreen() {
       wateringInterval: { value: wVal || 3, unit: waterUnit },
       mistingInterval: { value: mVal || 1, unit: mistUnit },
     });
-    router.replace("/(tabs)");
+    router.replace("/");
   }
 
   const inputStyle = [
@@ -557,16 +558,19 @@ export default function AddPlantScreen() {
           <ArrowLeft size={22} color={theme.uiColor} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: theme.textColor }]}>Добавить растение</Text>
-        <TouchableOpacity onPress={handleSave} style={styles.saveBtn}>
-          <Text style={[styles.saveBtnText, { color: theme.uiColor }]}>Сохранить</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+          <TouchableOpacity onPress={handleSave} style={styles.saveBtn}>
+            <Text style={[styles.saveBtnText, { color: theme.uiColor }]}>Сохранить</Text>
+          </TouchableOpacity>
+          <NavigationMenuButton />
+        </View>
       </View>
 
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: Platform.OS === "web" ? 84 + 34 : 80 + insets.bottom },
+          { paddingBottom: Platform.OS === "web" ? 34 : 24 + insets.bottom },
         ]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}

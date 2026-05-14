@@ -12,6 +12,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Bell, CalendarDays, ChevronLeft, ChevronRight, Droplet, Heart, SprayCan } from "lucide-react-native";
 
+import { NavigationMenuButton } from "@/components/NavigationMenu";
 import { getIntervalMs, usePlants } from "@/context/PlantContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
@@ -159,35 +160,38 @@ export default function CalendarScreen() {
             {mode === "week" ? "Неделя" : "День"} · {formatWeekLabel(weekStart)}
           </Text>
         </View>
-        <View style={styles.modeRow}>
-          <TouchableOpacity
-            onPress={() => setMode("day")}
-            style={[
-              styles.modeBtn,
-              {
-                backgroundColor: mode === "day" ? theme.uiColor : colors.muted,
-                borderColor: mode === "day" ? theme.uiColor : colors.border,
-              },
-            ]}
-          >
-            <Text style={[styles.modeText, { color: mode === "day" ? "#FFFFFF" : colors.mutedForeground }]}>
-              День
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => setMode("week")}
-            style={[
-              styles.modeBtn,
-              {
-                backgroundColor: mode === "week" ? theme.uiColor : colors.muted,
-                borderColor: mode === "week" ? theme.uiColor : colors.border,
-              },
-            ]}
-          >
-            <Text style={[styles.modeText, { color: mode === "week" ? "#FFFFFF" : colors.mutedForeground }]}>
-              Неделя
-            </Text>
-          </TouchableOpacity>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+          <View style={styles.modeRow}>
+            <TouchableOpacity
+              onPress={() => setMode("day")}
+              style={[
+                styles.modeBtn,
+                {
+                  backgroundColor: mode === "day" ? theme.uiColor : colors.muted,
+                  borderColor: mode === "day" ? theme.uiColor : colors.border,
+                },
+              ]}
+            >
+              <Text style={[styles.modeText, { color: mode === "day" ? "#FFFFFF" : colors.mutedForeground }]}>
+                День
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setMode("week")}
+              style={[
+                styles.modeBtn,
+                {
+                  backgroundColor: mode === "week" ? theme.uiColor : colors.muted,
+                  borderColor: mode === "week" ? theme.uiColor : colors.border,
+                },
+              ]}
+            >
+              <Text style={[styles.modeText, { color: mode === "week" ? "#FFFFFF" : colors.mutedForeground }]}>
+                Неделя
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <NavigationMenuButton />
         </View>
       </View>
 
@@ -266,7 +270,7 @@ export default function CalendarScreen() {
             keyExtractor={(e) => e.id}
             contentContainerStyle={[
               styles.list,
-              { paddingBottom: Platform.OS === "web" ? 84 + 34 : 80 + insets.bottom },
+              { paddingBottom: Platform.OS === "web" ? 34 : 24 + insets.bottom },
             ]}
             renderItem={({ item }) => (
               <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
@@ -297,7 +301,7 @@ export default function CalendarScreen() {
           keyExtractor={(s) => s.key}
           contentContainerStyle={[
             styles.list,
-            { paddingBottom: Platform.OS === "web" ? 84 + 34 : 80 + insets.bottom },
+            { paddingBottom: Platform.OS === "web" ? 34 : 24 + insets.bottom },
           ]}
           renderItem={({ item: section }) => (
             <View style={styles.section}>
@@ -441,4 +445,3 @@ const styles = StyleSheet.create({
   cardTitle: { fontSize: 16, fontFamily: "Inter_600SemiBold" },
   cardMeta: { fontSize: 12, fontFamily: "Inter_400Regular", marginTop: 1 },
 });
-

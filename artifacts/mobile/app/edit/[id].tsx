@@ -545,7 +545,7 @@ export default function EditPlantScreen() {
         style={styles.scroll}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: Platform.OS === "web" ? 84 + 34 : 80 + insets.bottom },
+          { paddingBottom: Platform.OS === "web" ? 34 : 24 + insets.bottom },
         ]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}

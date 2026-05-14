@@ -65,7 +65,7 @@ export default function PlantDbDetailScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.content,
-          { paddingBottom: Platform.OS === "web" ? 84 + 34 : 80 + insets.bottom },
+          { paddingBottom: Platform.OS === "web" ? 34 : 24 + insets.bottom },
         ]}
         showsVerticalScrollIndicator={false}
       >
@@ -96,7 +96,7 @@ export default function PlantDbDetailScreen() {
 
         <TouchableOpacity
           onPress={() => {
-            router.push({ pathname: "/(tabs)/add", params: { catalogId: entry.id } });
+            router.push({ pathname: "/add", params: { catalogId: entry.id } });
           }}
           style={[styles.cta, { backgroundColor: theme.uiColor }]}
         >
@@ -137,4 +137,3 @@ const styles = StyleSheet.create({
   },
   ctaText: { color: "#FFFFFF", fontSize: 15, fontFamily: "Inter_700Bold" },
 });
-

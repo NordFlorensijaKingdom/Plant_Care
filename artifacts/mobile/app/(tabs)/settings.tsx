@@ -16,6 +16,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ColorPickerModal } from "@/components/ColorPickerModal";
+import { NavigationMenuButton } from "@/components/NavigationMenu";
 import {
   ACCENT_PRESETS,
   BACKGROUND_PRESETS,
@@ -324,17 +325,22 @@ export default function SettingsScreen() {
           { paddingTop: topPad + 12, borderBottomColor: colors.border, backgroundColor: colors.background },
         ]}
       >
-        <Text style={[styles.title, { color: theme.textColor }]}>Настройки</Text>
-        <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
-          Настройте внешний вид приложения
-        </Text>
+        <View style={styles.headerTop}>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.title, { color: theme.textColor }]}>Настройки</Text>
+            <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
+              Настройте внешний вид приложения
+            </Text>
+          </View>
+          <NavigationMenuButton />
+        </View>
       </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.content,
-          { paddingBottom: Platform.OS === "web" ? 84 + 34 : 80 + insets.bottom },
+          { paddingBottom: Platform.OS === "web" ? 34 : 24 + insets.bottom },
         ]}
       >
         {/* ── CUSTOM THEME ── */}
@@ -587,6 +593,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 14,
     borderBottomWidth: 1,
+  },
+  headerTop: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: 12,
   },
   title: { fontSize: 26, fontFamily: "Inter_700Bold" },
   subtitle: { fontSize: 13, fontFamily: "Inter_400Regular", marginTop: 2 },

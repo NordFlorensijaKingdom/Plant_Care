@@ -13,6 +13,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PlantCard } from "@/components/PlantCard";
+import { NavigationMenuButton } from "@/components/NavigationMenu";
 import { usePlants } from "@/context/PlantContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
@@ -70,12 +71,15 @@ export default function GardenScreen() {
             </Text>
           )}
         </View>
-        <TouchableOpacity
-          onPress={() => router.push("/(tabs)/add")}
-          style={[styles.addButton, { backgroundColor: theme.uiColor }]}
-        >
-          <Ionicons name="add" size={22} color="#FFFFFF" />
-        </TouchableOpacity>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+          <TouchableOpacity
+            onPress={() => router.push("/add")}
+            style={[styles.addButton, { backgroundColor: theme.uiColor }]}
+          >
+            <Ionicons name="add" size={22} color="#FFFFFF" />
+          </TouchableOpacity>
+          <NavigationMenuButton />
+        </View>
       </View>
 
       {/* Content */}
@@ -100,7 +104,7 @@ export default function GardenScreen() {
             Добавьте первое растение, чтобы начать учёт
           </Text>
           <TouchableOpacity
-            onPress={() => router.push("/(tabs)/add")}
+            onPress={() => router.push("/add")}
             style={[styles.emptyButton, { backgroundColor: theme.uiColor }]}
           >
             <Ionicons name="add" size={18} color="#FFFFFF" />
@@ -116,7 +120,7 @@ export default function GardenScreen() {
             styles.list,
             {
               paddingBottom:
-                Platform.OS === "web" ? 84 + 34 : 80 + insets.bottom,
+                Platform.OS === "web" ? 34 : 24 + insets.bottom,
             },
           ]}
           showsVerticalScrollIndicator={false}

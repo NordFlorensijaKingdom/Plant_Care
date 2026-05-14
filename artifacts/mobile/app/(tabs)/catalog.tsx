@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { NavigationMenuButton } from "@/components/NavigationMenu";
 import type { CareDifficulty, LightLevel } from "@/context/PlantContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
@@ -207,10 +208,15 @@ export default function CatalogScreen() {
           { paddingTop: topPad + 12, borderBottomColor: colors.border, backgroundColor: colors.background },
         ]}
       >
-        <Text style={[styles.title, { color: theme.textColor }]}>База растений</Text>
-        <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
-          {shown} из {total}
-        </Text>
+        <View style={styles.headerTop}>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.title, { color: theme.textColor }]}>База растений</Text>
+            <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
+              {shown} из {total}
+            </Text>
+          </View>
+          <NavigationMenuButton />
+        </View>
 
         <View style={[styles.searchWrap, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <Ionicons name="search" size={16} color={colors.mutedForeground} />
@@ -282,7 +288,7 @@ export default function CatalogScreen() {
           renderItem={({ item }) => <PlantRow item={item} />}
           contentContainerStyle={[
             styles.list,
-            { paddingBottom: Platform.OS === "web" ? 84 + 34 : 80 + insets.bottom },
+            { paddingBottom: Platform.OS === "web" ? 34 : 24 + insets.bottom },
           ]}
           showsVerticalScrollIndicator={false}
         />
@@ -293,7 +299,7 @@ export default function CatalogScreen() {
           renderItem={({ item }) => <ProblemRow item={item} />}
           contentContainerStyle={[
             styles.list,
-            { paddingBottom: Platform.OS === "web" ? 84 + 34 : 80 + insets.bottom },
+            { paddingBottom: Platform.OS === "web" ? 34 : 24 + insets.bottom },
           ]}
           showsVerticalScrollIndicator={false}
         />
@@ -308,6 +314,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 12,
     borderBottomWidth: 1,
+  },
+  headerTop: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: 12,
   },
   title: { fontSize: 26, fontFamily: "Inter_700Bold" },
   subtitle: { fontSize: 13, fontFamily: "Inter_400Regular", marginTop: 2 },
@@ -367,4 +379,3 @@ const styles = StyleSheet.create({
   dot: { marginHorizontal: 6, fontSize: 12, fontFamily: "Inter_500Medium" },
   quickLine: { marginTop: 8, fontSize: 12, fontFamily: "Inter_400Regular" },
 });
-

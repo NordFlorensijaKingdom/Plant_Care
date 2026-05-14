@@ -76,7 +76,7 @@ export default function ProblemDetailScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.content,
-          { paddingBottom: Platform.OS === "web" ? 84 + 34 : 80 + insets.bottom },
+          { paddingBottom: Platform.OS === "web" ? 34 : 24 + insets.bottom },
         ]}
         showsVerticalScrollIndicator={false}
       >
@@ -108,4 +108,3 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 15, fontFamily: "Inter_700Bold", marginBottom: 8 },
   bullet: { fontSize: 13, fontFamily: "Inter_400Regular", marginTop: 6 },
 });
-

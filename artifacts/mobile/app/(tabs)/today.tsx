@@ -12,6 +12,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Bell, Check, Clock, Droplet, SprayCan } from "lucide-react-native";
 
+import { NavigationMenuButton } from "@/components/NavigationMenu";
 import { usePlants, getIntervalMs } from "@/context/PlantContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
@@ -91,16 +92,19 @@ export default function TodayScreen() {
             {tasks.length} задач(и) по уходу
           </Text>
         </View>
-        <View
-          style={[
-            styles.headerBadge,
-            { backgroundColor: theme.uiColor + "18", borderColor: theme.uiColor + "33" },
-          ]}
-        >
-          <Bell size={16} color={theme.uiColor} />
-          <Text style={[styles.headerBadgeText, { color: theme.uiColor }]}>
-            К уходу
-          </Text>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+          <View
+            style={[
+              styles.headerBadge,
+              { backgroundColor: theme.uiColor + "18", borderColor: theme.uiColor + "33" },
+            ]}
+          >
+            <Bell size={16} color={theme.uiColor} />
+            <Text style={[styles.headerBadgeText, { color: theme.uiColor }]}>
+              К уходу
+            </Text>
+          </View>
+          <NavigationMenuButton />
         </View>
       </View>
 
@@ -129,7 +133,7 @@ export default function TodayScreen() {
             styles.list,
             {
               paddingBottom:
-                Platform.OS === "web" ? 84 + 34 : 80 + insets.bottom,
+                Platform.OS === "web" ? 34 : 24 + insets.bottom,
             },
           ]}
           renderItem={({ item }) => (

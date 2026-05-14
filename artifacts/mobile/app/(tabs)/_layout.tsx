@@ -11,35 +11,37 @@ import { Sun } from "lucide-react-native";
 
 import { useColors } from "@/hooks/useColors";
 import { useTheme } from "@/context/ThemeContext";
+import { useI18n } from "@/i18n";
 
 export const unstable_settings = { initialRouteName: "today" };
 
 function NativeTabLayout() {
+  const { t } = useI18n();
   return (
     <NativeTabs>
       <NativeTabs.Trigger name="today">
         <Icon sf={{ default: "sun.max", selected: "sun.max.fill" }} />
-        <Label>Today</Label>
+        <Label>{t("tabs.today")}</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="calendar">
         <Icon sf={{ default: "calendar", selected: "calendar.circle.fill" }} />
-        <Label>Calendar</Label>
+        <Label>{t("tabs.calendar")}</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="index">
         <Icon sf={{ default: "leaf", selected: "leaf.fill" }} />
-        <Label>My Garden</Label>
+        <Label>{t("tabs.garden")}</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="catalog">
         <Icon sf={{ default: "book", selected: "book.fill" }} />
-        <Label>Catalog</Label>
+        <Label>{t("tabs.catalog")}</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="add">
         <Icon sf={{ default: "plus.circle", selected: "plus.circle.fill" }} />
-        <Label>Add Plant</Label>
+        <Label>{t("tabs.add")}</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="settings">
         <Icon sf={{ default: "gearshape", selected: "gearshape.fill" }} />
-        <Label>Settings</Label>
+        <Label>{t("tabs.settings")}</Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   );
@@ -48,6 +50,7 @@ function NativeTabLayout() {
 function ClassicTabLayout() {
   const colors = useColors();
   const theme = useTheme();
+  const { t } = useI18n();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
   const isIOS = Platform.OS === "ios";
@@ -89,14 +92,14 @@ function ClassicTabLayout() {
       <Tabs.Screen
         name="today"
         options={{
-          title: "Today",
+          title: t("tabs.today"),
           tabBarIcon: ({ color }) => <Sun size={22} color={color} />,
         }}
       />
       <Tabs.Screen
         name="calendar"
         options={{
-          title: "Calendar",
+          title: t("tabs.calendar"),
           tabBarIcon: ({ color }) =>
             isIOS ? (
               <SymbolView name="calendar" tintColor={color} size={22} />
@@ -108,7 +111,7 @@ function ClassicTabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "My Garden",
+          title: t("tabs.garden"),
           tabBarIcon: ({ color }) =>
             isIOS ? (
               <SymbolView name="leaf.fill" tintColor={color} size={22} />
@@ -120,7 +123,7 @@ function ClassicTabLayout() {
       <Tabs.Screen
         name="catalog"
         options={{
-          title: "Catalog",
+          title: t("tabs.catalog"),
           tabBarIcon: ({ color }) =>
             isIOS ? (
               <SymbolView name="book.fill" tintColor={color} size={22} />
@@ -132,7 +135,7 @@ function ClassicTabLayout() {
       <Tabs.Screen
         name="add"
         options={{
-          title: "Add Plant",
+          title: t("tabs.add"),
           tabBarIcon: ({ color }) =>
             isIOS ? (
               <SymbolView name="plus.circle.fill" tintColor={color} size={22} />
@@ -144,7 +147,7 @@ function ClassicTabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: "Settings",
+          title: t("tabs.settings"),
           tabBarIcon: ({ color }) =>
             isIOS ? (
               <SymbolView name="gearshape.fill" tintColor={color} size={22} />

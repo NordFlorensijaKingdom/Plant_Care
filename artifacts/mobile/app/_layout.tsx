@@ -17,14 +17,16 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AppSettingsProvider } from "@/context/AppSettingsContext";
 import { PlantProvider } from "@/context/PlantContext";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { useI18n } from "@/i18n";
 
 SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
 
 function RootLayoutNav() {
+  const { t } = useI18n();
   return (
-    <Stack screenOptions={{ headerBackTitle: "Back" }}>
+    <Stack screenOptions={{ headerBackTitle: t("common.back") }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="plant" options={{ headerShown: false }} />
       <Stack.Screen name="plant-db/[id]" options={{ headerShown: false }} />

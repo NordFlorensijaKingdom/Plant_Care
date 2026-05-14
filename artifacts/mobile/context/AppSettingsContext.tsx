@@ -2,18 +2,30 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { Platform } from "react-native";
 
+export type Language = "en" | "ru";
+
 export interface AppSettings {
   quietHoursEnabled: boolean;
   notificationsEnabled: boolean;
+  language: Language;
 }
 
 interface AppSettingsContextType extends AppSettings {
   setQuietHoursEnabled: (enabled: boolean) => void;
   setNotificationsEnabled: (enabled: boolean) => void;
+  setLanguage: (language: Language) => void;
 }
 
-const defaults: AppSettings = { quietHoursEnabled: true, notificationsEnabled: false };
-const STORAGE_KEY = "plant_care_settings_v1";
+function inferLanguage(): Language {
+  try {
+    const locale = Intl.DateTimeFormat().resolvedOptions().locale;
+    if (typeof locale === "string" && locale.toLowerCase().startsWith("ru")) return "ru";
+  } catch {}
+  return "en";
+}
+
+const defaults: AppSettings = { quietHoursEnabled: true, notificationsEnabled: false, language: inferLanguage() };
+const STORAGE_KEY = "plant_care_settings_v2";
 
 const AppSettingsContext = createContext<AppSettingsContextType | null>(null);
 
@@ -80,9 +92,13 @@ export function AppSettingsProvider({ children }: { children: React.ReactNode })
     update({ notificationsEnabled: enabled });
   }, [update]);
 
+  const setLanguage = useCallback((language: Language) => {
+    update({ language });
+  }, [update]);
+
   return (
     <AppSettingsContext.Provider
-      value={{ ...settings, setQuietHoursEnabled, setNotificationsEnabled }}
+      value={{ ...settings, setQuietHoursEnabled, setNotificationsEnabled, setLanguage }}
     >
       {children}
     </AppSettingsContext.Provider>

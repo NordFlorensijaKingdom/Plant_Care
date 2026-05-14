@@ -24,6 +24,7 @@ import {
   type PlantProblemEntry,
 } from "@/utils/plantEncyclopedia";
 import { CARE_PLAN_TEMPLATES } from "@/utils/carePlans";
+import { useI18n } from "@/i18n";
 
 type Mode = "plants" | "problems";
 
@@ -65,11 +66,12 @@ function Segmented({
 }) {
   const colors = useColors();
   const theme = useTheme();
+  const { t } = useI18n();
   return (
     <View style={[styles.segmented, { backgroundColor: colors.muted, borderColor: colors.border }]}>
       {([
-        { id: "plants", label: "Каталог" },
-        { id: "problems", label: "Проблемы" },
+        { id: "plants", label: t("catalog.segment.plants") },
+        { id: "problems", label: t("catalog.segment.problems") },
       ] as const).map((m) => {
         const selected = mode === m.id;
         return (
@@ -92,26 +94,30 @@ function Segmented({
   );
 }
 
-function lightLabel(l: LightLevel): string {
-  if (l === "low") return "Низкий свет";
-  if (l === "bright") return "Яркий свет";
-  return "Средний свет";
+function lightLabel(l: LightLevel, t: (key: string) => string): string {
+  if (l === "low") return t("catalog.label.light.low");
+  if (l === "bright") return t("catalog.label.light.bright");
+  return t("catalog.label.light.medium");
 }
 
-function difficultyLabel(d: CareDifficulty): string {
-  if (d === "easy") return "Лёгкий уход";
-  if (d === "hard") return "Сложный уход";
-  return "Средний уход";
+function difficultyLabel(d: CareDifficulty, t: (key: string) => string): string {
+  if (d === "easy") return t("catalog.label.diff.easy");
+  if (d === "hard") return t("catalog.label.diff.hard");
+  return t("catalog.label.diff.medium");
 }
 
-function planLabel(id: string): string {
-  return CARE_PLAN_TEMPLATES.find((t) => t.id === id)?.title ?? id;
+function planLabel(id: string, t: (key: string) => string): string {
+  if (id === "succulents" || id === "tropical" || id === "flowering") {
+    return t(`carePlan.${id}.title`);
+  }
+  return id;
 }
 
 function PlantRow({ item }: { item: PlantCatalogEntry }) {
   const colors = useColors();
   const theme = useTheme();
   const router = useRouter();
+  const { t } = useI18n();
   return (
     <Pressable
       onPress={() => router.push(`/plant-db/${item.id}`)}
@@ -133,11 +139,11 @@ function PlantRow({ item }: { item: PlantCatalogEntry }) {
       </View>
 
       <View style={styles.tagRow}>
-        <Text style={[styles.tag, { color: colors.mutedForeground }]}>{lightLabel(item.lightLevel)}</Text>
+        <Text style={[styles.tag, { color: colors.mutedForeground }]}>{lightLabel(item.lightLevel, t)}</Text>
         <Text style={[styles.dot, { color: colors.mutedForeground }]}>•</Text>
-        <Text style={[styles.tag, { color: colors.mutedForeground }]}>{planLabel(item.carePlanId)}</Text>
+        <Text style={[styles.tag, { color: colors.mutedForeground }]}>{planLabel(item.carePlanId, t)}</Text>
         <Text style={[styles.dot, { color: colors.mutedForeground }]}>•</Text>
-        <Text style={[styles.tag, { color: colors.mutedForeground }]}>{difficultyLabel(item.difficulty)}</Text>
+        <Text style={[styles.tag, { color: colors.mutedForeground }]}>{difficultyLabel(item.difficulty, t)}</Text>
       </View>
 
       <Text style={[styles.quickLine, { color: colors.mutedForeground }]} numberOfLines={2}>
@@ -177,6 +183,7 @@ function ProblemRow({ item }: { item: PlantProblemEntry }) {
 export default function CatalogScreen() {
   const colors = useColors();
   const theme = useTheme();
+  const { t } = useI18n();
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
 
@@ -207,9 +214,9 @@ export default function CatalogScreen() {
           { paddingTop: topPad + 12, borderBottomColor: colors.border, backgroundColor: colors.background },
         ]}
       >
-        <Text style={[styles.title, { color: theme.textColor }]}>База растений</Text>
+        <Text style={[styles.title, { color: theme.textColor }]}>{t("catalog.title")}</Text>
         <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
-          {shown} из {total}
+          {t("catalog.subtitle", { shown, total })}
         </Text>
 
         <View style={[styles.searchWrap, { backgroundColor: colors.card, borderColor: colors.border }]}>
@@ -217,7 +224,7 @@ export default function CatalogScreen() {
           <TextInput
             value={query}
             onChangeText={setQuery}
-            placeholder={mode === "plants" ? "Поиск по названию..." : "Поиск по проблемам..."}
+            placeholder={mode === "plants" ? t("catalog.search.plants") : t("catalog.search.problems")}
             placeholderTextColor={colors.mutedForeground}
             style={[styles.searchInput, { color: theme.textColor }]}
             autoCorrect={false}
@@ -236,37 +243,37 @@ export default function CatalogScreen() {
           <View style={styles.filters}>
             <View style={styles.filterRow}>
               <Chip
-                label="Низкий"
+                label={t("catalog.filter.light.low")}
                 selected={light === "low"}
                 onPress={() => setLight(light === "low" ? null : "low")}
               />
               <Chip
-                label="Средний"
+                label={t("catalog.filter.light.medium")}
                 selected={light === "medium"}
                 onPress={() => setLight(light === "medium" ? null : "medium")}
               />
               <Chip
-                label="Яркий"
+                label={t("catalog.filter.light.bright")}
                 selected={light === "bright"}
                 onPress={() => setLight(light === "bright" ? null : "bright")}
               />
             </View>
             <View style={styles.filterRow}>
-              {CARE_PLAN_TEMPLATES.map((t) => (
+              {CARE_PLAN_TEMPLATES.map((tpl) => (
                 <Chip
-                  key={t.id}
-                  label={t.title}
-                  selected={plan === t.id}
-                  onPress={() => setPlan(plan === t.id ? null : t.id)}
+                  key={tpl.id}
+                  label={planLabel(tpl.id, t)}
+                  selected={plan === tpl.id}
+                  onPress={() => setPlan(plan === tpl.id ? null : tpl.id)}
                 />
               ))}
               <Chip
-                label="Лёгкий"
+                label={t("catalog.filter.diff.easy")}
                 selected={diff === "easy"}
                 onPress={() => setDiff(diff === "easy" ? null : "easy")}
               />
               <Chip
-                label="Сложный"
+                label={t("catalog.filter.diff.hard")}
                 selected={diff === "hard"}
                 onPress={() => setDiff(diff === "hard" ? null : "hard")}
               />
@@ -367,4 +374,3 @@ const styles = StyleSheet.create({
   dot: { marginHorizontal: 6, fontSize: 12, fontFamily: "Inter_500Medium" },
   quickLine: { marginTop: 8, fontSize: 12, fontFamily: "Inter_400Regular" },
 });
-

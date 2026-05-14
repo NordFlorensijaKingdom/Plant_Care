@@ -27,6 +27,7 @@ import {
 } from "@/context/ThemeContext";
 import { useAppSettings } from "@/context/AppSettingsContext";
 import { useColors } from "@/hooks/useColors";
+import { useI18n } from "@/i18n";
 
 // ---- Sub-components ----
 
@@ -108,6 +109,7 @@ function ColorSection({
 }: ColorSectionProps) {
   const colors = useColors();
   const theme = useTheme();
+  const { t } = useI18n();
   const [pickerOpen, setPickerOpen] = useState(false);
 
   const activeColor = currentColor ?? defaultColor;
@@ -178,7 +180,7 @@ function ColorSection({
               { color: isCustom ? activeColor : colors.mutedForeground },
             ]}
           >
-            {isCustom ? "Custom" : "Custom"}
+            {t("settings.custom")}
           </Text>
           {isCustom && (
             <View
@@ -195,9 +197,7 @@ function ColorSection({
           { borderTopColor: colors.border },
         ]}
       >
-        <Text style={[styles.previewLabel, { color: colors.mutedForeground }]}>
-          Preview
-        </Text>
+        <Text style={[styles.previewLabel, { color: colors.mutedForeground }]}>{t("settings.preview")}</Text>
         {preview}
       </View>
 
@@ -206,7 +206,7 @@ function ColorSection({
         <TouchableOpacity onPress={onReset} style={styles.resetLink}>
           <Ionicons name="refresh-outline" size={12} color={colors.mutedForeground} />
           <Text style={[styles.resetLinkText, { color: colors.mutedForeground }]}>
-            Reset to system default
+            {t("settings.reset_to_default")}
           </Text>
         </TouchableOpacity>
       )}
@@ -232,6 +232,7 @@ export default function SettingsScreen() {
   const colors = useColors();
   const theme = useTheme();
   const appSettings = useAppSettings();
+  const { t } = useI18n();
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
 
@@ -258,15 +259,15 @@ export default function SettingsScreen() {
             }
           }
           Alert.alert(
-            "Notifications blocked",
-            "Enable notifications in your device Settings to receive watering reminders."
+            t("settings.notifications.blocked_title"),
+            t("settings.notifications.blocked_body")
           );
           return;
         }
         appSettings.setNotificationsEnabled(true);
         await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       } catch {
-        Alert.alert("Unavailable", "Notifications are not available on this platform.");
+        Alert.alert(t("settings.notifications.unavailable_title"), t("settings.notifications.unavailable_body"));
       }
     } else {
       appSettings.setNotificationsEnabled(true);
@@ -276,7 +277,7 @@ export default function SettingsScreen() {
   async function pickBackground() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert("Permission needed", "Allow access to your photos to set a background image.");
+      Alert.alert(t("settings.photos.permission_title"), t("settings.photos.permission_body"));
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -297,12 +298,12 @@ export default function SettingsScreen() {
 
   function handleResetAll() {
     Alert.alert(
-      "Reset All Theme Settings",
-      "Restore all colors and background to their original defaults?",
+      t("settings.reset_all.title"),
+      t("settings.reset_all.body"),
       [
-        { text: "Cancel", style: "cancel" },
+        { text: t("settings.reset_all.cancel"), style: "cancel" },
         {
-          text: "Reset Everything",
+          text: t("settings.reset_all.confirm"),
           style: "destructive",
           onPress: () => {
             theme.resetTheme();
@@ -324,9 +325,9 @@ export default function SettingsScreen() {
           { paddingTop: topPad + 12, borderBottomColor: colors.border, backgroundColor: colors.background },
         ]}
       >
-        <Text style={[styles.title, { color: theme.textColor }]}>Settings</Text>
+        <Text style={[styles.title, { color: theme.textColor }]}>{t("settings.title")}</Text>
         <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
-          Customize your app appearance
+          {t("settings.subtitle")}
         </Text>
       </View>
 
@@ -338,18 +339,18 @@ export default function SettingsScreen() {
         ]}
       >
         {/* ── CUSTOM THEME ── */}
-        <Text style={shLabel}>CUSTOM THEME</Text>
+        <Text style={shLabel}>{t("settings.section.custom_theme")}</Text>
 
         {/* 1. Primary Text */}
         <ColorSection
-          label="Primary Text"
-          description="Titles, plant names, and main labels"
+          label={t("settings.color.primary.label")}
+          description={t("settings.color.primary.desc")}
           icon="text-outline"
           presets={PRIMARY_TEXT_PRESETS}
           currentColor={theme.textColor !== defaults.textColor ? theme.textColor : null}
           defaultColor={defaults.textColor}
           onSelect={theme.setTextColor}
-          pickerTitle="Primary Text Color"
+          pickerTitle={t("settings.color.primary.picker")}
           preview={
             <View style={styles.previewRow}>
               <Text style={[styles.previewPlantName, { color: theme.textColor }]}>
@@ -364,15 +365,15 @@ export default function SettingsScreen() {
 
         {/* 2. Secondary Text */}
         <ColorSection
-          label="Secondary Text"
-          description="Species names, descriptions, and timestamps"
+          label={t("settings.color.secondary.label")}
+          description={t("settings.color.secondary.desc")}
           icon="chatbubble-ellipses-outline"
           presets={SECONDARY_TEXT_PRESETS}
           currentColor={theme.secondaryTextColor}
           defaultColor="#6B8F7A"
           onSelect={theme.setSecondaryTextColor}
           onReset={() => theme.setSecondaryTextColor(null)}
-          pickerTitle="Secondary Text Color"
+          pickerTitle={t("settings.color.secondary.picker")}
           preview={
             <View style={styles.previewRow}>
               <Text style={[styles.previewSpecies, { color: effectiveSecondary }]}>
@@ -387,14 +388,14 @@ export default function SettingsScreen() {
 
         {/* 3. Accent Elements */}
         <ColorSection
-          label="Accent Elements"
-          description="Buttons, toggles, icons, and progress bars"
+          label={t("settings.color.accent.label")}
+          description={t("settings.color.accent.desc")}
           icon="color-fill-outline"
           presets={ACCENT_PRESETS}
           currentColor={theme.uiColor !== defaults.uiColor ? theme.uiColor : null}
           defaultColor={defaults.uiColor}
           onSelect={theme.setUiColor}
-          pickerTitle="Accent Color"
+          pickerTitle={t("settings.color.accent.picker")}
           preview={
             <View style={styles.previewRow}>
               <View style={[styles.previewBtn, { backgroundColor: theme.uiColor }]}>
@@ -417,15 +418,15 @@ export default function SettingsScreen() {
 
         {/* 4. Card Backgrounds */}
         <ColorSection
-          label="Card Backgrounds"
-          description="Plant cards, note blocks, and info panels"
+          label={t("settings.color.card.label")}
+          description={t("settings.color.card.desc")}
           icon="albums-outline"
           presets={CARD_BG_PRESETS}
           currentColor={theme.cardColor}
           defaultColor={colors.card}
           onSelect={theme.setCardColor}
           onReset={() => theme.setCardColor(null)}
-          pickerTitle="Card Background Color"
+          pickerTitle={t("settings.color.card.picker")}
           preview={
             <View
               style={[
@@ -446,15 +447,15 @@ export default function SettingsScreen() {
         />
 
         <ColorSection
-          label="App Background"
-          description="Overall page background color"
+          label={t("settings.color.bg.label")}
+          description={t("settings.color.bg.desc")}
           icon="color-filter-outline"
           presets={BACKGROUND_PRESETS}
           currentColor={theme.backgroundColor}
           defaultColor={colors.systemBackground}
           onSelect={(c) => theme.setBackgroundColor(c)}
           onReset={() => theme.setBackgroundColor(null)}
-          pickerTitle="Background Color"
+          pickerTitle={t("settings.color.bg.picker")}
           preview={
             <View
               style={[
@@ -472,7 +473,7 @@ export default function SettingsScreen() {
         />
 
         {/* ── BACKGROUND WALLPAPER ── */}
-        <Text style={[shLabel, { marginTop: 24 }]}>BACKGROUND WALLPAPER</Text>
+        <Text style={[shLabel, { marginTop: 24 }]}>{t("settings.section.background_wallpaper")}</Text>
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
           {theme.backgroundImage ? (
             <View style={styles.bgPreviewRow}>
@@ -483,7 +484,7 @@ export default function SettingsScreen() {
               />
               <View style={styles.bgActions}>
                 <Text style={[styles.bgSelectedText, { color: theme.textColor }]}>
-                  Custom background set
+                  {t("settings.wallpaper.set")}
                 </Text>
                 <View style={styles.bgBtnRow}>
                   <TouchableOpacity
@@ -491,14 +492,14 @@ export default function SettingsScreen() {
                     style={[styles.bgBtn, { backgroundColor: theme.uiColor + "20" }]}
                   >
                     <Ionicons name="swap-horizontal" size={16} color={theme.uiColor} />
-                    <Text style={[styles.bgBtnText, { color: theme.uiColor }]}>Change</Text>
+                    <Text style={[styles.bgBtnText, { color: theme.uiColor }]}>{t("settings.wallpaper.change")}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={removeBackground}
                     style={[styles.bgBtn, { backgroundColor: colors.destructive + "15" }]}
                   >
                     <Ionicons name="trash-outline" size={16} color={colors.destructive} />
-                    <Text style={[styles.bgBtnText, { color: colors.destructive }]}>Remove</Text>
+                    <Text style={[styles.bgBtnText, { color: colors.destructive }]}>{t("settings.wallpaper.remove")}</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -510,24 +511,56 @@ export default function SettingsScreen() {
             >
               <Ionicons name="image-outline" size={28} color={colors.mutedForeground} />
               <Text style={[styles.bgPickerText, { color: colors.mutedForeground }]}>
-                Choose from gallery
+                {t("settings.wallpaper.choose")}
               </Text>
             </TouchableOpacity>
           )}
         </View>
 
+        <Text style={[shLabel, { marginTop: 24 }]}>{t("settings.section.language")}</Text>
+        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Text style={[styles.langLabel, { color: colors.mutedForeground }]}>
+            {t("settings.language.label")}
+          </Text>
+          <View style={styles.langRow}>
+            {([
+              { id: "en", label: t("settings.language.en") },
+              { id: "ru", label: t("settings.language.ru") },
+            ] as const).map((opt) => {
+              const selected = appSettings.language === opt.id;
+              return (
+                <TouchableOpacity
+                  key={opt.id}
+                  onPress={() => appSettings.setLanguage(opt.id)}
+                  style={[
+                    styles.langBtn,
+                    {
+                      backgroundColor: selected ? theme.uiColor : colors.muted,
+                      borderColor: selected ? theme.uiColor : colors.border,
+                    },
+                  ]}
+                >
+                  <Text style={[styles.langBtnText, { color: selected ? "#FFFFFF" : colors.mutedForeground }]}>
+                    {opt.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+
         {/* ── NOTIFICATIONS ── */}
-        <Text style={[shLabel, { marginTop: 24 }]}>NOTIFICATIONS</Text>
+        <Text style={[shLabel, { marginTop: 24 }]}>{t("settings.section.notifications")}</Text>
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.switchRow}>
             <View style={styles.switchInfo}>
               <Ionicons name="notifications-outline" size={20} color={theme.uiColor} />
               <View style={{ flex: 1 }}>
                 <Text style={[styles.switchLabel, { color: theme.textColor }]}>
-                  Watering Reminders
+                  {t("settings.notifications.watering.label")}
                 </Text>
                 <Text style={[styles.switchDesc, { color: colors.mutedForeground }]}>
-                  Get notified when plants need care
+                  {t("settings.notifications.watering.desc")}
                 </Text>
               </View>
             </View>
@@ -546,10 +579,10 @@ export default function SettingsScreen() {
               <Ionicons name="moon-outline" size={20} color={theme.uiColor} />
               <View style={{ flex: 1 }}>
                 <Text style={[styles.switchLabel, { color: theme.textColor }]}>
-                  Quiet hours
+                  {t("settings.notifications.quiet.label")}
                 </Text>
                 <Text style={[styles.switchDesc, { color: colors.mutedForeground }]}>
-                  Delay notifications from 22:00 to 08:00
+                  {t("settings.notifications.quiet.desc")}
                 </Text>
               </View>
             </View>
@@ -563,7 +596,7 @@ export default function SettingsScreen() {
         </View>
 
         {/* ── DANGER ZONE ── */}
-        <Text style={[shLabel, { marginTop: 24 }]}>DANGER ZONE</Text>
+        <Text style={[shLabel, { marginTop: 24 }]}>{t("settings.section.danger_zone")}</Text>
         <TouchableOpacity
           onPress={handleResetAll}
           style={[
@@ -573,7 +606,7 @@ export default function SettingsScreen() {
         >
           <Ionicons name="refresh-circle-outline" size={20} color={colors.destructive} />
           <Text style={[styles.resetText, { color: colors.destructive }]}>
-            Reset All Theme to Defaults
+            {t("settings.reset_all.button")}
           </Text>
         </TouchableOpacity>
       </ScrollView>
@@ -736,6 +769,17 @@ const styles = StyleSheet.create({
     borderStyle: "dashed",
   },
   bgPickerText: { fontSize: 14, fontFamily: "Inter_500Medium" },
+  langLabel: { fontSize: 12, fontFamily: "Inter_400Regular", marginBottom: 10 },
+  langRow: { flexDirection: "row", gap: 8 },
+  langBtn: {
+    flex: 1,
+    height: 38,
+    borderRadius: 14,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  langBtnText: { fontSize: 13, fontFamily: "Inter_600SemiBold" },
   divider: { height: 1, marginVertical: 12, opacity: 0.5 },
   switchRow: {
     flexDirection: "row",

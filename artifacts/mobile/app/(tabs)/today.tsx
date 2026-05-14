@@ -16,23 +16,25 @@ import { usePlants, getIntervalMs } from "@/context/PlantContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
 import { computeDueCareTasks } from "@/utils/care";
+import { useI18n } from "@/i18n";
 
 type TaskItem = ReturnType<typeof computeDueCareTasks>[number];
 
-function formatOverdue(ms: number): string {
-  if (ms <= 0) return "Сейчас";
+function formatOverdue(ms: number, t: (key: string, params?: Record<string, unknown>) => string): string {
+  if (ms <= 0) return t("today.overdue.now");
   const mins = Math.floor(ms / 60000);
   const hours = Math.floor(mins / 60);
   const days = Math.floor(hours / 24);
-  if (days > 0) return `Просрочено на ${days}д`;
-  if (hours > 0) return `Просрочено на ${hours}ч`;
-  return `Просрочено на ${mins}м`;
+  if (days > 0) return t("today.overdue.days", { count: days });
+  if (hours > 0) return t("today.overdue.hours", { count: hours });
+  return t("today.overdue.mins", { count: mins });
 }
 
 export default function TodayScreen() {
   const colors = useColors();
   const theme = useTheme();
   const { plants, loading, waterPlant, mistPlant, snoozeCare } = usePlants();
+  const { t } = useI18n();
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const hasWallpaper = !!theme.backgroundImage;
@@ -86,9 +88,9 @@ export default function TodayScreen() {
         ]}
       >
         <View style={{ flex: 1 }}>
-          <Text style={[styles.title, { color: theme.textColor }]}>Сегодня</Text>
+          <Text style={[styles.title, { color: theme.textColor }]}>{t("today.title")}</Text>
           <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
-            {tasks.length} задач(и) по уходу
+            {t("today.subtitle", { count: tasks.length })}
           </Text>
         </View>
         <View
@@ -99,7 +101,7 @@ export default function TodayScreen() {
         >
           <Bell size={16} color={theme.uiColor} />
           <Text style={[styles.headerBadgeText, { color: theme.uiColor }]}>
-            Due
+            {t("today.badge")}
           </Text>
         </View>
       </View>
@@ -108,17 +110,17 @@ export default function TodayScreen() {
         <View style={styles.center}>
           <Clock size={32} color={colors.mutedForeground} />
           <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
-            Загрузка...
+            {t("today.loading")}
           </Text>
         </View>
       ) : tasks.length === 0 ? (
         <View style={styles.center}>
           <Check size={42} color={colors.mutedForeground} />
           <Text style={[styles.emptyTitle, { color: theme.textColor }]}>
-            Всё сделано
+            {t("today.empty_title")}
           </Text>
           <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
-            На сегодня задач по уходу нет
+            {t("today.empty_body")}
           </Text>
         </View>
       ) : (
@@ -157,8 +159,8 @@ export default function TodayScreen() {
                     {item.plantName}
                   </Text>
                   <Text style={[styles.taskMeta, { color: colors.mutedForeground }]}>
-                    {item.type === "water" ? "Полив" : "Опрыскивание"} ·{" "}
-                    {formatOverdue(item.overdueMs)}
+                    {item.type === "water" ? t("today.task.water") : t("today.task.mist")} ·{" "}
+                    {formatOverdue(item.overdueMs, t)}
                   </Text>
                 </View>
               </View>
@@ -173,7 +175,7 @@ export default function TodayScreen() {
                 >
                   <Clock size={16} color={colors.mutedForeground} />
                   <Text style={[styles.btnText, { color: colors.mutedForeground }]}>
-                    +1 час
+                    {t("today.action.snooze_1h")}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -185,7 +187,7 @@ export default function TodayScreen() {
                 >
                   <Check size={16} color="#FFFFFF" />
                   <Text style={[styles.btnText, { color: "#FFFFFF" }]}>
-                    Выполнено
+                    {t("today.action.done")}
                   </Text>
                 </TouchableOpacity>
               </View>

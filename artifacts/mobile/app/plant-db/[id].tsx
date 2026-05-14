@@ -14,10 +14,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
 import { getPlantCatalogById } from "@/utils/plantEncyclopedia";
-import { CARE_PLAN_TEMPLATES } from "@/utils/carePlans";
+import { useI18n } from "@/i18n";
 
-function planLabel(id: string): string {
-  return CARE_PLAN_TEMPLATES.find((t) => t.id === id)?.title ?? id;
+function planLabel(id: string, t: (key: string) => string): string {
+  if (id === "succulents" || id === "tropical" || id === "flowering") {
+    return t(`carePlan.${id}.title`);
+  }
+  return id;
 }
 
 export default function PlantDbDetailScreen() {
@@ -25,6 +28,7 @@ export default function PlantDbDetailScreen() {
   const colors = useColors();
   const theme = useTheme();
   const router = useRouter();
+  const { t } = useI18n();
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
 
@@ -33,9 +37,9 @@ export default function PlantDbDetailScreen() {
   if (!entry) {
     return (
       <View style={[styles.center, { backgroundColor: colors.background }]}>
-        <Text style={{ color: colors.mutedForeground }}>Карточка не найдена</Text>
+        <Text style={{ color: colors.mutedForeground }}>{t("plantdb.not_found")}</Text>
         <TouchableOpacity onPress={() => router.back()} style={{ marginTop: 12 }}>
-          <Text style={{ color: theme.uiColor }}>Назад</Text>
+          <Text style={{ color: theme.uiColor }}>{t("common.back")}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -70,23 +74,23 @@ export default function PlantDbDetailScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <Text style={[styles.sectionTitle, { color: theme.textColor }]}>Коротко</Text>
+          <Text style={[styles.sectionTitle, { color: theme.textColor }]}>{t("plantdb.short")}</Text>
           <Text style={[styles.line, { color: colors.mutedForeground }]}>
-            Свет: {entry.quickTips.light}
+            {t("plantdb.light")}: {entry.quickTips.light}
           </Text>
           <Text style={[styles.line, { color: colors.mutedForeground }]}>
-            Полив: {entry.quickTips.watering}
+            {t("plantdb.watering")}: {entry.quickTips.watering}
           </Text>
           <Text style={[styles.line, { color: colors.mutedForeground }]}>
-            Температура: {entry.quickTips.temperature}
+            {t("plantdb.temperature")}: {entry.quickTips.temperature}
           </Text>
           <Text style={[styles.line, { color: colors.mutedForeground }]}>
-            План: {planLabel(entry.carePlanId)}
+            {t("plantdb.plan")}: {planLabel(entry.carePlanId, t)}
           </Text>
         </View>
 
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <Text style={[styles.sectionTitle, { color: theme.textColor }]}>Частые ошибки</Text>
+          <Text style={[styles.sectionTitle, { color: theme.textColor }]}>{t("plantdb.mistakes")}</Text>
           {entry.quickTips.mistakes.map((m) => (
             <Text key={m} style={[styles.bullet, { color: colors.mutedForeground }]}>
               • {m}
@@ -101,7 +105,7 @@ export default function PlantDbDetailScreen() {
           style={[styles.cta, { backgroundColor: theme.uiColor }]}
         >
           <Ionicons name="add" size={18} color="#FFFFFF" />
-          <Text style={styles.ctaText}>Добавить в мой сад</Text>
+          <Text style={styles.ctaText}>{t("plantdb.add")}</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>
@@ -137,4 +141,3 @@ const styles = StyleSheet.create({
   },
   ctaText: { color: "#FFFFFF", fontSize: 15, fontFamily: "Inter_700Bold" },
 });
-

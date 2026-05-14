@@ -10,7 +10,7 @@ import React, {
 import { Platform } from "react-native";
 import { AlertCircle, CircleCheck, Heart, TriangleAlert } from "lucide-react-native";
 
-import { useAppSettings } from "@/context/AppSettingsContext";
+import { useAppSettings, type Language } from "@/context/AppSettingsContext";
 import { adjustForQuietHours } from "@/utils/care";
 
 export interface Note {
@@ -40,16 +40,20 @@ export type HealthStatus = "excellent" | "good" | "needs_attention" | "sick";
 
 export const HEALTH_STATUS_CONFIG: Record<
   HealthStatus,
-  { label: string; Icon: React.ComponentType<{ size?: number; color?: string }>; color: string }
+  {
+    labels: { en: string; ru: string };
+    Icon: React.ComponentType<{ size?: number; color?: string }>;
+    color: string;
+  }
 > = {
-  excellent: { label: "Отлично", Icon: Heart, color: "#2D6A4F" },
-  good: { label: "Хорошо", Icon: CircleCheck, color: "#52B788" },
+  excellent: { labels: { en: "Excellent", ru: "Отлично" }, Icon: Heart, color: "#2D6A4F" },
+  good: { labels: { en: "Good", ru: "Хорошо" }, Icon: CircleCheck, color: "#52B788" },
   needs_attention: {
-    label: "Нужен уход",
+    labels: { en: "Needs attention", ru: "Нужен уход" },
     Icon: AlertCircle,
     color: "#F4A261",
   },
-  sick: { label: "Болеет", Icon: TriangleAlert, color: "#E53E3E" },
+  sick: { labels: { en: "Sick", ru: "Болеет" }, Icon: TriangleAlert, color: "#E53E3E" },
 };
 
 export type CareHistoryType = "water" | "mist" | "health";
@@ -110,17 +114,24 @@ export function getProgress(
 
 export function getTimeRemaining(
   lastAction: number | null,
-  interval: TimeInterval
+  interval: TimeInterval,
+  language: Language = "en"
 ): string {
-  if (!lastAction) return "Overdue";
+  const overdue = language === "ru" ? "Просрочено" : "Overdue";
+  if (!lastAction) return overdue;
   const intervalMs = getIntervalMs(interval);
   const nextAction = lastAction + intervalMs;
   const remaining = nextAction - Date.now();
-  if (remaining <= 0) return "Overdue";
+  if (remaining <= 0) return overdue;
   const totalMins = Math.floor(remaining / 60000);
   const totalHours = Math.floor(totalMins / 60);
   const days = Math.floor(totalHours / 24);
   const hours = totalHours % 24;
+  if (language === "ru") {
+    if (days > 0) return `${days}д ${hours}ч`;
+    if (totalHours > 0) return `${totalHours}ч`;
+    return `${totalMins}м`;
+  }
   if (days > 0) return `${days}d ${hours}h`;
   if (totalHours > 0) return `${totalHours}h`;
   return `${totalMins}m`;

@@ -4,8 +4,6 @@ export type CarePlanId = "succulents" | "tropical" | "flowering";
 
 export interface CarePlanTemplate {
   id: CarePlanId;
-  title: string;
-  description: string;
   wateringEnabled: boolean;
   mistingEnabled: boolean;
   wateringInterval: TimeInterval;
@@ -15,8 +13,6 @@ export interface CarePlanTemplate {
 export const CARE_PLAN_TEMPLATES: CarePlanTemplate[] = [
   {
     id: "succulents",
-    title: "Суккуленты",
-    description: "Редкий полив, без опрыскивания",
     wateringEnabled: true,
     mistingEnabled: false,
     wateringInterval: { value: 14, unit: "days" },
@@ -24,8 +20,6 @@ export const CARE_PLAN_TEMPLATES: CarePlanTemplate[] = [
   },
   {
     id: "tropical",
-    title: "Тропические",
-    description: "Регулярный полив и опрыскивание",
     wateringEnabled: true,
     mistingEnabled: true,
     wateringInterval: { value: 3, unit: "days" },
@@ -33,8 +27,6 @@ export const CARE_PLAN_TEMPLATES: CarePlanTemplate[] = [
   },
   {
     id: "flowering",
-    title: "Цветущие",
-    description: "Чуть чаще полив, умеренное опрыскивание",
     wateringEnabled: true,
     mistingEnabled: true,
     wateringInterval: { value: 2, unit: "days" },
@@ -47,4 +39,3 @@ export function findCarePlanTemplate(id: string | null | undefined): CarePlanTem
   const found = CARE_PLAN_TEMPLATES.find((t) => t.id === id);
   return found ?? null;
 }
-

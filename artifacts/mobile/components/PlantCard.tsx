@@ -27,6 +27,7 @@ import {
 } from "@/context/PlantContext";
 import { useColors } from "@/hooks/useColors";
 import { HealthBadge } from "@/components/HealthBadge";
+import { useI18n } from "@/i18n";
 
 interface WaterBarProps {
   progress: number;
@@ -64,13 +65,14 @@ export function PlantCard({ plant }: PlantCardProps) {
   const theme = useTheme();
   const router = useRouter();
   const { waterPlant, mistPlant } = usePlants();
+  const { language } = useI18n();
   const colorScheme = useColorScheme();
   const hasWallpaper = !!theme.backgroundImage;
 
   const waterProgress = getProgress(plant.lastWatered, plant.wateringInterval);
   const mistProgress = getProgress(plant.lastMisted, plant.mistingInterval);
-  const waterRemaining = getTimeRemaining(plant.lastWatered, plant.wateringInterval);
-  const mistRemaining = getTimeRemaining(plant.lastMisted, plant.mistingInterval);
+  const waterRemaining = getTimeRemaining(plant.lastWatered, plant.wateringInterval, language);
+  const mistRemaining = getTimeRemaining(plant.lastMisted, plant.mistingInterval, language);
 
   const effectiveCard = theme.cardColor ?? colors.card;
   const effectiveSecondary = theme.secondaryTextColor ?? colors.mutedForeground;

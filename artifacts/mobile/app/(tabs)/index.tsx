@@ -16,12 +16,14 @@ import { PlantCard } from "@/components/PlantCard";
 import { usePlants } from "@/context/PlantContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
+import { useI18n } from "@/i18n";
 
 export default function GardenScreen() {
   const colors = useColors();
   const theme = useTheme();
   const { plants, loading } = usePlants();
   const router = useRouter();
+  const { language, t } = useI18n();
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const hasWallpaper = !!theme.backgroundImage;
@@ -50,11 +52,13 @@ export default function GardenScreen() {
       >
         <View>
           <Text style={[styles.title, { color: theme.textColor }]}>
-            My Garden
+            {t("tabs.garden")}
           </Text>
           {plants.length > 0 && (
             <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
-              {plants.length} {plants.length === 1 ? "plant" : "plants"}
+              {language === "en"
+                ? t(plants.length === 1 ? "garden.count_one" : "garden.count_other", { count: plants.length })
+                : t("garden.count", { count: plants.length })}
             </Text>
           )}
         </View>
@@ -71,7 +75,7 @@ export default function GardenScreen() {
         <View style={styles.center}>
           <Ionicons name="leaf" size={40} color={colors.mutedForeground} />
           <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
-            Loading...
+            {t("garden.loading")}
           </Text>
         </View>
       ) : plants.length === 0 ? (
@@ -82,17 +86,17 @@ export default function GardenScreen() {
             <Ionicons name="leaf-outline" size={48} color={colors.mutedForeground} />
           </View>
           <Text style={[styles.emptyTitle, { color: theme.textColor }]}>
-            No plants yet
+            {t("garden.empty_title")}
           </Text>
           <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
-            Add your first plant to start tracking
+            {t("garden.empty_body")}
           </Text>
           <TouchableOpacity
             onPress={() => router.push("/(tabs)/add")}
             style={[styles.emptyButton, { backgroundColor: theme.uiColor }]}
           >
             <Ionicons name="add" size={18} color="#FFFFFF" />
-            <Text style={styles.emptyButtonText}>Add Plant</Text>
+            <Text style={styles.emptyButtonText}>{t("garden.add")}</Text>
           </TouchableOpacity>
         </View>
       ) : (

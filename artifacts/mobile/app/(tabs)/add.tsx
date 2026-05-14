@@ -31,6 +31,7 @@ import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
 import { CARE_PLAN_TEMPLATES, findCarePlanTemplate } from "@/utils/carePlans";
 import { getPlantCatalogById } from "@/utils/plantEncyclopedia";
+import { useI18n } from "@/i18n";
 
 type UnitOption = TimeUnit;
 
@@ -47,6 +48,7 @@ function UnitPicker({
   colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
   disabled?: boolean;
 }) {
+  const { t } = useI18n();
   return (
     <View style={[styles.unitRow, disabled && { opacity: 0.4 }]}>
       {(["hours", "days"] as UnitOption[]).map((unit) => (
@@ -68,7 +70,7 @@ function UnitPicker({
               { color: value === unit ? "#FFFFFF" : colors.mutedForeground },
             ]}
           >
-            {unit}
+            {unit === "hours" ? t("time.unit.hours") : t("time.unit.days")}
           </Text>
         </TouchableOpacity>
       ))}
@@ -86,6 +88,7 @@ function HealthStatusPicker({
   textColor: string;
 }) {
   const statuses = Object.keys(HEALTH_STATUS_CONFIG) as HealthStatus[];
+  const { language } = useI18n();
   return (
     <View style={styles.healthGrid}>
       {statuses.map((status) => {
@@ -112,7 +115,7 @@ function HealthStatusPicker({
                 { color: selected ? cfg.color : textColor, opacity: selected ? 1 : 0.7 },
               ]}
             >
-              {cfg.label}
+              {cfg.labels[language]}
             </Text>
           </TouchableOpacity>
         );
@@ -141,6 +144,7 @@ function SelectField<T extends string>({
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const selected = options.find((o) => o.value === value)?.label ?? "";
+  const { t } = useI18n();
 
   return (
     <View style={styles.levelSection}>
@@ -178,7 +182,7 @@ function SelectField<T extends string>({
             <View style={styles.modalHeader}>
               <Text style={[styles.modalTitle, { color: textColor }]}>{label}</Text>
               <TouchableOpacity onPress={() => setOpen(false)} style={styles.modalCloseBtn}>
-                <Text style={[styles.modalCloseText, { color: theme.uiColor }]}>Закрыть</Text>
+                <Text style={[styles.modalCloseText, { color: theme.uiColor }]}>{t("plantForm.modal.close")}</Text>
               </TouchableOpacity>
             </View>
             {options.map((opt) => {
@@ -240,6 +244,7 @@ function DateField({
   const [year, setYear] = useState(String(initial.getFullYear()));
   const [month, setMonth] = useState(String(initial.getMonth() + 1).padStart(2, "0"));
   const [day, setDay] = useState(String(initial.getDate()).padStart(2, "0"));
+  const { t } = useI18n();
 
   function resetFromValue(next: number | null) {
     const d = next ? new Date(next) : new Date();
@@ -284,7 +289,7 @@ function DateField({
             },
           ]}
         >
-          {display || "Выбрать дату"}
+          {display || t("plantForm.date.pick")}
         </Text>
         <Calendar size={18} color={colors.mutedForeground} />
       </TouchableOpacity>
@@ -301,7 +306,7 @@ function DateField({
             <Text style={[styles.modalTitle, { color: textColor }]}>{label}</Text>
             <View style={styles.dateRow}>
               <View style={styles.dateField}>
-                <Text style={[styles.dateLabel, { color: colors.mutedForeground }]}>Год</Text>
+                <Text style={[styles.dateLabel, { color: colors.mutedForeground }]}>{t("plantForm.date.year")}</Text>
                 <TextInput
                   style={[
                     styles.dateInput,
@@ -314,7 +319,7 @@ function DateField({
                 />
               </View>
               <View style={styles.dateField}>
-                <Text style={[styles.dateLabel, { color: colors.mutedForeground }]}>Месяц</Text>
+                <Text style={[styles.dateLabel, { color: colors.mutedForeground }]}>{t("plantForm.date.month")}</Text>
                 <TextInput
                   style={[
                     styles.dateInput,
@@ -327,7 +332,7 @@ function DateField({
                 />
               </View>
               <View style={styles.dateField}>
-                <Text style={[styles.dateLabel, { color: colors.mutedForeground }]}>День</Text>
+                <Text style={[styles.dateLabel, { color: colors.mutedForeground }]}>{t("plantForm.date.day")}</Text>
                 <TextInput
                   style={[
                     styles.dateInput,
@@ -349,7 +354,7 @@ function DateField({
                 }}
                 style={[styles.modalBtn, { backgroundColor: colors.muted }]}
               >
-                <Text style={[styles.modalBtnText, { color: colors.mutedForeground }]}>Очистить</Text>
+                <Text style={[styles.modalBtnText, { color: colors.mutedForeground }]}>{t("plantForm.date.clear")}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
@@ -359,7 +364,7 @@ function DateField({
                 }}
                 style={[styles.modalBtn, { backgroundColor: colors.muted }]}
               >
-                <Text style={[styles.modalBtnText, { color: colors.mutedForeground }]}>Сегодня</Text>
+                <Text style={[styles.modalBtnText, { color: colors.mutedForeground }]}>{t("plantForm.date.today")}</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.modalActions}>
@@ -367,13 +372,13 @@ function DateField({
                 onPress={() => setOpen(false)}
                 style={[styles.modalBtn, { backgroundColor: colors.muted }]}
               >
-                <Text style={[styles.modalBtnText, { color: colors.mutedForeground }]}>Отмена</Text>
+                <Text style={[styles.modalBtnText, { color: colors.mutedForeground }]}>{t("plantForm.cancel")}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
                   const built = tryBuildDate();
                   if (built == null) {
-                    Alert.alert("Неверная дата", "Проверьте год/месяц/день.");
+                    Alert.alert(t("plantForm.date.invalid.title"), t("plantForm.date.invalid.body"));
                     return;
                   }
                   onChange(built);
@@ -381,7 +386,7 @@ function DateField({
                 }}
                 style={[styles.modalBtn, { backgroundColor: uiColor }]}
               >
-                <Text style={[styles.modalBtnText, { color: "#FFFFFF" }]}>Готово</Text>
+                <Text style={[styles.modalBtnText, { color: "#FFFFFF" }]}>{t("plantForm.date.done")}</Text>
               </TouchableOpacity>
             </View>
           </Pressable>
@@ -396,6 +401,7 @@ export default function AddPlantScreen() {
   const theme = useTheme();
   const { addPlant } = usePlants();
   const router = useRouter();
+  const { t } = useI18n();
   const { catalogId: catalogIdParam } = useLocalSearchParams<{ catalogId?: string }>();
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
@@ -460,7 +466,7 @@ export default function AddPlantScreen() {
   async function pickPhoto() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert("Permission needed", "Allow access to your photos.");
+      Alert.alert(t("plantForm.permission.photos.title"), t("plantForm.permission.photos.body"));
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -477,7 +483,7 @@ export default function AddPlantScreen() {
   async function takePhoto() {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert("Permission needed", "Allow camera access.");
+      Alert.alert(t("plantForm.permission.photos.title"), t("plantForm.permission.camera.body"));
       return;
     }
     const result = await ImagePicker.launchCameraAsync({
@@ -491,30 +497,30 @@ export default function AddPlantScreen() {
   }
 
   function handlePhotoPress() {
-    Alert.alert("Add Photo", "Choose a source", [
-      { text: "Camera", onPress: takePhoto },
-      { text: "Photo Library", onPress: pickPhoto },
-      { text: "Cancel", style: "cancel" },
+    Alert.alert(t("plantForm.photo.add"), t("plantForm.photo.chooseSource"), [
+      { text: t("plantForm.photo.camera"), onPress: takePhoto },
+      { text: t("plantForm.photo.library"), onPress: pickPhoto },
+      { text: t("plantForm.cancel"), style: "cancel" },
     ]);
   }
 
   async function handleSave() {
     if (!name.trim()) {
-      Alert.alert("Missing name", "Please enter a plant name.");
+      Alert.alert(t("plantForm.requiredName.title"), t("plantForm.requiredName.body"));
       return;
     }
     if (!species.trim()) {
-      Alert.alert("Missing species", "Please enter the plant species.");
+      Alert.alert(t("plantForm.requiredSpecies.title"), t("plantForm.requiredSpecies.body"));
       return;
     }
     const wVal = parseFloat(waterValue);
     const mVal = parseFloat(mistValue);
     if (wateringEnabled && (isNaN(wVal) || wVal <= 0)) {
-      Alert.alert("Invalid interval", "Please enter a valid watering interval.");
+      Alert.alert(t("plantForm.invalidInterval.title"), t("plantForm.invalidInterval.water"));
       return;
     }
     if (mistingEnabled && (isNaN(mVal) || mVal <= 0)) {
-      Alert.alert("Invalid interval", "Please enter a valid misting interval.");
+      Alert.alert(t("plantForm.invalidInterval.title"), t("plantForm.invalidInterval.mist"));
       return;
     }
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -556,9 +562,9 @@ export default function AddPlantScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <ArrowLeft size={22} color={theme.uiColor} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: theme.textColor }]}>Add Plant</Text>
+        <Text style={[styles.headerTitle, { color: theme.textColor }]}>{t("plantForm.add.title")}</Text>
         <TouchableOpacity onPress={handleSave} style={styles.saveBtn}>
-          <Text style={[styles.saveBtnText, { color: theme.uiColor }]}>Save</Text>
+          <Text style={[styles.saveBtnText, { color: theme.uiColor }]}>{t("plantForm.save")}</Text>
         </TouchableOpacity>
       </View>
 
@@ -579,7 +585,7 @@ export default function AddPlantScreen() {
             ) : (
               <View style={styles.photoPlaceholder}>
                 <Camera size={32} color={colors.mutedForeground} />
-                <Text style={[styles.photoLabel, { color: colors.mutedForeground }]}>Add Photo</Text>
+                <Text style={[styles.photoLabel, { color: colors.mutedForeground }]}>{t("plantForm.photo.add")}</Text>
               </View>
             )}
           </View>
@@ -592,7 +598,7 @@ export default function AddPlantScreen() {
 
         {/* Name & Species */}
         <View style={styles.section}>
-          <Text style={labelStyle}>Plant Name *</Text>
+          <Text style={labelStyle}>{t("plantForm.field.name")}</Text>
           <TextInput
             style={inputStyle}
             value={name}
@@ -601,7 +607,7 @@ export default function AddPlantScreen() {
             placeholderTextColor={colors.mutedForeground}
             returnKeyType="next"
           />
-          <Text style={[labelStyle, { marginTop: 16 }]}>Species *</Text>
+          <Text style={[labelStyle, { marginTop: 16 }]}>{t("plantForm.field.species")}</Text>
           <TextInput
             style={inputStyle}
             value={species}
@@ -614,12 +620,12 @@ export default function AddPlantScreen() {
         <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.sectionCardHeader}>
             <Info size={20} color={theme.uiColor} />
-            <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>Details</Text>
+            <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>{t("plantForm.details.title")}</Text>
           </View>
           <Text style={[styles.sectionCardDesc, { color: colors.mutedForeground }]}>
-            Optional information to help you track this plant.
+            {t("plantForm.details.desc")}
           </Text>
-          <Text style={labelStyle}>Location</Text>
+          <Text style={labelStyle}>{t("plantForm.field.location")}</Text>
           <TextInput
             style={inputStyle}
             value={location}
@@ -629,7 +635,7 @@ export default function AddPlantScreen() {
           />
 
           <DateField
-            label="Дата покупки"
+            label={t("plantForm.field.purchaseDate")}
             value={purchaseDate}
             onChange={setPurchaseDate}
             colors={colors}
@@ -637,7 +643,7 @@ export default function AddPlantScreen() {
             uiColor={theme.uiColor}
           />
           <DateField
-            label="Последняя пересадка"
+            label={t("plantForm.field.lastRepotted")}
             value={lastRepotted}
             onChange={setLastRepotted}
             colors={colors}
@@ -645,29 +651,29 @@ export default function AddPlantScreen() {
             uiColor={theme.uiColor}
           />
           <SelectField<LightLevel>
-            label="Уровень света"
-            placeholder="Выбрать"
+            label={t("plantForm.field.light")}
+            placeholder={t("plantForm.pick")}
             value={lightLevel}
             onChange={setLightLevel}
             colors={colors}
             textColor={theme.textColor}
             options={[
-              { value: "low", label: "Низкий" },
-              { value: "medium", label: "Средний" },
-              { value: "bright", label: "Яркий" },
+              { value: "low", label: t("catalog.filter.light.low") },
+              { value: "medium", label: t("catalog.filter.light.medium") },
+              { value: "bright", label: t("catalog.filter.light.bright") },
             ]}
           />
           <SelectField<CareDifficulty>
-            label="Сложность ухода"
-            placeholder="Выбрать"
+            label={t("plantForm.field.difficulty")}
+            placeholder={t("plantForm.pick")}
             value={difficulty}
             onChange={setDifficulty}
             colors={colors}
             textColor={theme.textColor}
             options={[
-              { value: "easy", label: "Лёгкий" },
-              { value: "medium", label: "Средний" },
-              { value: "hard", label: "Сложный" },
+              { value: "easy", label: t("catalog.filter.diff.easy") },
+              { value: "medium", label: t("catalog.filter.diff.medium") },
+              { value: "hard", label: t("catalog.filter.diff.hard") },
             ]}
           />
         </View>
@@ -676,10 +682,10 @@ export default function AddPlantScreen() {
         <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.sectionCardHeader}>
             <Heart size={20} color={theme.uiColor} />
-            <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>Health Status</Text>
+            <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>{t("plantForm.health.title")}</Text>
           </View>
           <Text style={[styles.sectionCardDesc, { color: colors.mutedForeground }]}>
-            How is this plant doing right now?
+            {t("plantForm.health.desc")}
           </Text>
           <HealthStatusPicker
             value={healthStatus}
@@ -691,14 +697,14 @@ export default function AddPlantScreen() {
         <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.sectionCardHeader}>
             <Calendar size={20} color={theme.uiColor} />
-            <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>План ухода</Text>
+            <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>{t("plantForm.carePlan.title")}</Text>
           </View>
           <Text style={[styles.sectionCardDesc, { color: colors.mutedForeground }]}>
-            Выберите шаблон, чтобы автоматически настроить интервалы полива и опрыскивания.
+            {t("plantForm.carePlan.desc")}
           </Text>
           <SelectField<string>
-            label="Шаблон"
-            placeholder="Без шаблона"
+            label={t("plantForm.carePlan.template")}
+            placeholder={t("plantForm.carePlan.none")}
             value={carePlanId}
             onChange={(v) => {
               setCarePlanId(v);
@@ -707,8 +713,11 @@ export default function AddPlantScreen() {
             colors={colors}
             textColor={theme.textColor}
             options={[
-              { value: "", label: "Без шаблона" },
-              ...CARE_PLAN_TEMPLATES.map((t) => ({ value: t.id, label: `${t.title} — ${t.description}` })),
+              { value: "", label: t("plantForm.carePlan.none") },
+              ...CARE_PLAN_TEMPLATES.map((tpl) => ({
+                value: tpl.id,
+                label: `${t(`carePlan.${tpl.id}.title`)} — ${t(`carePlan.${tpl.id}.desc`)}`,
+              })),
             ]}
           />
         </View>
@@ -717,10 +726,10 @@ export default function AddPlantScreen() {
         <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.sectionCardHeader}>
             <Droplet size={20} color={theme.uiColor} />
-            <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>Watering</Text>
+            <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>{t("plantForm.watering.title")}</Text>
             <View style={styles.toggleRow}>
               <Text style={[styles.toggleLabel, { color: colors.mutedForeground }]}>
-                {wateringEnabled ? "Alerts on" : "Muted"}
+                {wateringEnabled ? t("plantForm.toggle.on") : t("plantForm.toggle.off")}
               </Text>
               <Switch
                 value={wateringEnabled}
@@ -731,7 +740,7 @@ export default function AddPlantScreen() {
             </View>
           </View>
           <Text style={[styles.sectionCardDesc, { color: colors.mutedForeground }]}>
-            How often does this plant need watering?
+            {t("plantForm.watering.desc")}
           </Text>
           <View style={[styles.intervalRow, !wateringEnabled && { opacity: 0.4 }]}>
             <TextInput
@@ -750,7 +759,7 @@ export default function AddPlantScreen() {
               placeholderTextColor={colors.mutedForeground}
               editable={wateringEnabled}
             />
-            <Text style={[styles.everyLabel, { color: colors.mutedForeground }]}>every</Text>
+            <Text style={[styles.everyLabel, { color: colors.mutedForeground }]}>{t("time.every")}</Text>
             <UnitPicker
               value={waterUnit}
               onChange={setWaterUnit}
@@ -765,10 +774,10 @@ export default function AddPlantScreen() {
         <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.sectionCardHeader}>
             <SprayCan size={20} color={theme.uiColor} />
-            <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>Misting</Text>
+            <Text style={[styles.sectionCardTitle, { color: theme.textColor }]}>{t("plantForm.misting.title")}</Text>
             <View style={styles.toggleRow}>
               <Text style={[styles.toggleLabel, { color: colors.mutedForeground }]}>
-                {mistingEnabled ? "Alerts on" : "Muted"}
+                {mistingEnabled ? t("plantForm.toggle.on") : t("plantForm.toggle.off")}
               </Text>
               <Switch
                 value={mistingEnabled}
@@ -779,7 +788,7 @@ export default function AddPlantScreen() {
             </View>
           </View>
           <Text style={[styles.sectionCardDesc, { color: colors.mutedForeground }]}>
-            How often does this plant need misting?
+            {t("plantForm.misting.desc")}
           </Text>
           <View style={[styles.intervalRow, !mistingEnabled && { opacity: 0.4 }]}>
             <TextInput
@@ -798,7 +807,7 @@ export default function AddPlantScreen() {
               placeholderTextColor={colors.mutedForeground}
               editable={mistingEnabled}
             />
-            <Text style={[styles.everyLabel, { color: colors.mutedForeground }]}>every</Text>
+            <Text style={[styles.everyLabel, { color: colors.mutedForeground }]}>{t("time.every")}</Text>
             <UnitPicker
               value={mistUnit}
               onChange={setMistUnit}
@@ -815,7 +824,7 @@ export default function AddPlantScreen() {
           style={[styles.saveButton, { backgroundColor: theme.uiColor }]}
         >
           <Check size={20} color="#FFFFFF" />
-          <Text style={styles.saveButtonText}>Add Plant</Text>
+          <Text style={styles.saveButtonText}>{t("plantForm.add.cta")}</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>

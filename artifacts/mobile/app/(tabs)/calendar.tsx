@@ -16,6 +16,7 @@ import { getIntervalMs, usePlants } from "@/context/PlantContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
 import { CalendarEvent, computeCalendarEvents } from "@/utils/care";
+import { useI18n } from "@/i18n";
 
 type Mode = "day" | "week";
 
@@ -41,8 +42,8 @@ function dayKey(ts: number): string {
   return `${y}-${m}-${day}`;
 }
 
-function weekdayShort(ts: number): string {
-  return new Date(ts).toLocaleDateString(undefined, { weekday: "short" });
+function weekdayShort(ts: number, locale: string): string {
+  return new Date(ts).toLocaleDateString(locale, { weekday: "short" });
 }
 
 function buildDayRow(weekStart: number): number[] {
@@ -50,9 +51,9 @@ function buildDayRow(weekStart: number): number[] {
   return Array.from({ length: 7 }, (_, i) => weekStart + i * day);
 }
 
-function formatWeekLabel(weekStart: number): string {
+function formatWeekLabel(weekStart: number, locale: string): string {
   const d = new Date(weekStart);
-  const m = d.toLocaleString(undefined, { month: "long" });
+  const m = d.toLocaleString(locale, { month: "long" });
   return `${m} ${d.getFullYear()}`;
 }
 
@@ -74,6 +75,7 @@ export default function CalendarScreen() {
   const colors = useColors();
   const theme = useTheme();
   const { plants, loading } = usePlants();
+  const { locale, t } = useI18n();
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const hasWallpaper = !!theme.backgroundImage;
@@ -154,9 +156,12 @@ export default function CalendarScreen() {
         ]}
       >
         <View style={{ flex: 1 }}>
-          <Text style={[styles.title, { color: theme.textColor }]}>Календарь</Text>
+          <Text style={[styles.title, { color: theme.textColor }]}>{t("calendar.title")}</Text>
           <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
-            {mode === "week" ? "Неделя" : "День"} · {formatWeekLabel(weekStart)}
+            {t("calendar.subtitle", {
+              mode: mode === "week" ? t("calendar.mode.week") : t("calendar.mode.day"),
+              label: formatWeekLabel(weekStart, locale),
+            })}
           </Text>
         </View>
         <View style={styles.modeRow}>
@@ -171,7 +176,7 @@ export default function CalendarScreen() {
             ]}
           >
             <Text style={[styles.modeText, { color: mode === "day" ? "#FFFFFF" : colors.mutedForeground }]}>
-              День
+              {t("calendar.mode.day")}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -185,7 +190,7 @@ export default function CalendarScreen() {
             ]}
           >
             <Text style={[styles.modeText, { color: mode === "week" ? "#FFFFFF" : colors.mutedForeground }]}>
-              Неделя
+              {t("calendar.mode.week")}
             </Text>
           </TouchableOpacity>
         </View>
@@ -215,7 +220,7 @@ export default function CalendarScreen() {
                 ]}
               >
                 <Text style={[styles.dayWeek, { color: selected ? theme.uiColor : colors.mutedForeground }]}>
-                  {weekdayShort(d)}
+                  {weekdayShort(d, locale)}
                 </Text>
                 <Text style={[styles.dayNum, { color: selected ? theme.uiColor : theme.textColor }]}>
                   {new Date(d).getDate()}
@@ -239,7 +244,7 @@ export default function CalendarScreen() {
           <TextInput
             value={query}
             onChangeText={setQuery}
-            placeholder="Фильтр по растению…"
+            placeholder={t("calendar.filter_placeholder")}
             placeholderTextColor={colors.mutedForeground}
             style={[styles.searchInput, { color: theme.textColor }]}
             autoCorrect={false}
@@ -250,14 +255,14 @@ export default function CalendarScreen() {
 
       {loading ? (
         <View style={styles.center}>
-          <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>Загрузка…</Text>
+          <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>{t("calendar.loading")}</Text>
         </View>
       ) : mode === "day" ? (
         dayEvents.length === 0 ? (
           <View style={styles.center}>
-            <Text style={[styles.emptyTitle, { color: theme.textColor }]}>Нет событий</Text>
+            <Text style={[styles.emptyTitle, { color: theme.textColor }]}>{t("calendar.empty_title")}</Text>
             <Text style={[styles.emptyText, { color: colors.mutedForeground }]}>
-              На выбранный день задач и записей нет
+              {t("calendar.empty_body")}
             </Text>
           </View>
         ) : (
@@ -302,14 +307,14 @@ export default function CalendarScreen() {
           renderItem={({ item: section }) => (
             <View style={styles.section}>
               <Text style={[styles.sectionTitle, { color: theme.textColor }]}>
-                {new Date(section.dayMs).toLocaleDateString(undefined, {
+                {new Date(section.dayMs).toLocaleDateString(locale, {
                   weekday: "long",
                   day: "numeric",
                   month: "long",
                 })}
               </Text>
               {section.items.length === 0 ? (
-                <Text style={[styles.sectionEmpty, { color: colors.mutedForeground }]}>Нет событий</Text>
+                <Text style={[styles.sectionEmpty, { color: colors.mutedForeground }]}>{t("calendar.no_events")}</Text>
               ) : (
                 section.items.map((ev) => (
                   <View
@@ -441,4 +446,3 @@ const styles = StyleSheet.create({
   cardTitle: { fontSize: 16, fontFamily: "Inter_600SemiBold" },
   cardMeta: { fontSize: 12, fontFamily: "Inter_400Regular", marginTop: 1 },
 });
-

@@ -2,6 +2,7 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 import { HEALTH_STATUS_CONFIG, HealthStatus } from "@/context/PlantContext";
+import { useI18n } from "@/i18n";
 
 interface HealthBadgeProps {
   status: HealthStatus;
@@ -12,6 +13,7 @@ export function HealthBadge({ status, size = "sm" }: HealthBadgeProps) {
   const config = HEALTH_STATUS_CONFIG[status];
   const isSmall = size === "sm";
   const Icon = config.Icon;
+  const { language } = useI18n();
 
   return (
     <View
@@ -36,7 +38,7 @@ export function HealthBadge({ status, size = "sm" }: HealthBadgeProps) {
           },
         ]}
       >
-        {config.label}
+        {config.labels[language]}
       </Text>
     </View>
   );

@@ -11,8 +11,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "eas": "pnpm exec eas",
     "eas:whoami": "pnpm exec eas whoami",
-    "eas:build:apk": "pnpm exec eas build -p android --profile preview",
-    "eas:build:aab": "pnpm exec eas build -p android --profile production"
+    "eas:build:apk": "pnpm -C ../.. install --no-frozen-lockfile --prod=false --config.node-linker=hoisted && pnpm exec eas build -p android --profile preview",
+    "eas:build:aab": "pnpm -C ../.. install --no-frozen-lockfile --prod=false --config.node-linker=hoisted && pnpm exec eas build -p android --profile production"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

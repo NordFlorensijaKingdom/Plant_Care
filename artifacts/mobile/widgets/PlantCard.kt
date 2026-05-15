@@ -6,7 +6,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
-import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.action.actionStartActivity
@@ -19,7 +18,6 @@ import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
-import androidx.glance.layout.defaultWeight
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
@@ -40,9 +38,7 @@ private const val DATA_KEY = "plantWidgetData"
 class PlantCard : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
-            GlanceTheme {
-                PlantCardContent(context)
-            }
+            PlantCardContent(context)
         }
     }
 }
@@ -133,7 +129,7 @@ private fun PlantCardContent(context: Context) {
 
                 Spacer(modifier = GlanceModifier.width(12.dp))
 
-                Column(modifier = GlanceModifier.defaultWeight()) {
+                Column(modifier = GlanceModifier.fillMaxWidth()) {
                     Text(
                         data.name,
                         maxLines = 1,
@@ -163,17 +159,6 @@ private fun PlantCardContent(context: Context) {
                     )
                 }
 
-                Spacer(modifier = GlanceModifier.width(10.dp))
-
-                Column(horizontalAlignment = Alignment.Horizontal.CenterHorizontally) {
-                    if (data.wateringEnabled) {
-                        Text("💧", style = TextStyle(fontSize = 14.sp))
-                        Spacer(modifier = GlanceModifier.height(10.dp))
-                    }
-                    if (data.mistingEnabled) {
-                        Text("🌧", style = TextStyle(fontSize = 14.sp))
-                    }
-                }
             }
 
             Spacer(modifier = GlanceModifier.height(12.dp))
@@ -235,28 +220,16 @@ private fun ProgressRow(label: String, progress: Double, remaining: String, acce
         modifier = GlanceModifier.fillMaxWidth(),
         verticalAlignment = Alignment.Vertical.CenterVertically
     ) {
-        Text(label, style = TextStyle(fontSize = 14.sp))
-        Spacer(modifier = GlanceModifier.width(10.dp))
-        Row(
-            modifier = GlanceModifier
-                .defaultWeight()
-                .height(7.dp)
-                .background(ColorProvider(Color(0x14000000))),
-            verticalAlignment = Alignment.Vertical.CenterVertically
-        ) {
-            if (p > 0) {
-                Box(
-                    modifier = GlanceModifier
-                        .defaultWeight(p.toFloat())
-                        .fillMaxSize()
-                        .background(ColorProvider(fill))
-                ) {}
-            }
-            if (p < 1.0) {
-                Box(modifier = GlanceModifier.defaultWeight((1.0 - p).toFloat()).fillMaxSize()) {}
-            }
-        }
-        Spacer(modifier = GlanceModifier.width(10.dp))
+        Text(
+            label,
+            style = TextStyle(color = ColorProvider(fill), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+        )
+        Spacer(modifier = GlanceModifier.width(8.dp))
+        Text(
+            "${(p * 100).toInt()}%",
+            style = TextStyle(color = ColorProvider(Color(0xFF6B8F7A)), fontSize = 12.sp)
+        )
+        Spacer(modifier = GlanceModifier.width(8.dp))
         Text(
             remaining,
             style = TextStyle(color = ColorProvider(Color(0xFF6B8F7A)), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)

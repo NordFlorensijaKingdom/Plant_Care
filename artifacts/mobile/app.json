@@ -17,6 +17,11 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.user.plantcare",
+      "entitlements": {
+        "com.apple.security.application-groups": [
+          "group.com.user.plantcare.widget"
+        ]
+      },
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Разрешите «Мой сад» доступ к вашим фото для снимков растений.",
         "NSCameraUsageDescription": "Разрешите «Мой сад» использовать камеру, чтобы фотографировать растения.",
@@ -45,6 +50,24 @@
     "plugins": [
       "expo-router",
       "expo-font",
+      "@bacons/apple-targets",
+      [
+        "android-glance-widget-expo",
+        {
+          "widgets": [
+            {
+              "widgetClassName": "PlantCard",
+              "widgetProviderInfo": {
+                "description": "Карточка растения",
+                "minWidth": "250dp",
+                "minHeight": "100dp",
+                "resizeMode": "horizontal|vertical",
+                "widgetCategory": "home_screen"
+              }
+            }
+          ]
+        }
+      ],
       [
         "expo-image-picker",
         {

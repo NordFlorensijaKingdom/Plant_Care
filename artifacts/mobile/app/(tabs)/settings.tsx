@@ -29,6 +29,7 @@ import {
   useTheme,
 } from "@/context/ThemeContext";
 import { useAppSettings } from "@/context/AppSettingsContext";
+import { usePlants } from "@/context/PlantContext";
 import { useColors } from "@/hooks/useColors";
 
 // ---- Sub-components ----
@@ -235,6 +236,7 @@ export default function SettingsScreen() {
   const colors = useColors();
   const theme = useTheme();
   const appSettings = useAppSettings();
+  const { plants } = usePlants();
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
 
@@ -261,6 +263,16 @@ export default function SettingsScreen() {
     }
 
     appSettings.setQuickAccessPages([...selected, href]);
+    Haptics.selectionAsync();
+  }
+
+  function toggleWidgetPlant(plantId: string) {
+    if (appSettings.widgetPlantId === plantId) {
+      appSettings.setWidgetPlantId(null);
+      Haptics.selectionAsync();
+      return;
+    }
+    appSettings.setWidgetPlantId(plantId);
     Haptics.selectionAsync();
   }
 
@@ -405,6 +417,45 @@ export default function SettingsScreen() {
               </View>
             );
           })}
+        </View>
+
+        <Text style={[shLabel, { marginTop: 24 }]}>ВИДЖЕТ</Text>
+        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          {plants.length === 0 ? (
+            <Text style={[styles.qaDesc, { color: colors.mutedForeground }]}>
+              Добавьте хотя бы одно растение, чтобы выбрать его для виджета
+            </Text>
+          ) : (
+            plants.map((p, idx) => {
+              const selected = appSettings.widgetPlantId === p.id;
+              return (
+                <View key={p.id}>
+                  {idx !== 0 && <View style={[styles.qaDivider, { backgroundColor: colors.border }]} />}
+                  <TouchableOpacity
+                    onPress={() => toggleWidgetPlant(p.id)}
+                    style={styles.qaRow}
+                  >
+                    <View style={styles.switchInfo}>
+                      <Ionicons name="leaf-outline" size={20} color={theme.uiColor} />
+                      <View style={{ flex: 1 }}>
+                        <Text style={[styles.switchLabel, { color: theme.textColor }]}>
+                          {p.name}
+                        </Text>
+                        <Text style={[styles.switchDesc, { color: colors.mutedForeground }]}>
+                          {p.species}
+                        </Text>
+                      </View>
+                    </View>
+                    {selected ? (
+                      <Ionicons name="checkmark-circle" size={22} color={theme.uiColor} />
+                    ) : (
+                      <Ionicons name="ellipse-outline" size={22} color={colors.border} />
+                    )}
+                  </TouchableOpacity>
+                </View>
+              );
+            })
+          )}
         </View>
 
         {/* ── CUSTOM THEME ── */}

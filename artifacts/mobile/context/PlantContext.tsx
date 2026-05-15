@@ -12,6 +12,8 @@ import { AlertCircle, CircleCheck, Heart, TriangleAlert } from "lucide-react-nat
 
 import { useAppSettings } from "@/context/AppSettingsContext";
 import { adjustForQuietHours } from "@/utils/care";
+import { buildPlantWidgetPayload } from "@/utils/plantWidget";
+import { syncPlantWidget } from "@/utils/widgetSync";
 
 export interface Note {
   id: string;
@@ -318,13 +320,29 @@ const OLD_STORAGE_KEYS = ["plant_care_plants_v3", "plant_care_plants_v2"];
 export function PlantProvider({ children }: { children: React.ReactNode }) {
   const [plants, setPlants] = useState<Plant[]>([]);
   const [loading, setLoading] = useState(true);
-  const { quietHoursEnabled, notificationsEnabled } = useAppSettings();
+  const appSettings = useAppSettings();
+  const { quietHoursEnabled, notificationsEnabled, widgetPlantId } = appSettings;
   const isWeb = Platform.OS === "web";
   const plantsRef = useRef<Plant[]>(plants);
 
   useEffect(() => {
     plantsRef.current = plants;
   }, [plants]);
+
+  useEffect(() => {
+    if (isWeb || loading) return;
+    if (!widgetPlantId) {
+      syncPlantWidget(null);
+      return;
+    }
+    const plant = plants.find((p) => p.id === widgetPlantId);
+    if (!plant) {
+      appSettings.setWidgetPlantId(null);
+      syncPlantWidget(null);
+      return;
+    }
+    syncPlantWidget(buildPlantWidgetPayload(plant));
+  }, [appSettings.setWidgetPlantId, isWeb, loading, plants, widgetPlantId]);
 
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY)

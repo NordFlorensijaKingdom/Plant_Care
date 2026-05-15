@@ -6,18 +6,21 @@ export interface AppSettings {
   quietHoursEnabled: boolean;
   notificationsEnabled: boolean;
   quickAccessPages: string[];
+  widgetPlantId: string | null;
 }
 
 interface AppSettingsContextType extends AppSettings {
   setQuietHoursEnabled: (enabled: boolean) => void;
   setNotificationsEnabled: (enabled: boolean) => void;
   setQuickAccessPages: (pages: string[]) => void;
+  setWidgetPlantId: (plantId: string | null) => void;
 }
 
 const defaults: AppSettings = {
   quietHoursEnabled: true,
   notificationsEnabled: false,
   quickAccessPages: ["/today", "/calendar", "/"],
+  widgetPlantId: null,
 };
 const STORAGE_KEY = "plant_care_settings_v1";
 
@@ -67,6 +70,10 @@ export function AppSettingsProvider({ children }: { children: React.ReactNode })
                 ? ((parsed as any).quickAccessPages as string[])
                 : defaults.quickAccessPages
             ),
+            widgetPlantId:
+              typeof (parsed as any).widgetPlantId === "string"
+                ? ((parsed as any).widgetPlantId as string)
+                : null,
           };
           if (active) setSettings(merged);
           if (typeof parsed.notificationsEnabled !== "boolean") {
@@ -104,9 +111,19 @@ export function AppSettingsProvider({ children }: { children: React.ReactNode })
     update({ quickAccessPages: normalizeQuickAccessPages(pages) });
   }, [normalizeQuickAccessPages, update]);
 
+  const setWidgetPlantId = useCallback((plantId: string | null) => {
+    update({ widgetPlantId: plantId });
+  }, [update]);
+
   return (
     <AppSettingsContext.Provider
-      value={{ ...settings, setQuietHoursEnabled, setNotificationsEnabled, setQuickAccessPages }}
+      value={{
+        ...settings,
+        setQuietHoursEnabled,
+        setNotificationsEnabled,
+        setQuickAccessPages,
+        setWidgetPlantId,
+      }}
     >
       {children}
     </AppSettingsContext.Provider>

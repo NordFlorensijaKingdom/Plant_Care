@@ -173,7 +173,7 @@ private fun PlantCardContent(context: Context) {
                             modifier = GlanceModifier
                                 .background(ColorProvider(chipBg))
                                 .cornerRadius(999.dp)
-                                .padding(horizontal = 14.dp, vertical = 8.dp),
+                                .padding(start = 14.dp, top = 8.dp, end = 14.dp, bottom = 8.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(

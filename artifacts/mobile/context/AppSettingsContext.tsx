@@ -5,14 +5,20 @@ import { Platform } from "react-native";
 export interface AppSettings {
   quietHoursEnabled: boolean;
   notificationsEnabled: boolean;
+  quickAccess: string[];
 }
 
 interface AppSettingsContextType extends AppSettings {
   setQuietHoursEnabled: (enabled: boolean) => void;
   setNotificationsEnabled: (enabled: boolean) => void;
+  setQuickAccess: (items: string[]) => void;
 }
 
-const defaults: AppSettings = { quietHoursEnabled: true, notificationsEnabled: false };
+const defaults: AppSettings = {
+  quietHoursEnabled: true,
+  notificationsEnabled: false,
+  quickAccess: [],
+};
 const STORAGE_KEY = "plant_care_settings_v1";
 
 const AppSettingsContext = createContext<AppSettingsContextType | null>(null);
@@ -47,7 +53,13 @@ export function AppSettingsProvider({ children }: { children: React.ReactNode })
       if (raw) {
         try {
           const parsed = JSON.parse(raw) as Partial<AppSettings>;
-          const merged = { ...defaults, ...parsed };
+          const merged: AppSettings = {
+            ...defaults,
+            ...parsed,
+            quickAccess: Array.isArray((parsed as any).quickAccess)
+              ? (((parsed as any).quickAccess as unknown[]).filter((x) => typeof x === "string") as string[])
+              : defaults.quickAccess,
+          };
           if (active) setSettings(merged);
           if (typeof parsed.notificationsEnabled !== "boolean") {
             const inferred = await inferNotificationsEnabled();
@@ -80,9 +92,14 @@ export function AppSettingsProvider({ children }: { children: React.ReactNode })
     update({ notificationsEnabled: enabled });
   }, [update]);
 
+  const setQuickAccess = useCallback((items: string[]) => {
+    const normalized = items.filter((x) => typeof x === "string").slice(0, 3);
+    update({ quickAccess: normalized });
+  }, [update]);
+
   return (
     <AppSettingsContext.Provider
-      value={{ ...settings, setQuietHoursEnabled, setNotificationsEnabled }}
+      value={{ ...settings, setQuietHoursEnabled, setNotificationsEnabled, setQuickAccess }}
     >
       {children}
     </AppSettingsContext.Provider>

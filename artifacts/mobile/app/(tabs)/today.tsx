@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Bell, Check, Clock, Droplet, SprayCan } from "lucide-react-native";
 
 import { NavigationMenuButton } from "@/components/NavigationMenu";
+import { QuickAccessBar, useQuickAccessExtraBottomPadding } from "@/components/QuickAccessBar";
 import { usePlants, getIntervalMs } from "@/context/PlantContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
@@ -37,6 +38,7 @@ export default function TodayScreen() {
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const hasWallpaper = !!theme.backgroundImage;
+  const extraBottomPadding = useQuickAccessExtraBottomPadding();
 
   const tasks = useMemo(() => {
     const now = Date.now();
@@ -133,7 +135,7 @@ export default function TodayScreen() {
             styles.list,
             {
               paddingBottom:
-                Platform.OS === "web" ? 34 : 24 + insets.bottom,
+                (Platform.OS === "web" ? 34 : 24 + insets.bottom) + extraBottomPadding,
             },
           ]}
           renderItem={({ item }) => (
@@ -198,6 +200,7 @@ export default function TodayScreen() {
           showsVerticalScrollIndicator={false}
         />
       )}
+      <QuickAccessBar />
     </View>
   );
 

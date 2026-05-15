@@ -21,7 +21,7 @@ type NavItem = {
   icon: keyof typeof Ionicons.glyphMap;
 };
 
-const NAV_ITEMS: NavItem[] = [
+export const NAV_ITEMS: NavItem[] = [
   { label: "Сегодня", href: "/today", icon: "sunny-outline" },
   { label: "Календарь", href: "/calendar", icon: "calendar-outline" },
   { label: "Мой сад", href: "/", icon: "leaf-outline" },
@@ -136,4 +136,3 @@ const styles = StyleSheet.create({
   },
   rowText: { fontSize: 14, fontFamily: "Inter_600SemiBold", flex: 1 },
 });
-

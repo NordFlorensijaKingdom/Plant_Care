@@ -155,7 +155,7 @@ private fun PlantCardContent(context: Context) {
                         style = TextStyle(
                             color = ColorProvider(accent),
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.Medium
                         )
                     )
                 }
@@ -223,7 +223,7 @@ private fun ProgressRow(label: String, progress: Double, remaining: String, acce
     ) {
         Text(
             label,
-            style = TextStyle(color = ColorProvider(fill), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+            style = TextStyle(color = ColorProvider(fill), fontSize = 14.sp, fontWeight = FontWeight.Medium)
         )
         Spacer(modifier = GlanceModifier.width(8.dp))
         Text(
@@ -233,7 +233,7 @@ private fun ProgressRow(label: String, progress: Double, remaining: String, acce
         Spacer(modifier = GlanceModifier.width(8.dp))
         Text(
             remaining,
-            style = TextStyle(color = ColorProvider(Color(0xFF6B8F7A)), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+            style = TextStyle(color = ColorProvider(Color(0xFF6B8F7A)), fontSize = 12.sp, fontWeight = FontWeight.Medium)
         )
     }
 }

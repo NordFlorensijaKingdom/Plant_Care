@@ -22,6 +22,55 @@ function findWorkspaceRoot(startDir) {
 const workspaceRoot = findWorkspaceRoot(projectRoot);
 const basePath = (process.env.BASE_PATH || "/").replace(/\/+$/, "");
 
+function runProcess(command, args, options) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, options);
+
+    child.on("error", reject);
+    child.on("close", (code) => {
+      if (code === 0) {
+        resolve();
+        return;
+      }
+      reject(new Error(`${command} ${args.join(" ")} failed with exit code ${code}`));
+    });
+  });
+}
+
+function resolvePackageJson(packageName) {
+  return require.resolve(`${packageName}/package.json`, { paths: [projectRoot, workspaceRoot] });
+}
+
+function getExpoRouterEntryPath() {
+  const pkgJsonPath = resolvePackageJson("expo-router");
+  return path.join(path.dirname(pkgJsonPath), "entry");
+}
+
+async function ensureDependenciesInstalled() {
+  try {
+    resolvePackageJson("expo-router");
+    return;
+  } catch {}
+
+  console.log("Missing dependencies. Installing workspace dependencies...");
+
+  const options = { stdio: "inherit", cwd: workspaceRoot, env: process.env };
+
+  try {
+    await runProcess(
+      "pnpm",
+      ["-C", workspaceRoot, "install", "--frozen-lockfile", "--config.node-linker=hoisted"],
+      options,
+    );
+  } catch {
+    await runProcess(
+      "pnpm",
+      ["-C", workspaceRoot, "install", "--no-frozen-lockfile", "--config.node-linker=hoisted"],
+      options,
+    );
+  }
+}
+
 function exitWithError(message) {
   console.error(message);
   if (metroProcess) {
@@ -228,7 +277,7 @@ async function downloadFile(url, outputPath) {
 }
 
 async function downloadBundle(platform, timestamp) {
-  const entryPath = path.resolve(projectRoot, "node_modules", "expo-router", "entry");
+  const entryPath = getExpoRouterEntryPath();
   const bundlePath = path.relative(workspaceRoot, entryPath);
   const url = new URL(`http://localhost:8081/${bundlePath}.bundle`);
   url.searchParams.set("platform", platform);
@@ -509,6 +558,12 @@ async function main() {
   console.log("Building static Expo Go deployment...");
 
   setupSignalHandlers();
+
+  try {
+    await ensureDependenciesInstalled();
+  } catch (error) {
+    exitWithError(`Dependency install failed: ${error.message}`);
+  }
 
   const domain = getDeploymentDomain();
   const expoPublicReplId = getExpoPublicReplId();

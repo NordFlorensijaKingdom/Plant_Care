@@ -22,6 +22,37 @@ function findWorkspaceRoot(startDir) {
 const workspaceRoot = findWorkspaceRoot(projectRoot);
 const basePath = (process.env.BASE_PATH || "/").replace(/\/+$/, "");
 
+function runProcess(command, args, options) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, options);
+
+    child.on("error", reject);
+    child.on("close", (code) => {
+      if (code === 0) {
+        resolve();
+        return;
+      }
+      reject(new Error(`${command} ${args.join(" ")} failed with exit code ${code}`));
+    });
+  });
+}
+
+async function ensureDependenciesInstalled() {
+  const nodeModulesDir = path.join(projectRoot, "node_modules");
+  if (fs.existsSync(nodeModulesDir)) {
+    return;
+  }
+
+  console.log("node_modules not found in artifacts/mobile. Installing workspace dependencies...");
+
+  const args = ["-C", workspaceRoot, "install"];
+  if (fs.existsSync(path.join(workspaceRoot, "pnpm-lock.yaml"))) {
+    args.push("--frozen-lockfile");
+  }
+
+  await runProcess("pnpm", args, { stdio: "inherit", cwd: workspaceRoot, env: process.env });
+}
+
 function exitWithError(message) {
   console.error(message);
   if (metroProcess) {
@@ -509,6 +540,12 @@ async function main() {
   console.log("Building static Expo Go deployment...");
 
   setupSignalHandlers();
+
+  try {
+    await ensureDependenciesInstalled();
+  } catch (error) {
+    exitWithError(`Dependency install failed: ${error.message}`);
+  }
 
   const domain = getDeploymentDomain();
   const expoPublicReplId = getExpoPublicReplId();

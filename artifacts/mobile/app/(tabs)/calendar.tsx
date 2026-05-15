@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Bell, CalendarDays, ChevronLeft, ChevronRight, Droplet, Heart, SprayCan } from "lucide-react-native";
 
 import { NavigationMenuButton } from "@/components/NavigationMenu";
+import { QuickAccessBar, QUICK_ACCESS_BAR_HEIGHT } from "@/components/QuickAccessBar";
 import { getIntervalMs, usePlants } from "@/context/PlantContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
@@ -270,7 +271,10 @@ export default function CalendarScreen() {
             keyExtractor={(e) => e.id}
             contentContainerStyle={[
               styles.list,
-              { paddingBottom: Platform.OS === "web" ? 34 : 24 + insets.bottom },
+              {
+                paddingBottom:
+                  (Platform.OS === "web" ? 34 : 24 + insets.bottom) + QUICK_ACCESS_BAR_HEIGHT,
+              },
             ]}
             renderItem={({ item }) => (
               <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
@@ -301,7 +305,10 @@ export default function CalendarScreen() {
           keyExtractor={(s) => s.key}
           contentContainerStyle={[
             styles.list,
-            { paddingBottom: Platform.OS === "web" ? 34 : 24 + insets.bottom },
+            {
+              paddingBottom:
+                (Platform.OS === "web" ? 34 : 24 + insets.bottom) + QUICK_ACCESS_BAR_HEIGHT,
+            },
           ]}
           renderItem={({ item: section }) => (
             <View style={styles.section}>
@@ -351,6 +358,7 @@ export default function CalendarScreen() {
           showsVerticalScrollIndicator={false}
         />
       )}
+      <QuickAccessBar />
     </View>
   );
 

@@ -14,21 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
-
-type NavItem = {
-  label: string;
-  href: string;
-  icon: keyof typeof Ionicons.glyphMap;
-};
-
-const NAV_ITEMS: NavItem[] = [
-  { label: "Сегодня", href: "/today", icon: "sunny-outline" },
-  { label: "Календарь", href: "/calendar", icon: "calendar-outline" },
-  { label: "Мой сад", href: "/", icon: "leaf-outline" },
-  { label: "Каталог", href: "/catalog", icon: "book-outline" },
-  { label: "Добавить растение", href: "/add", icon: "add-circle-outline" },
-  { label: "Настройки", href: "/settings", icon: "settings-outline" },
-];
+import { NAV_ITEMS } from "@/constants/navigation";
 
 export function NavigationMenuButton() {
   const colors = useColors();
@@ -136,4 +122,3 @@ const styles = StyleSheet.create({
   },
   rowText: { fontSize: 14, fontFamily: "Inter_600SemiBold", flex: 1 },
 });
-

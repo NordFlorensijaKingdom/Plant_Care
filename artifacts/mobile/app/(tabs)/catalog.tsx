@@ -14,6 +14,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { NavigationMenuButton } from "@/components/NavigationMenu";
+import { QuickAccessBar, QUICK_ACCESS_BAR_HEIGHT } from "@/components/QuickAccessBar";
 import type { CareDifficulty, LightLevel } from "@/context/PlantContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
@@ -288,7 +289,10 @@ export default function CatalogScreen() {
           renderItem={({ item }) => <PlantRow item={item} />}
           contentContainerStyle={[
             styles.list,
-            { paddingBottom: Platform.OS === "web" ? 34 : 24 + insets.bottom },
+            {
+              paddingBottom:
+                (Platform.OS === "web" ? 34 : 24 + insets.bottom) + QUICK_ACCESS_BAR_HEIGHT,
+            },
           ]}
           showsVerticalScrollIndicator={false}
         />
@@ -299,11 +303,15 @@ export default function CatalogScreen() {
           renderItem={({ item }) => <ProblemRow item={item} />}
           contentContainerStyle={[
             styles.list,
-            { paddingBottom: Platform.OS === "web" ? 34 : 24 + insets.bottom },
+            {
+              paddingBottom:
+                (Platform.OS === "web" ? 34 : 24 + insets.bottom) + QUICK_ACCESS_BAR_HEIGHT,
+            },
           ]}
           showsVerticalScrollIndicator={false}
         />
       )}
+      <QuickAccessBar />
     </View>
   );
 }

@@ -17,6 +17,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ColorPickerModal } from "@/components/ColorPickerModal";
 import { NavigationMenuButton } from "@/components/NavigationMenu";
+import { QuickAccessBar, QUICK_ACCESS_BAR_HEIGHT } from "@/components/QuickAccessBar";
+import { NAV_ITEMS } from "@/constants/navigation";
 import {
   ACCENT_PRESETS,
   BACKGROUND_PRESETS,
@@ -239,6 +241,29 @@ export default function SettingsScreen() {
   const effectiveSecondary = theme.secondaryTextColor ?? "#6B8F7A";
   const effectiveCard = theme.cardColor ?? colors.card;
 
+  function toggleQuickAccess(href: string) {
+    const selected = appSettings.quickAccessPages;
+    const isSelected = selected.includes(href);
+
+    if (isSelected) {
+      if (selected.length <= 1) {
+        Alert.alert("Нужно выбрать хотя бы 1 страницу");
+        return;
+      }
+      appSettings.setQuickAccessPages(selected.filter((h) => h !== href));
+      Haptics.selectionAsync();
+      return;
+    }
+
+    if (selected.length >= 3) {
+      Alert.alert("Максимум 3 страницы", "Уберите одну из выбранных страниц, чтобы добавить другую.");
+      return;
+    }
+
+    appSettings.setQuickAccessPages([...selected, href]);
+    Haptics.selectionAsync();
+  }
+
   async function toggleNotifications(val: boolean) {
     if (!val) {
       appSettings.setNotificationsEnabled(false);
@@ -340,9 +365,48 @@ export default function SettingsScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.content,
-          { paddingBottom: Platform.OS === "web" ? 34 : 24 + insets.bottom },
+          {
+            paddingBottom:
+              (Platform.OS === "web" ? 34 : 24 + insets.bottom) + QUICK_ACCESS_BAR_HEIGHT,
+          },
         ]}
       >
+        <Text style={shLabel}>БЫСТРЫЙ ДОСТУП</Text>
+        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Text style={[styles.qaDesc, { color: colors.mutedForeground }]}>
+            Выберите 1–3 страницы для нижней панели
+          </Text>
+          {NAV_ITEMS.map((item, idx) => {
+            const selected = appSettings.quickAccessPages.includes(item.href);
+            const disabled = !selected && appSettings.quickAccessPages.length >= 3;
+
+            return (
+              <View key={item.href}>
+                {idx !== 0 && <View style={[styles.qaDivider, { backgroundColor: colors.border }]} />}
+                <TouchableOpacity
+                  onPress={() => toggleQuickAccess(item.href)}
+                  disabled={disabled}
+                  style={[styles.qaRow, disabled ? { opacity: 0.5 } : null]}
+                >
+                  <View style={styles.switchInfo}>
+                    <Ionicons name={item.icon} size={20} color={theme.uiColor} />
+                    <View style={{ flex: 1 }}>
+                      <Text style={[styles.switchLabel, { color: theme.textColor }]}>
+                        {item.label}
+                      </Text>
+                    </View>
+                  </View>
+                  {selected ? (
+                    <Ionicons name="checkmark-circle" size={22} color={theme.uiColor} />
+                  ) : (
+                    <Ionicons name="ellipse-outline" size={22} color={colors.border} />
+                  )}
+                </TouchableOpacity>
+              </View>
+            );
+          })}
+        </View>
+
         {/* ── CUSTOM THEME ── */}
         <Text style={shLabel}>ТЕМА</Text>
 
@@ -583,6 +647,7 @@ export default function SettingsScreen() {
           </Text>
         </TouchableOpacity>
       </ScrollView>
+      <QuickAccessBar />
     </View>
   );
 }
@@ -748,6 +813,14 @@ const styles = StyleSheet.create({
     borderStyle: "dashed",
   },
   bgPickerText: { fontSize: 14, fontFamily: "Inter_500Medium" },
+  qaDesc: { fontSize: 12, fontFamily: "Inter_400Regular", marginBottom: 10 },
+  qaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 10,
+  },
+  qaDivider: { height: 1, opacity: 0.5 },
   divider: { height: 1, marginVertical: 12, opacity: 0.5 },
   switchRow: {
     flexDirection: "row",

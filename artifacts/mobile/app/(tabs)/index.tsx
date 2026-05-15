@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PlantCard } from "@/components/PlantCard";
 import { NavigationMenuButton } from "@/components/NavigationMenu";
+import { QuickAccessBar, QUICK_ACCESS_BAR_HEIGHT } from "@/components/QuickAccessBar";
 import { usePlants } from "@/context/PlantContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
@@ -120,13 +121,14 @@ export default function GardenScreen() {
             styles.list,
             {
               paddingBottom:
-                Platform.OS === "web" ? 34 : 24 + insets.bottom,
+                (Platform.OS === "web" ? 34 : 24 + insets.bottom) + QUICK_ACCESS_BAR_HEIGHT,
             },
           ]}
           showsVerticalScrollIndicator={false}
           scrollEnabled={!!plants.length}
         />
       )}
+      <QuickAccessBar />
     </View>
   );
 

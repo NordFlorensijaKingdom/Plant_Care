@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Bell, Check, Clock, Droplet, SprayCan } from "lucide-react-native";
 
 import { NavigationMenuButton } from "@/components/NavigationMenu";
+import { QuickAccessBar, QUICK_ACCESS_BAR_HEIGHT } from "@/components/QuickAccessBar";
 import { usePlants, getIntervalMs } from "@/context/PlantContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
@@ -133,7 +134,7 @@ export default function TodayScreen() {
             styles.list,
             {
               paddingBottom:
-                Platform.OS === "web" ? 34 : 24 + insets.bottom,
+                (Platform.OS === "web" ? 34 : 24 + insets.bottom) + QUICK_ACCESS_BAR_HEIGHT,
             },
           ]}
           renderItem={({ item }) => (
@@ -198,6 +199,7 @@ export default function TodayScreen() {
           showsVerticalScrollIndicator={false}
         />
       )}
+      <QuickAccessBar />
     </View>
   );
 

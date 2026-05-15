@@ -20,6 +20,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ArrowLeft, Calendar, Camera, Check, ChevronDown, Droplet, Heart, Info, Pencil, SprayCan } from "lucide-react-native";
 
 import { NavigationMenuButton } from "@/components/NavigationMenu";
+import { QuickAccessBar, QUICK_ACCESS_BAR_HEIGHT } from "@/components/QuickAccessBar";
 import {
   HEALTH_STATUS_CONFIG,
   CareDifficulty,
@@ -570,7 +571,10 @@ export default function AddPlantScreen() {
         style={styles.scroll}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: Platform.OS === "web" ? 34 : 24 + insets.bottom },
+          {
+            paddingBottom:
+              (Platform.OS === "web" ? 34 : 24 + insets.bottom) + QUICK_ACCESS_BAR_HEIGHT,
+          },
         ]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
@@ -822,6 +826,7 @@ export default function AddPlantScreen() {
           <Text style={styles.saveButtonText}>Добавить растение</Text>
         </TouchableOpacity>
       </ScrollView>
+      <QuickAccessBar />
     </View>
   );
 }

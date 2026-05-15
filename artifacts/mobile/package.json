@@ -62,7 +62,6 @@
     "zod-validation-error": "^3.4.0"
   },
   "dependencies": {
-    "@bacons/apple-targets": "^4.0.7",
     "android-glance-widget-expo": "^0.2.0",
     "lucide-react-native": "^1.14.0",
     "reanimated-color-picker": "^4.2.0"

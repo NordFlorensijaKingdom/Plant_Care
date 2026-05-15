@@ -30,6 +30,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import androidx.glance.unit.sp
+import com.user.plantcare.R
 import org.json.JSONObject
 
 private const val PREFS_SUFFIX = ".glance_widget"

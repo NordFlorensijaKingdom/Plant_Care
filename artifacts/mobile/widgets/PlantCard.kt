@@ -13,12 +13,15 @@ import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.provideContent
+import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
+import androidx.glance.layout.defaultWeight
+import androidx.glance.layout.fillMaxHeight
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
@@ -103,82 +106,121 @@ private fun PlantCardContent(context: Context) {
 
     val accent = parseColor(plant.healthColor)
     val clickAction = actionStartActivity(ComponentName(context, MainActivity::class.java))
+    val textPrimary = Color(0xFF0B1F16)
+    val textSecondary = Color(0xFF6B8F7A)
+    val track = Color(0xFFDDEBE1)
+    val fill = Color(0xFF0B6B47)
+    val chipBg = Color(0xFFF6E6DC)
+    val chipText = Color(0xFFE38B3D)
 
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
-            .background(ColorProvider(Color.White))
-            .padding(16.dp)
-            .clickable(clickAction),
-        contentAlignment = Alignment.CenterStart
+            .background(ColorProvider(Color(0xFFF3F7F5)))
+            .padding(10.dp)
+            .clickable(clickAction)
     ) {
-        Column(modifier = GlanceModifier.fillMaxWidth()) {
-            Row(verticalAlignment = Alignment.Vertical.CenterVertically) {
-                Box(
-                    modifier = GlanceModifier
-                        .size(44.dp)
-                        .background(ColorProvider(accent.copy(alpha = 0.14f))),
-                    contentAlignment = Alignment.Center
+        Box(
+            modifier = GlanceModifier
+                .fillMaxSize()
+                .background(ColorProvider(Color.White))
+                .cornerRadius(26.dp)
+                .padding(18.dp)
+        ) {
+            Column(modifier = GlanceModifier.fillMaxWidth()) {
+                Row(
+                    modifier = GlanceModifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.Vertical.CenterVertically
                 ) {
-                    Image(
-                        provider = ImageProvider(R.drawable.widget_leaf),
-                        contentDescription = null,
-                        modifier = GlanceModifier.size(22.dp)
-                    )
+                    Box(
+                        modifier = GlanceModifier
+                            .size(64.dp)
+                            .background(ColorProvider(Color(0xFFF1F6F3)))
+                            .cornerRadius(18.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            provider = ImageProvider(R.drawable.widget_leaf),
+                            contentDescription = null,
+                            modifier = GlanceModifier.size(42.dp)
+                        )
+                    }
+
+                    Spacer(modifier = GlanceModifier.width(14.dp))
+
+                    Column(modifier = GlanceModifier.defaultWeight(1f)) {
+                        Text(
+                            plant.name,
+                            maxLines = 1,
+                            style = TextStyle(
+                                color = ColorProvider(textPrimary),
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
+                        Spacer(modifier = GlanceModifier.height(4.dp))
+                        Text(
+                            plant.species,
+                            maxLines = 1,
+                            style = TextStyle(
+                                color = ColorProvider(textSecondary),
+                                fontSize = 16.sp,
+                                fontStyle = FontStyle.Italic
+                            )
+                        )
+                        Spacer(modifier = GlanceModifier.height(10.dp))
+                        Box(
+                            modifier = GlanceModifier
+                                .background(ColorProvider(chipBg))
+                                .cornerRadius(999.dp)
+                                .padding(horizontal = 14.dp, vertical = 8.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                "⚠ ${plant.healthLabel}",
+                                maxLines = 1,
+                                style = TextStyle(
+                                    color = ColorProvider(chipText),
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = GlanceModifier.width(14.dp))
+
+                    Column(horizontalAlignment = Alignment.Horizontal.CenterHorizontally) {
+                        ActionIcon("💧", fill)
+                        Spacer(modifier = GlanceModifier.height(12.dp))
+                        ActionIcon("🌧", fill)
+                    }
                 }
 
-                Spacer(modifier = GlanceModifier.width(12.dp))
+                Spacer(modifier = GlanceModifier.height(18.dp))
 
-                Column(modifier = GlanceModifier.fillMaxWidth()) {
-                    Text(
-                        plant.name,
-                        maxLines = 1,
-                        style = TextStyle(
-                            color = ColorProvider(Color(0xFF0B1F16)),
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                if (plant.wateringEnabled) {
+                    ProgressRow(
+                        label = "💧",
+                        progress = plant.waterProgress,
+                        remaining = plant.waterRemaining,
+                        accent = fill,
+                        track = track,
+                        textSecondary = textSecondary
                     )
-                    Text(
-                        plant.species,
-                        maxLines = 1,
-                        style = TextStyle(
-                            color = ColorProvider(Color(0xFF6B8F7A)),
-                            fontSize = 13.sp,
-                            fontStyle = FontStyle.Italic
-                        )
-                    )
-                    Text(
-                        plant.healthLabel,
-                        maxLines = 1,
-                        style = TextStyle(
-                            color = ColorProvider(accent),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                    )
+                    Spacer(modifier = GlanceModifier.height(14.dp))
                 }
 
-            }
-
-            Spacer(modifier = GlanceModifier.height(12.dp))
-
-            if (plant.wateringEnabled) {
-                ProgressRow(
-                    label = "💧",
-                    progress = plant.waterProgress,
-                    remaining = plant.waterRemaining,
-                    accent = accent
-                )
-                Spacer(modifier = GlanceModifier.height(10.dp))
-            }
-            if (plant.mistingEnabled) {
-                ProgressRow(
-                    label = "🌧",
-                    progress = plant.mistProgress,
-                    remaining = plant.mistRemaining,
-                    accent = accent
-                )
+                if (plant.mistingEnabled) {
+                    ProgressRow(
+                        label = "🌧",
+                        progress = plant.mistProgress,
+                        remaining = plant.mistRemaining,
+                        accent = fill,
+                        track = track,
+                        textSecondary = textSecondary
+                    )
+                }
             }
         }
     }
@@ -209,12 +251,42 @@ private fun EmptyState() {
 
 @androidx.compose.runtime.Composable
 private fun ProgressRow(label: String, progress: Double, remaining: String, accent: Color) {
-    val p = progress.coerceIn(0.0, 1.0)
-    val fill = when {
-        p >= 1.0 -> Color.Red
-        p >= 0.75 -> Color(0xFFF4A261)
-        else -> accent
+    ProgressRow(label, progress, remaining, accent, Color(0xFFDDEBE1), Color(0xFF6B8F7A))
+}
+
+@androidx.compose.runtime.Composable
+private fun ActionIcon(icon: String, color: Color) {
+    Box(
+        modifier = GlanceModifier
+            .size(56.dp)
+            .background(ColorProvider(Color(0xFFF1F6F3)))
+            .cornerRadius(18.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            icon,
+            maxLines = 1,
+            style = TextStyle(
+                color = ColorProvider(color),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+        )
     }
+}
+
+@androidx.compose.runtime.Composable
+private fun ProgressRow(
+    label: String,
+    progress: Double,
+    remaining: String,
+    accent: Color,
+    track: Color,
+    textSecondary: Color
+) {
+    val p = progress.coerceIn(0.0, 1.0).toFloat()
+    val filled = if (p <= 0f) 0.001f else p
+    val empty = if (p >= 1f) 0.001f else 1f - p
 
     Row(
         modifier = GlanceModifier.fillMaxWidth(),
@@ -222,17 +294,42 @@ private fun ProgressRow(label: String, progress: Double, remaining: String, acce
     ) {
         Text(
             label,
-            style = TextStyle(color = ColorProvider(fill), fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            maxLines = 1,
+            style = TextStyle(color = ColorProvider(accent), fontSize = 18.sp, fontWeight = FontWeight.Medium)
         )
-        Spacer(modifier = GlanceModifier.width(8.dp))
-        Text(
-            "${(p * 100).toInt()}%",
-            style = TextStyle(color = ColorProvider(Color(0xFF6B8F7A)), fontSize = 12.sp)
-        )
-        Spacer(modifier = GlanceModifier.width(8.dp))
+
+        Spacer(modifier = GlanceModifier.width(12.dp))
+
+        Row(
+            modifier = GlanceModifier
+                .defaultWeight(1f)
+                .height(10.dp)
+                .cornerRadius(999.dp)
+        ) {
+            Box(
+                modifier = GlanceModifier
+                    .defaultWeight(filled)
+                    .fillMaxHeight()
+                    .background(ColorProvider(accent))
+            )
+            Box(
+                modifier = GlanceModifier
+                    .defaultWeight(empty)
+                    .fillMaxHeight()
+                    .background(ColorProvider(track))
+            )
+        }
+
+        Spacer(modifier = GlanceModifier.width(12.dp))
+
         Text(
             remaining,
-            style = TextStyle(color = ColorProvider(Color(0xFF6B8F7A)), fontSize = 12.sp, fontWeight = FontWeight.Medium)
+            maxLines = 1,
+            style = TextStyle(
+                color = ColorProvider(textSecondary),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
         )
     }
 }

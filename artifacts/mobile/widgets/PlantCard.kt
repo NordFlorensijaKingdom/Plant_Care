@@ -20,7 +20,6 @@ import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
-import androidx.glance.layout.defaultWeight
 import androidx.glance.layout.fillMaxHeight
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
@@ -148,7 +147,7 @@ private fun PlantCardContent(context: Context) {
 
                     Spacer(modifier = GlanceModifier.width(14.dp))
 
-                    Column(modifier = GlanceModifier.defaultWeight(1f)) {
+                    Column(modifier = GlanceModifier.defaultWeight()) {
                         Text(
                             plant.name,
                             maxLines = 1,
@@ -302,19 +301,19 @@ private fun ProgressRow(
 
         Row(
             modifier = GlanceModifier
-                .defaultWeight(1f)
+                .defaultWeight()
                 .height(10.dp)
                 .cornerRadius(999.dp)
         ) {
             Box(
                 modifier = GlanceModifier
-                    .defaultWeight(filled)
+                    .weight(filled)
                     .fillMaxHeight()
                     .background(ColorProvider(accent))
             )
             Box(
                 modifier = GlanceModifier
-                    .defaultWeight(empty)
+                    .weight(empty)
                     .fillMaxHeight()
                     .background(ColorProvider(track))
             )

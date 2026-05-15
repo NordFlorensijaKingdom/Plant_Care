@@ -807,6 +807,8 @@ export default function PlantDetailScreen() {
                 color={activeTab === tab.key ? theme.uiColor : colors.mutedForeground}
               />
               <Text
+                numberOfLines={1}
+                ellipsizeMode="tail"
                 style={[
                   styles.tabText,
                   {
@@ -1325,11 +1327,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 5,
+    paddingHorizontal: 6,
     paddingVertical: 11,
     borderBottomWidth: 2,
     borderBottomColor: "transparent",
   },
-  tabText: { fontSize: 12, fontFamily: "Inter_600SemiBold" },
+  tabText: { fontSize: 12, fontFamily: "Inter_600SemiBold", flexShrink: 1, minWidth: 0 },
   galleryContent: { padding: 14, gap: 2 },
   photoTile: { margin: 1, overflow: "hidden", borderRadius: 4 },
   photoTileImg: { width: "100%", height: "100%" },

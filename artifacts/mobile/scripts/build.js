@@ -47,8 +47,16 @@ function getExpoRouterEntryPath() {
 }
 
 async function ensureDependenciesInstalled() {
+  const requiredPackages = [
+    "expo-router",
+    "expo-image-picker",
+    "expo-notifications",
+    "expo-font",
+    "android-glance-widget-expo",
+  ];
+
   try {
-    resolvePackageJson("expo-router");
+    requiredPackages.forEach((pkg) => resolvePackageJson(pkg));
     return;
   } catch {}
 
@@ -59,13 +67,27 @@ async function ensureDependenciesInstalled() {
   try {
     await runProcess(
       "pnpm",
-      ["-C", workspaceRoot, "install", "--frozen-lockfile", "--config.node-linker=hoisted"],
+      [
+        "-C",
+        workspaceRoot,
+        "install",
+        "--frozen-lockfile",
+        "--prod=false",
+        "--config.node-linker=hoisted",
+      ],
       options,
     );
   } catch {
     await runProcess(
       "pnpm",
-      ["-C", workspaceRoot, "install", "--no-frozen-lockfile", "--config.node-linker=hoisted"],
+      [
+        "-C",
+        workspaceRoot,
+        "install",
+        "--no-frozen-lockfile",
+        "--prod=false",
+        "--config.node-linker=hoisted",
+      ],
       options,
     );
   }

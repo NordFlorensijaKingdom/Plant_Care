@@ -97,6 +97,11 @@ module.exports = () => {
     ],
     scheme: "plant-care-app",
     experiments: { typedRoutes: true },
+    extra: {
+      eas: {
+        projectId: "16c679cb-7504-498c-af48-0f9bb099627d",
+      },
+    },
   };
 
   const plugins = Array.isArray(expo.plugins) ? expo.plugins : [];

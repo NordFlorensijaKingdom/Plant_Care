@@ -1,9 +1,10 @@
 package com.user.plantcare.widgets
 
+import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
@@ -29,7 +30,7 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
-import androidx.glance.unit.sp
+import com.user.plantcare.MainActivity
 import com.user.plantcare.R
 import org.json.JSONObject
 
@@ -94,23 +95,21 @@ private fun parseColor(hex: String, fallback: Color = Color(0xFF2D6A4F)): Color 
 
 @androidx.compose.runtime.Composable
 private fun PlantCardContent(context: Context) {
-    val data = load(context)
-    if (data == null) {
+    val plant = load(context)
+    if (plant == null) {
         EmptyState()
         return
     }
 
-    val accent = parseColor(data.healthColor)
-    val clickIntent = Intent(Intent.ACTION_VIEW).apply {
-        data = android.net.Uri.parse("plant-care-app://plant/${data.id}")
-    }
+    val accent = parseColor(plant.healthColor)
+    val clickAction = actionStartActivity(ComponentName(context, MainActivity::class.java))
 
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
             .background(ColorProvider(Color.White))
             .padding(16.dp)
-            .clickable(actionStartActivity(clickIntent)),
+            .clickable(clickAction),
         contentAlignment = Alignment.CenterStart
     ) {
         Column(modifier = GlanceModifier.fillMaxWidth()) {
@@ -132,7 +131,7 @@ private fun PlantCardContent(context: Context) {
 
                 Column(modifier = GlanceModifier.fillMaxWidth()) {
                     Text(
-                        data.name,
+                        plant.name,
                         maxLines = 1,
                         style = TextStyle(
                             color = ColorProvider(Color(0xFF0B1F16)),
@@ -141,7 +140,7 @@ private fun PlantCardContent(context: Context) {
                         )
                     )
                     Text(
-                        data.species,
+                        plant.species,
                         maxLines = 1,
                         style = TextStyle(
                             color = ColorProvider(Color(0xFF6B8F7A)),
@@ -150,7 +149,7 @@ private fun PlantCardContent(context: Context) {
                         )
                     )
                     Text(
-                        data.healthLabel,
+                        plant.healthLabel,
                         maxLines = 1,
                         style = TextStyle(
                             color = ColorProvider(accent),
@@ -164,20 +163,20 @@ private fun PlantCardContent(context: Context) {
 
             Spacer(modifier = GlanceModifier.height(12.dp))
 
-            if (data.wateringEnabled) {
+            if (plant.wateringEnabled) {
                 ProgressRow(
                     label = "💧",
-                    progress = data.waterProgress,
-                    remaining = data.waterRemaining,
+                    progress = plant.waterProgress,
+                    remaining = plant.waterRemaining,
                     accent = accent
                 )
                 Spacer(modifier = GlanceModifier.height(10.dp))
             }
-            if (data.mistingEnabled) {
+            if (plant.mistingEnabled) {
                 ProgressRow(
                     label = "🌧",
-                    progress = data.mistProgress,
-                    remaining = data.mistRemaining,
+                    progress = plant.mistProgress,
+                    remaining = plant.mistRemaining,
                     accent = accent
                 )
             }

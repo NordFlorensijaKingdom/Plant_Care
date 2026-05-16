@@ -12,7 +12,6 @@ import androidx.glance.ImageProvider
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
-import androidx.glance.appwidget.LinearProgressIndicator
 import androidx.glance.appwidget.provideContent
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
@@ -103,11 +102,9 @@ private fun PlantCardContent(context: Context) {
         return
     }
 
-    val accent = parseColor(plant.healthColor)
     val clickAction = actionStartActivity(ComponentName(context, MainActivity::class.java))
     val textPrimary = Color(0xFF0B1F16)
     val textSecondary = Color(0xFF6B8F7A)
-    val track = Color(0xFFDDEBE1)
     val fill = Color(0xFF0B6B47)
     val chipBg = Color(0xFFF6E6DC)
     val chipText = Color(0xFFE38B3D)
@@ -190,35 +187,16 @@ private fun PlantCardContent(context: Context) {
                     Spacer(modifier = GlanceModifier.width(14.dp))
 
                     Column(horizontalAlignment = Alignment.Horizontal.CenterHorizontally) {
-                        ActionIcon("💧", fill)
-                        Spacer(modifier = GlanceModifier.height(12.dp))
-                        ActionIcon("🌧", fill)
+                        if (plant.wateringEnabled) {
+                            TimerBadge("💧", plant.waterRemaining, fill)
+                        }
+                        if (plant.wateringEnabled && plant.mistingEnabled) {
+                            Spacer(modifier = GlanceModifier.height(10.dp))
+                        }
+                        if (plant.mistingEnabled) {
+                            TimerBadge("🌧", plant.mistRemaining, fill)
+                        }
                     }
-                }
-
-                Spacer(modifier = GlanceModifier.height(18.dp))
-
-                if (plant.wateringEnabled) {
-                    ProgressRow(
-                        label = "💧",
-                        progress = plant.waterProgress,
-                        remaining = plant.waterRemaining,
-                        accent = fill,
-                        track = track,
-                        textSecondary = textSecondary
-                    )
-                    Spacer(modifier = GlanceModifier.height(14.dp))
-                }
-
-                if (plant.mistingEnabled) {
-                    ProgressRow(
-                        label = "🌧",
-                        progress = plant.mistProgress,
-                        remaining = plant.mistRemaining,
-                        accent = fill,
-                        track = track,
-                        textSecondary = textSecondary
-                    )
                 }
             }
         }
@@ -249,74 +227,35 @@ private fun EmptyState() {
 }
 
 @androidx.compose.runtime.Composable
-private fun ProgressRow(label: String, progress: Double, remaining: String, accent: Color) {
-    ProgressRow(label, progress, remaining, accent, Color(0xFFDDEBE1), Color(0xFF6B8F7A))
-}
-
-@androidx.compose.runtime.Composable
-private fun ActionIcon(icon: String, color: Color) {
+private fun TimerBadge(icon: String, remaining: String, color: Color) {
+    val value = remaining.ifBlank { "—" }
     Box(
         modifier = GlanceModifier
-            .size(56.dp)
             .background(ColorProvider(Color(0xFFF1F6F3)))
-            .cornerRadius(18.dp),
+            .cornerRadius(18.dp)
+            .padding(horizontal = 12.dp, vertical = 10.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            icon,
-            maxLines = 1,
-            style = TextStyle(
-                color = ColorProvider(color),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
+        Row(verticalAlignment = Alignment.Vertical.CenterVertically) {
+            Text(
+                icon,
+                maxLines = 1,
+                style = TextStyle(
+                    color = ColorProvider(color),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
             )
-        )
-    }
-}
-
-@androidx.compose.runtime.Composable
-private fun ProgressRow(
-    label: String,
-    progress: Double,
-    remaining: String,
-    accent: Color,
-    track: Color,
-    textSecondary: Color
-) {
-    val p = progress.coerceIn(0.0, 1.0).toFloat()
-
-    Row(
-        modifier = GlanceModifier.fillMaxWidth(),
-        verticalAlignment = Alignment.Vertical.CenterVertically
-    ) {
-        Text(
-            label,
-            maxLines = 1,
-            style = TextStyle(color = ColorProvider(accent), fontSize = 18.sp, fontWeight = FontWeight.Medium)
-        )
-
-        Spacer(modifier = GlanceModifier.width(12.dp))
-
-        LinearProgressIndicator(
-            progress = p,
-            modifier = GlanceModifier
-                .defaultWeight()
-                .height(10.dp)
-                .cornerRadius(999.dp),
-            color = ColorProvider(accent),
-            backgroundColor = ColorProvider(track)
-        )
-
-        Spacer(modifier = GlanceModifier.width(12.dp))
-
-        Text(
-            remaining,
-            maxLines = 1,
-            style = TextStyle(
-                color = ColorProvider(textSecondary),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
+            Spacer(modifier = GlanceModifier.width(6.dp))
+            Text(
+                value,
+                maxLines = 1,
+                style = TextStyle(
+                    color = ColorProvider(Color(0xFF0B1F16)),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium
+                )
             )
-        )
+        }
     }
 }

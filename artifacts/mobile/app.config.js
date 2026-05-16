@@ -98,7 +98,9 @@ module.exports = () => {
     scheme: "plant-care-app",
     experiments: { typedRoutes: true },
     extra: {
-      eas: {},
+      eas: {
+        projectId: "81c6efee-ea61-4ce1-b358-7a8bf94dcc73",
+      },
     },
   };
 

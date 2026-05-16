@@ -12,6 +12,7 @@ import androidx.glance.ImageProvider
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.LinearProgressIndicator
 import androidx.glance.appwidget.provideContent
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
@@ -20,7 +21,6 @@ import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
-import androidx.glance.layout.fillMaxHeight
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
@@ -284,8 +284,6 @@ private fun ProgressRow(
     textSecondary: Color
 ) {
     val p = progress.coerceIn(0.0, 1.0).toFloat()
-    val filled = if (p <= 0f) 0.001f else p
-    val empty = if (p >= 1f) 0.001f else 1f - p
 
     Row(
         modifier = GlanceModifier.fillMaxWidth(),
@@ -299,25 +297,15 @@ private fun ProgressRow(
 
         Spacer(modifier = GlanceModifier.width(12.dp))
 
-        Row(
+        LinearProgressIndicator(
+            progress = p,
             modifier = GlanceModifier
                 .defaultWeight()
                 .height(10.dp)
-                .cornerRadius(999.dp)
-        ) {
-            Box(
-                modifier = GlanceModifier
-                    .weight(filled)
-                    .fillMaxHeight()
-                    .background(ColorProvider(accent))
-            )
-            Box(
-                modifier = GlanceModifier
-                    .weight(empty)
-                    .fillMaxHeight()
-                    .background(ColorProvider(track))
-            )
-        }
+                .cornerRadius(999.dp),
+            color = ColorProvider(accent),
+            backgroundColor = ColorProvider(track)
+        )
 
         Spacer(modifier = GlanceModifier.width(12.dp))
 

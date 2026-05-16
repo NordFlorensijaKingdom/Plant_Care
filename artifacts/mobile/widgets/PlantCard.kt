@@ -112,7 +112,7 @@ private fun PlantCardContent(context: Context) {
     Box(
         modifier = GlanceModifier
             .fillMaxSize()
-            .background(ColorProvider(Color(0xFFF3F7F5)))
+            .background(ColorProvider(Color(0xFF1A2E25)))
             .padding(10.dp)
             .clickable(clickAction)
     ) {
